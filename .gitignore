@@ -1,0 +1,11 @@
+# macOS
+.DS_Store
+
+# Local Claude settings
+.claude/
+
+# Private client documents
+*.docx
+
+# Build artifacts (populated separately)
+dist/

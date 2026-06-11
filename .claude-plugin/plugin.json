@@ -1,0 +1,96 @@
+{
+  "name": "ai-chief-of-staff",
+  "version": "1.0.0",
+  "description": "A personal AI Chief of Staff for executives. Maintains a structured knowledge base that compounds over time — knows your business, remembers context, and works alongside you every day. Based on the Karpathy LLM wiki pattern: no vector database, no embeddings, just a human-readable Markdown wiki that grows more valuable with every session.",
+  "author": {
+    "name": "Shahed Khalili / Parallel79",
+    "email": "shahed@parallel79.com"
+  },
+  "homepage": "https://parallel79.com",
+  "repository": "https://github.com/pifpof/parallel79-cof",
+  "license": "MIT",
+  "keywords": [
+    "chief-of-staff",
+    "knowledge-management",
+    "executive",
+    "productivity",
+    "memory",
+    "wiki",
+    "personal-knowledge-base",
+    "pkm"
+  ],
+  "skills": [
+    {
+      "name": "onboard",
+      "path": "skills/onboard/SKILL.md",
+      "description": "First-time setup. Guides a new executive through defining their Chief of Staff persona and briefing it on their business, priorities, and key people. Seeds the vault and writes the profile. Run this once before any other skill.",
+      "command": "/onboard",
+      "version": "1.0.0",
+      "tags": ["setup", "onboarding"]
+    },
+    {
+      "name": "load",
+      "path": "skills/load/SKILL.md",
+      "description": "Start of session. Reads the vault and opens with a structured brief covering where things stand, what needs attention, and a suggested focus. The executive never has to catch the system up.",
+      "command": "/load",
+      "version": "1.0.0",
+      "tags": ["session", "daily"]
+    },
+    {
+      "name": "save",
+      "path": "skills/save/SKILL.md",
+      "description": "End of session. Synthesizes everything significant from the conversation and writes it back to memory — shifted priorities, decisions made, new context, new people. This is the habit that makes the system compound.",
+      "command": "/save",
+      "version": "1.0.0",
+      "tags": ["session", "memory"]
+    },
+    {
+      "name": "brief",
+      "path": "skills/brief/SKILL.md",
+      "description": "Daily morning read. Delivers a fast, focused one-page brief of what matters today — open loops, time-sensitive items, calendar context. Shorter and lighter than a full session load.",
+      "command": "/brief",
+      "version": "1.0.0",
+      "tags": ["daily", "brief"]
+    },
+    {
+      "name": "review",
+      "path": "skills/review/SKILL.md",
+      "description": "Weekly review. Honest look back at what moved and what stalled, pattern recognition across projects and weeks, and a clear setup for the week ahead with one priority and three intentions. Self-saves to memory.",
+      "command": "/review",
+      "version": "1.0.0",
+      "tags": ["weekly", "review"]
+    },
+    {
+      "name": "capture",
+      "path": "skills/capture/SKILL.md",
+      "description": "Ingest a single source — URL, file, or pasted text — into the system. Preserves the raw material in /data and compiles the relevant knowledge into the wiki, cross-linked to existing memory.",
+      "command": "/capture",
+      "version": "1.0.0",
+      "tags": ["ingest", "knowledge"]
+    },
+    {
+      "name": "sync",
+      "path": "skills/sync/SKILL.md",
+      "description": "Batch ingest. Scans /data for raw sources that haven't been compiled into memory yet and processes them all. Use when multiple files have been dropped in without running /capture on each.",
+      "command": "/sync",
+      "version": "1.0.0",
+      "tags": ["ingest", "maintenance"]
+    },
+    {
+      "name": "query",
+      "path": "skills/query/SKILL.md",
+      "description": "Ask a question against the compiled wiki. Answers are drawn from the executive's own accumulated knowledge — grounded, coherent, and traceable. The longer the system has been running, the better the answers.",
+      "command": "/query",
+      "version": "1.0.0",
+      "tags": ["retrieval", "knowledge"]
+    },
+    {
+      "name": "lint",
+      "path": "skills/lint/SKILL.md",
+      "description": "Health check. Scans memory for missing metadata, stale files, orphaned sources, broken lineage, and contradictions. Fixes what is safe automatically and surfaces judgment calls for the executive. Run weekly or monthly.",
+      "command": "/lint",
+      "version": "1.0.0",
+      "tags": ["maintenance", "health"]
+    }
+  ]
+}
