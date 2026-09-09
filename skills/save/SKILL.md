@@ -119,7 +119,7 @@ After all files are written, update `memory.md` to reflect what changed:
 - Update summaries for any files that changed significantly
 - Remove entries for any files moved to `/trash`
 
-`memory.md` is the index. If it is out of date, the next `/load` will be slower and less accurate.
+`memory.md` is the index. If it is out of date, the next `/start` will be slower and less accurate.
 
 ---
 
@@ -129,7 +129,7 @@ When writing is complete, give a brief confirmation. Two or three sentences. Nam
 
 Format:
 
-*"Saved. [One sentence on what was updated or added.] You're set for next time — type `/load` to pick up where we left off."*
+*"Saved. [One sentence on what was updated or added.] You're set for next time — type `/start` to pick up where we left off."*
 
 Then ask:
 

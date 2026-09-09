@@ -30,7 +30,8 @@ vault/
 │   ├── profile/        # identity, priorities, workflows, people, style
 │   ├── projects/       # active and reference project knowledge
 │   └── library/        # retained knowledge, research, reference, decisions log
-├── outputs/            # generated briefs, query answers, weekly reviews
+├── outputs/            # generated briefs, query answers
+│   └── reviews/        # weekly reviews, one file per week (/review saves here)
 └── trash/              # removed from context, preserved (never hard-deleted)
 ```
 
@@ -62,7 +63,7 @@ tags: []
 | `summary` | One sentence — what this file is and why it matters | This is what skills read from the index before deciding whether to load the full file. Keep it sharp. |
 | `sources` | Filenames in `/data` this was compiled from | The lineage. Use `session — [date]` when knowledge came from conversation, not a document. |
 | `aliases` | Alternate names / shorthand the executive uses | This is how `/query` resolves "the migration thing" to `project-alpha.md`. |
-| `tags` | Status and type labels | Drives filtering in `/brief`, `/review`, `/lint`. Keep the vocabulary consistent. |
+| `tags` | Status and type labels | Drives filtering in `/start`, `/review`, `/lint`. Keep the vocabulary consistent. |
 
 **Standard tag vocabulary:** `active`, `archived`, `decision`, `blocked`, `person`, `project`, `reference`. Add to this set deliberately — every new tag is something the skills need to understand. Don't let it sprawl.
 
@@ -70,16 +71,18 @@ tags: []
 
 ## 3. How the Skills Work Together
 
-Nine skills, grouped by function. They share two pieces of common infrastructure: they all read `CLAUDE.md` + `memory.md` to orient, and they all respect the memory file contract when writing.
+Eight skills, grouped by function. They share two pieces of common infrastructure: they all read `CLAUDE.md` + `memory.md` to orient, and they all respect the memory file contract when writing.
 
 ```
 SETUP        /onboard    Defines persona (writes CLAUDE.md) + seeds profile
 
-SESSION      /load       Read vault → brief. Start of session.
+SESSION      /start      Read vault → brief. Start of session. Also the one place
+                         to run extra, session-specific instructions beyond
+                         CLAUDE.md (a slow connector lookup only this session
+                         needs, say) — pass them as arguments: /start <extra>.
 LOOP         /save       Synthesize session → write back. End of session.
 
-CONSUMPTION  /brief      Fast daily read. Lighter than /load.
-             /review     Weekly synthesis + accountability. Self-saves.
+CONSUMPTION  /review     Weekly synthesis + accountability. Self-saves.
 
 INGEST       /capture    One source → /data → compile into /memory.
              /sync       Batch: scan /data for unprocessed → compile.
@@ -88,6 +91,8 @@ RETRIEVAL    /query      Question → read wiki → grounded answer → /outputs
 
 MAINTENANCE  /lint       Health check. Fix safe issues, surface judgment calls.
 ```
+
+**`/load` was renamed to `/start`, and `/brief` was retired.** `/brief`'s fast-daily-read niche didn't earn a second skill once `/start` covers it — one command that also takes optional per-session instructions beats two overlapping ones. If you're maintaining a vault that predates this change, `/load` calls become `/start` calls and any workflow built around `/brief` should move to `/start`.
 
 ### The two write paths
 
@@ -137,7 +142,7 @@ Never hard-delete. `/trash` exists so things can be removed from context without
 
 ## 5. Building New Skills
 
-Skills are the extension point. The nine baseline skills cover the core loop; role-specific and workflow-specific skills are where each executive's system diverges. This is the intended path — teach the pattern, then let each person extend it.
+Skills are the extension point. The eight baseline skills cover the core loop; role-specific and workflow-specific skills are where each executive's system diverges. This is the intended path — teach the pattern, then let each person extend it.
 
 ### Anatomy
 

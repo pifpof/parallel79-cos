@@ -24,25 +24,25 @@ When you're talking to your Chief of Staff, everything is live — but temporary
 
 Two commands bookend almost every session:
 
-**Start with `/load`** — your Chief of Staff reads everything it knows and opens with a brief on where things stand. You never have to catch it up.
+**Start with `/start`** — your Chief of Staff reads everything it knows and opens with a brief on where things stand. You never have to catch it up.
 
 **End with `/save`** — before you close, it writes down what changed: decisions you made, priorities that shifted, anything new. This is what makes tomorrow's session pick up cleanly.
 
-That's the core loop. Load at the start, save at the end. Everything in between is the actual work.
+That's the core loop. Start the session, save at the end. Everything in between is the actual work.
+
+`/start` is also where you go beyond the everyday. The standing rules that shape your Chief of Staff live in `CLAUDE.md` and load automatically, every session — deliberately lightweight, since they're read constantly. Some context is useful but too slow to fetch by default: pulling today's calendar, checking a project tracker, querying a CRM. `/start` is where you ask for that, just for this session — type something like `/start also check our project tracker for anything overdue` and your Chief of Staff will go get it before opening with the brief.
 
 ---
 
-## The Nine Commands
+## The Eight Commands
 
 You don't need to memorize these. You'll learn them by using them. But here's the full set so you know what's available.
 
 ### Every day
 
-**`/load`** — Start a session. Your Chief of Staff restores context and tells you where things stand.
+**`/start`** — Start a session. Your Chief of Staff restores context and tells you where things stand. Add extra instructions right on the command — `/start also check X` — for anything this particular session needs that's beyond the standing rules in `CLAUDE.md`.
 
 **`/save`** — End a session. Writes what changed back to memory so nothing is lost.
-
-**`/brief`** — A quick morning read. What matters today, what needs attention, what's on your calendar. Shorter than a full session — built to run in a minute over coffee.
 
 ### Every week
 
@@ -95,9 +95,48 @@ If you want to *see* your system rather than just talk to it, open the folder in
 
 This system is worth almost nothing on day one. It barely knows you.
 
-Give it a month of consistent use — loading in, saving out, capturing what matters — and it becomes something you'd struggle to work without. The value compounds. Every session adds to it. Every decision you log becomes history you can draw on. Every source you capture makes the next answer sharper.
+Give it a month of consistent use — starting sessions, saving out, capturing what matters — and it becomes something you'd struggle to work without. The value compounds. Every session adds to it. Every decision you log becomes history you can draw on. Every source you capture makes the next answer sharper.
 
 You're not setting up a tool. You're training a second brain. Show up, save your work, and let it grow.
+
+---
+
+## Installation
+
+**Claude Code / Claude Cowork — via plugin marketplace:**
+```
+/plugin install github.com/parallel79/ai-chief-of-staff
+```
+
+**One package, installed in one shot:** `dist/ai-chief-of-staff.zip` bundles the whole plugin — every skill, the plugin manifest, the vault template, the license — as a single archive. Unzip it and install the folder as a Claude Code plugin, no picking through individual skills.
+
+**Any platform — via npx (auto-detects your tool):**
+```bash
+npx ai-chief-of-staff-skills
+```
+
+**Specific platform:**
+```bash
+npx ai-chief-of-staff-skills --platform antigravity
+npx ai-chief-of-staff-skills --platform gemini
+npx ai-chief-of-staff-skills --platform codex
+npx ai-chief-of-staff-skills --platform copilot
+```
+
+**Manual — copy the `skills/*/SKILL.md` files to your platform's skill directory:**
+
+| Platform | Directory |
+|---|---|
+| Claude Code / Cowork (global) | `~/.claude/skills/` |
+| Claude Code (project) | `.claude/skills/` |
+| Google Antigravity | `~/.agents/skills/` |
+| Gemini CLI | `~/.gemini/skills/` |
+| OpenAI Codex CLI | `~/.codex/skills/` |
+| GitHub Copilot | `.github/skills/` |
+
+**Claude Marketplace:** search for "AI Chief of Staff" in the in-app marketplace.
+
+The skills work on any platform. The vault (the memory system) works on platforms with local filesystem access: Claude Code, Cowork, Antigravity, Gemini CLI.
 
 ---
 

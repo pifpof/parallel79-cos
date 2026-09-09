@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Chief of Staff — User Guide · Parallel79°</title>
+  <meta name="description" content="A complete guide to your AI Chief of Staff skill pack — installation, daily use, the eight commands, vault structure, and maintenance. By Parallel79°." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #111016;
+      --surface:      #1C1B22;
+      --surface2:     #28272F;
+      --border:       rgba(226, 218, 208, 0.12);
+      --border-hover: rgba(226, 218, 208, 0.28);
+      --text:         #FAF8F4;
+      --text-muted:   #E2DAD0;
+      --text-dim:     #7A7A7A;
+      --accent:       #B8935A;
+      --accent2:      #D4AA72;
+      --rule:         #E2DAD0;
+      --radius:       16px;
+      --radius-sm:    10px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, .nav-logo { font-family: 'Playfair Display', serif; }
+
+    /* ── Noise overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ── Ambient glow ── */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(140px);
+      opacity: 0.1;
+      pointer-events: none;
+      z-index: 0;
+      animation: drift 22s ease-in-out infinite alternate;
+    }
+    .blob-1 { width: 600px; height: 600px; background: var(--accent); top: -200px; left: -100px; animation-delay: 0s; }
+    .blob-2 { width: 500px; height: 500px; background: var(--accent2); top: 45%; right: -150px; animation-delay: -8s; }
+    .blob-3 { width: 350px; height: 350px; background: var(--accent); bottom: -80px; left: 35%; animation-delay: -16s; }
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(25px, 18px) scale(1.05); }
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 28px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      background: rgba(17, 16, 22, 0.75);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 28px;
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    .nav-logo {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.2px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-logo-mark {
+      width: 30px; height: 30px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #0E0E0E;
+    }
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--accent);
+      color: #0E0E0E;
+      text-decoration: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 160px 0 96px;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(184, 147, 90, 0.1);
+      border: 1px solid rgba(184, 147, 90, 0.28);
+      border-radius: 100px;
+      padding: 5px 16px 5px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 32px;
+    }
+    .eyebrow-dot {
+      width: 7px; height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.45; transform: scale(0.75); }
+    }
+    h1 {
+      font-size: clamp(40px, 5.5vw, 68px);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      color: var(--text);
+      margin-bottom: 24px;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #B8935A 0%, #D4AA72 45%, #FAF8F4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 19px;
+      color: var(--text-muted);
+      max-width: 580px;
+      margin: 0 auto 48px;
+      line-height: 1.65;
+      font-weight: 400;
+    }
+
+    /* Install box */
+    .install-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+    .install-box:hover { border-color: var(--border-hover); background: var(--surface2); }
+    .install-prefix { color: var(--accent2); font-weight: 500; }
+    .copy-btn {
+      background: none; border: none;
+      color: var(--text-dim); cursor: pointer;
+      font-size: 13px; padding: 0;
+      font-family: 'Inter', sans-serif;
+      transition: color 0.2s;
+    }
+    .copy-btn:hover { color: var(--text-muted); }
+    .copied-tip {
+      position: absolute; top: -34px; right: 0;
+      background: var(--accent2); color: #000;
+      font-size: 11px; font-weight: 700;
+      padding: 4px 10px; border-radius: 6px;
+      font-family: 'Inter', sans-serif;
+      opacity: 0; transform: translateY(4px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+    }
+    .copied-tip.show { opacity: 1; transform: translateY(0); }
+    .install-meta {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 12px;
+    }
+    .install-meta a {
+      color: var(--text-muted); text-decoration: none;
+    }
+    .install-meta a:hover { color: var(--text); text-decoration: underline; }
+
+    /* Stats bar */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 56px;
+      margin-top: 72px;
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+    }
+    .stat { text-align: center; }
+    .stat-number {
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--text), var(--text-muted));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-family: 'Playfair Display', serif;
+    }
+    .stat-label { font-size: 12px; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.5px; text-transform: uppercase; }
+
+    /* ── Sections ── */
+    .section { padding: 96px 0; }
+    .section-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(26px, 3.5vw, 40px);
+      font-weight: 700;
+      letter-spacing: -1px;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 17px;
+      color: var(--text-muted);
+      max-width: 560px;
+      line-height: 1.65;
+    }
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0;
+    }
+
+    /* ── Core concept ── */
+    .concept-box {
+      background: var(--surface);
+      border: 1px solid rgba(184, 147, 90, 0.25);
+      border-radius: var(--radius);
+      padding: 40px 48px;
+      margin-top: 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .concept-box::before {
+      content: '79°';
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Playfair Display', serif;
+      font-size: 200px;
+      font-style: italic;
+      font-weight: 700;
+      color: rgba(184, 147, 90, 0.05);
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
+    .concept-quote {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(20px, 2.5vw, 28px);
+      font-style: italic;
+      color: var(--text);
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    .concept-quote strong {
+      font-style: normal;
+      color: var(--accent2);
+    }
+    .concept-body {
+      font-size: 16px;
+      color: var(--text-muted);
+      line-height: 1.75;
+      max-width: 640px;
+    }
+
+    /* ── Memory diagram ── */
+    .memory-diagram {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 0;
+      align-items: center;
+      margin-top: 56px;
+    }
+    .memory-node {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      text-align: center;
+    }
+    .memory-node-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent2);
+      margin-bottom: 8px;
+    }
+    .memory-node-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .memory-node-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .memory-arrow {
+      text-align: center;
+      padding: 0 20px;
+    }
+    .memory-arrow-line {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .arrow-cmd {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent2);
+      background: rgba(184, 147, 90, 0.1);
+      border: 1px solid rgba(184, 147, 90, 0.2);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .arrow-icon {
+      font-size: 20px;
+      color: var(--accent);
+    }
+
+    /* ── Quick start steps ── */
+    .steps-list {
+      list-style: none;
+      margin-top: 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .step-item {
+      display: flex;
+      gap: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      transition: border-color 0.2s;
+    }
+    .step-item:hover { border-color: var(--border-hover); }
+    .step-num {
+      width: 36px; height: 36px;
+      min-width: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #0E0E0E;
+    }
+    .step-content h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      font-family: 'Inter', sans-serif;
+    }
+    .step-content p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875em;
+      color: var(--accent2);
+      background: rgba(184, 147, 90, 0.1);
+      border: 1px solid rgba(184, 147, 90, 0.2);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* ── Command cards ── */
+    .commands-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 18px;
+      margin-top: 52px;
+    }
+    .cmd-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+      position: relative;
+      overflow: hidden;
+    }
+    .cmd-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--accent) 0%, transparent 55%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .cmd-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.35);
+    }
+    .cmd-card:hover::before { opacity: 0.04; }
+    .cmd-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .cmd-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: rgba(184, 147, 90, 0.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .cmd-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 100px;
+      white-space: nowrap;
+    }
+    .badge-daily  { background: rgba(184, 147, 90, 0.15); color: var(--accent2); }
+    .badge-weekly { background: rgba(212, 170, 114, 0.12); color: #D4AA72; }
+    .badge-ingest { background: rgba(184, 147, 90, 0.1); color: var(--accent); }
+    .badge-query  { background: rgba(212, 170, 114, 0.1); color: var(--accent2); }
+    .badge-maint  { background: rgba(122, 122, 122, 0.15); color: #9A9A9A; }
+    .cmd-command {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--accent2);
+      background: rgba(184, 147, 90, 0.1);
+      border: 1px solid rgba(184, 147, 90, 0.2);
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .cmd-name {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 4px;
+    }
+    .cmd-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.65;
+      flex: 1;
+    }
+    .cmd-tip {
+      font-size: 12px;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      margin-top: auto;
+    }
+    .cmd-tip strong { color: var(--text-muted); }
+
+    /* Wide card */
+    .cmd-card-wide { grid-column: 1 / -1; }
+
+    /* Command groups */
+    .cmd-groups { margin-top: 52px; }
+    .cmd-group { margin-top: 44px; }
+    .cmd-group:first-child { margin-top: 0; }
+    .cmd-group-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .cmd-group-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .cmd-group .commands-grid { margin-top: 0; }
+
+    /* ── Vault structure ── */
+    .vault-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 48px;
+    }
+    .vault-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 22px 24px;
+      display: flex;
+      gap: 16px;
+      transition: border-color 0.2s;
+    }
+    .vault-item:hover { border-color: var(--border-hover); }
+    .vault-folder {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: var(--accent2);
+      min-width: 100px;
+    }
+    .vault-item-content h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+      font-family: 'Inter', sans-serif;
+    }
+    .vault-item-content p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* ── Tips grid ── */
+    .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-top: 48px;
+    }
+    .tip-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: border-color 0.2s;
+    }
+    .tip-card:hover { border-color: var(--border-hover); }
+    .tip-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 40px;
+      font-weight: 700;
+      font-style: italic;
+      color: rgba(184, 147, 90, 0.2);
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .tip-card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+      font-family: 'Inter', sans-serif;
+    }
+    .tip-card p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* ── Architecture section ── */
+    .arch-layers {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 48px;
+    }
+    .arch-layer {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 22px 28px;
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 24px;
+      align-items: start;
+      transition: border-color 0.2s;
+    }
+    .arch-layer:hover { border-color: var(--border-hover); }
+    .arch-layer-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--accent2);
+    }
+    .arch-layer-label small {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 3px;
+      letter-spacing: 0.3px;
+    }
+    .arch-layer-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+    .arch-layer-desc strong { color: var(--text); }
+
+    /* Tag vocabulary */
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 24px;
+    }
+    .vocab-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 100px;
+      background: rgba(184, 147, 90, 0.1);
+      border: 1px solid rgba(184, 147, 90, 0.2);
+      color: var(--accent2);
+    }
+
+    /* File contract */
+    .file-contract {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-top: 32px;
+    }
+    .file-contract-header {
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .file-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #FF6058; }
+    .dot-y { background: #FFBD2E; }
+    .dot-g { background: #28CA42; }
+    .file-contract pre {
+      padding: 24px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--text-muted);
+      overflow-x: auto;
+    }
+    .yaml-key   { color: #D4AA72; }
+    .yaml-value { color: #FAF8F4; }
+    .yaml-comment { color: #5A5A6A; }
+
+    /* Maintenance table */
+    .maint-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 32px;
+      font-size: 14px;
+    }
+    .maint-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+    }
+    .maint-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+    .maint-table td:first-child {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .maint-table tr:last-child td { border-bottom: none; }
+    .maint-table tr:hover td { background: rgba(226, 218, 208, 0.03); }
+
+    /* Install platforms */
+    .platform-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 40px;
+    }
+    .platform-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      transition: border-color 0.2s;
+    }
+    .platform-card:hover { border-color: var(--border-hover); }
+    .platform-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .platform-cmd {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--accent2);
+      background: rgba(184, 147, 90, 0.08);
+      border: 1px solid rgba(184, 147, 90, 0.15);
+      border-radius: 6px;
+      padding: 6px 10px;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      padding: 80px 0 120px;
+      text-align: center;
+    }
+    .cta-inner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 60px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-inner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% -20%, rgba(184, 147, 90, 0.13) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-title {
+      font-size: clamp(26px, 3.5vw, 40px);
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 14px;
+    }
+    .cta-sub {
+      font-size: 17px;
+      color: var(--text-muted);
+      margin-bottom: 36px;
+    }
+    .cta-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #0E0E0E;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 22px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--border-hover); color: var(--text); }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 0;
+    }
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+    .footer-brand span { color: var(--accent); }
+    .footer-left { font-size: 13px; color: var(--text-dim); }
+    .footer-left a { color: var(--text-muted); text-decoration: none; }
+    .footer-left a:hover { color: var(--text); }
+    .footer-right { display: flex; gap: 24px; }
+    .footer-right a {
+      font-size: 13px; color: var(--text-dim);
+      text-decoration: none; transition: color 0.2s;
+    }
+    .footer-right a:hover { color: var(--text-muted); }
+
+    /* ── Callout box ── */
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: rgba(184, 147, 90, 0.06);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 18px 22px;
+      margin: 28px 0;
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+    .callout strong { color: var(--accent2); }
+
+    /* ── Fade-in animation ── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .commands-grid { grid-template-columns: 1fr; }
+      .vault-grid    { grid-template-columns: 1fr; }
+      .tips-grid     { grid-template-columns: 1fr; }
+      .platform-grid { grid-template-columns: 1fr; }
+      .memory-diagram {
+        grid-template-columns: 1fr;
+      }
+      .memory-arrow { transform: rotate(90deg); padding: 12px 0; }
+      .arch-layer { grid-template-columns: 1fr; gap: 8px; }
+      .nav-links { display: none; }
+      .stats-bar { gap: 28px; flex-wrap: wrap; }
+      .footer-inner { flex-direction: column; gap: 16px; text-align: center; }
+      .footer-right { justify-content: center; }
+      .cta-inner { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <!-- ══ NAV ══ -->
+  <nav>
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <div class="nav-logo-mark">P°</div>
+        AI Chief of Staff
+      </a>
+      <div class="nav-links">
+        <a href="#quickstart">Get Started</a>
+        <a href="#commands">Commands</a>
+        <a href="#vault">Vault</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#maintenance">Maintenance</a>
+        <a href="https://github.com/parallel79/ai-chief-of-staff" target="_blank" rel="noopener" class="nav-cta">GitHub →</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ══ HERO ══ -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-eyebrow fade-up">
+        <span class="eyebrow-dot"></span>
+        Claude Code Skill Pack · v1.0.0 · 9 Skills
+      </div>
+      <h1 class="fade-up">
+        Your AI <em class="gradient-text">Chief of Staff</em><br />
+        User Guide
+      </h1>
+      <p class="hero-sub fade-up">
+        A system that knows your business, remembers your context, and works alongside you every day. Not a chatbot — a colleague who never forgets.
+      </p>
+      <div class="fade-up" style="margin-bottom: 12px;">
+        <div class="install-box" id="installBox" onclick="copyInstall('installBox','copiedTip1','/plugin install github.com/parallel79/ai-chief-of-staff')">
+          <span class="install-prefix">$</span>
+          <span>/plugin install github.com/parallel79/ai-chief-of-staff</span>
+          <button class="copy-btn" title="Copy">⎘ Copy</button>
+          <div class="copied-tip" id="copiedTip1">Copied!</div>
+        </div>
+      </div>
+      <p class="install-meta fade-up">
+        <a href="https://github.com/parallel79/ai-chief-of-staff" target="_blank" rel="noopener">View on GitHub</a>
+        &nbsp;·&nbsp; MIT License &nbsp;·&nbsp; Works on Claude Code, Cowork, Antigravity, Gemini CLI
+      </p>
+      <div class="stats-bar fade-up">
+        <div class="stat">
+          <div class="stat-number">8</div>
+          <div class="stat-label">Skills</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">0</div>
+          <div class="stat-label">Databases</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">∞</div>
+          <div class="stat-label">Memory</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">.md</div>
+          <div class="stat-label">Human-readable</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- ══ THE IDEA ══ -->
+  <section class="section" id="concept">
+    <div class="container">
+      <div class="fade-up">
+        <p class="section-tag">The Idea</p>
+        <h2 class="section-title">AI that actually remembers.</h2>
+        <p class="section-sub">Most AI tools start from zero every conversation. Your Chief of Staff is different.</p>
+      </div>
+
+      <div class="concept-box fade-up">
+        <div class="concept-quote">
+          Your conversation is <strong>working memory.</strong><br />
+          Your vault is <strong>long-term memory.</strong><br />
+          "Save to memory" is <strong>the save button.</strong>
+        </div>
+        <p class="concept-body">
+          When you talk to your Chief of Staff, everything is live — but temporary. When you save to memory, what mattered gets written down permanently. Next time, it's still there. That single habit — start the session, save at the end — is what separates a system that compounds from a very capable chatbot.
+        </p>
+      </div>
+
+      <div class="memory-diagram fade-up">
+        <div class="memory-node">
+          <div class="memory-node-label">Working Memory</div>
+          <div class="memory-node-title">Conversation</div>
+          <div class="memory-node-desc">Live context for this session. Decisions, context, and new information are all here — but temporary.</div>
+        </div>
+        <div class="memory-arrow">
+          <div class="memory-arrow-line">
+            <span class="arrow-cmd">/save</span>
+            <span class="arrow-icon">⟷</span>
+            <span class="arrow-cmd">/start</span>
+          </div>
+        </div>
+        <div class="memory-node">
+          <div class="memory-node-label">Long-Term Memory</div>
+          <div class="memory-node-title">Your Vault</div>
+          <div class="memory-node-desc">Structured Markdown files on your computer. Grows with every session. Queryable, auditable, yours.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- ══ QUICK START ══ -->
+  <section class="section" id="quickstart">
+    <div class="container">
+      <div class="fade-up">
+        <p class="section-tag">Quick Start</p>
+        <h2 class="section-title">Up and running in five minutes.</h2>
+        <p class="section-sub">Follow these steps in order. You only do step one once.</p>
+      </div>
+
+      <ol class="steps-list fade-up">
+        <li class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h3>Install the skill pack</h3>
+            <p>In any Claude Code or Cowork session, run: <code>/plugin install github.com/parallel79/ai-chief-of-staff</code><br />
+            Or via npx on any platform: <code>npx ai-chief-of-staff-skills</code></p>
+          </div>
+        </li>
+        <li class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h3>Create your vault folder</h3>
+            <p>Create an empty folder anywhere on your computer — e.g. <code>~/my-chief-of-staff/</code>. Open Claude Code (or your agentic tool) inside it. This folder will become your knowledge base.</p>
+          </div>
+        </li>
+        <li class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h3>Run /onboard</h3>
+            <p>Type <code>/onboard</code>. This is a first meeting with your Chief of Staff — not a setup wizard. You'll define how they should work with you, then brief them on your role, priorities, and world. Take your time. The depth of this conversation seeds the quality of everything that follows.</p>
+          </div>
+        </li>
+        <li class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h3>Start each session with /start</h3>
+            <p>Every time you open a new session, type <code>/start</code>. Your Chief of Staff reads the vault and opens with a brief on where things stand. You never have to catch it up. Need something more for this particular session — a slow connector check, a calendar pull? Add it right on the command: <code>/start also check our project tracker</code>.</p>
+          </div>
+        </li>
+        <li class="step-item">
+          <div class="step-num">5</div>
+          <div class="step-content">
+            <h3>End each session with /save</h3>
+            <p>Before you close, type <code>/save</code>. Your Chief of Staff writes what changed — decisions made, priorities shifted, anything new — back to the vault. This is the habit the system depends on. Without it, each session starts from scratch.</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="callout fade-up">
+        <strong>The one thing that matters most:</strong> The save habit. The single biggest difference between users who get compounding value and users who don't is whether they type <code>/save</code> before closing. A system you don't save to is just a very capable chatbot.
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- ══ EIGHT COMMANDS ══ -->
+  <section class="section" id="commands">
+    <div class="container">
+      <div class="fade-up">
+        <p class="section-tag">Skills Reference</p>
+        <h2 class="section-title">Eight commands. Complete coverage.</h2>
+        <p class="section-sub">You don't need to memorize these — you'll learn them by using them. Here's the full set.</p>
+      </div>
+
+      <div class="cmd-groups">
+
+        <!-- ─ Group 1: Getting Started ─ -->
+        <div class="cmd-group">
+          <div class="cmd-group-label">Getting Started</div>
+          <div class="commands-grid">
+
+            <div class="cmd-card cmd-card-wide fade-up" style="border-color: rgba(184,147,90,0.3);">
+              <div class="cmd-card-header">
+                <div class="cmd-icon">⭐</div>
+                <span class="cmd-badge badge-daily">Start Here — Once</span>
+              </div>
+              <div>
+                <div class="cmd-command">/onboard</div>
+                <div class="cmd-name">Onboard</div>
+              </div>
+              <div class="cmd-desc">
+                A two-phase hiring conversation. First, you define the persona, style, and name of your Chief of Staff. Then you brief them on who you are — your role, organization, priorities, recurring workflows, and key people. At the end, the vault is seeded with your profile and the system is ready to work.
+                <br /><br />
+                <strong style="color: var(--text-muted);">Run this once</strong> before any other skill. The depth and specificity of your answers here determine the quality of every session that follows. Don't rush through it.
+              </div>
+              <div class="cmd-tip"><strong>Tip:</strong> If you're vague, the system will be vague. Be specific about your priorities — not "grow revenue" but "close the Series A by Q3 with a lead investor already identified."</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ─ Group 2: Working with your assistant ─ -->
+        <div class="cmd-group">
+          <div class="cmd-group-label">Working with your assistant</div>
+          <div class="commands-grid">
+
+            <div class="cmd-card fade-up">
+              <div class="cmd-card-header">
+                <div class="cmd-icon">▶</div>
+                <span class="cmd-badge badge-daily">Daily — Session Start</span>
+              </div>
+              <div>
+                <div class="cmd-command">/start</div>
+                <div class="cmd-name">Start Session</div>
+              </div>
+              <div class="cmd-desc">Reads your vault and opens with a sharp brief: where things stand, what's on the radar, and a suggested focus for today. You never have to catch the system up — it already knows what's going on. It's also the one place to go beyond your standing <code>CLAUDE.md</code> rules — add extra instructions right on the command (<code>/start also check our project tracker</code>) when a session needs a slower lookup that shouldn't run by default every time.</div>
+              <div class="cmd-tip"><strong>When:</strong> At the top of every working session. Pair with <code>/save</code> at the end. (Formerly <code>/load</code>.)</div>
+            </div>
+
+            <div class="cmd-card fade-up">
+              <div class="cmd-card-header">
+                <div class="cmd-icon">💾</div>
+                <span class="cmd-badge badge-daily">Daily — Session End</span>
+              </div>
+              <div>
+                <div class="cmd-command">/save</div>
+                <div class="cmd-name">Save to Memory</div>
+              </div>
+              <div class="cmd-desc">Synthesizes everything significant from the session — shifted priorities, decisions made, new context, new people — and writes it back to the vault. Updates the memory index. This is the keystone skill: without it, nothing accumulates.</div>
+              <div class="cmd-tip"><strong>The rule:</strong> Never close a session without typing <code>/save</code>. The system is only as good as what got written back last time.</div>
+            </div>
+
+            <div class="cmd-card fade-up">
+              <div class="cmd-card-header">
+                <div class="cmd-icon">📎</div>
+                <span class="cmd-badge badge-ingest">Ingest</span>
+              </div>
+              <div>
+                <div class="cmd-command">/capture</div>
+                <div class="cmd-name">Capture a Source</div>
+              </div>
+              <div class="cmd-desc">Hand it something to remember — a URL, a report, a document, or pasted text. It reads the source, extracts what matters <em>to you specifically</em>, files the raw material in <code>/data</code>, and compiles the knowledge into the wiki with cross-links to existing memory. This is how the library grows.</div>
+              <div class="cmd-tip"><strong>Examples:</strong> A competitor's product update, an industry report, meeting notes from a client call, an article you want to remember.</div>
+            </div>
+
+            <div class="cmd-card fade-up">
+              <div class="cmd-card-header">
+                <div class="cmd-icon">🔍</div>
+                <span class="cmd-badge badge-query">Retrieval</span>
+              </div>
+              <div>
+                <div class="cmd-command">/query</div>
+                <div class="cmd-name">Query the Wiki</div>
+              </div>
+              <div class="cmd-desc">Ask a question and get an answer drawn from your own accumulated knowledge — not the open internet. "What did we decide about the vendor contract?" "Pull together everything we know about this client." Answers are grounded, coherent, and traceable back to their sources. The longer the system has been running, the better these answers get.</div>
+              <div class="cmd-tip"><strong>The difference:</strong> A query answered from your compiled wiki, informed by months of context, beats anything you'd type into a search engine.</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ─ Group 3: Keeping the memory up to date ─ -->
+        <div class="cmd-group">
+          <div class="cmd-group-label">Keeping the memory up to date</div>
+          <div class="commands-grid">
+
+            <div class="cmd-card fade-up">
+              <div class="cmd-card-header">
+                <div class="cmd-icon">🔄</div>
+                <span class="cmd-badge badge-ingest">Ingest — Batch</span>
+              </div>
+              <div>
+                <div class="cmd-command">/sync</div>
+                <div class="cmd-name">Sync Sources</div>
+              </div>
+              <div class="cmd-desc">Batch version of <code>/capture</code>. Dropped a stack of files into <code>/data</code> without processing them? Run <code>/sync</code> and the system catches up — scanning for unprocessed sources, reading them oldest-first, and compiling everything into the wiki.</div>
+              <div class="cmd-tip"><strong>When:</strong> After a period of offline work, or when you've accumulated several documents you want absorbed at once.</div>
+            </div>
+
+            <div class="cmd-card fade-up">
+              <div class="cmd-card-header">
+                <div class="cmd-icon">🩺</div>
+                <span class="cmd-badge badge-maint">Maintenance</span>
+              </div>
+              <div>
+                <div class="cmd-command">/lint</div>
+                <div class="cmd-name">Health Check</div>
+              </div>
+              <div class="cmd-desc">A tune-up. Scans memory for files missing metadata, stale projects still marked active, orphaned sources that were never compiled, broken lineage, contradictions, and index drift. Fixes what it safely can automatically, and surfaces the judgment calls — the things only you can decide.</div>
+              <div class="cmd-tip"><strong>When:</strong> Weekly or monthly. A clean vault means sharper briefs, better queries, and faster loads. Runs in under a minute.</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ─ Group 4: Stepping back ─ -->
+        <div class="cmd-group">
+          <div class="cmd-group-label">Stepping back</div>
+          <div class="commands-grid">
+
+            <div class="cmd-card fade-up">
+              <div class="cmd-card-header">
+                <div class="cmd-icon">🔭</div>
+                <span class="cmd-badge badge-weekly">Weekly</span>
+              </div>
+              <div>
+                <div class="cmd-command">/review</div>
+                <div class="cmd-name">Weekly Review</div>
+              </div>
+              <div class="cmd-desc">A step back. What moved this week, what stalled, what patterns are showing up across projects and weeks, and the single priority for the week ahead with three concrete intentions. Honest by design — a Chief of Staff who only tells you what went well isn't worth having. Self-saves to memory, no separate <code>/save</code> needed.</div>
+              <div class="cmd-tip"><strong>When:</strong> End of week. The patterns section is where the system earns its keep — it sees things across weeks that you're too close to notice.</div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- ══ VAULT STRUCTURE ══ -->
+  <section class="section" id="vault">
+    <div class="container">
+      <div class="fade-up">
+        <p class="section-tag">Vault Structure</p>
+        <h2 class="section-title">Just a folder of files.</h2>
+        <p class="section-sub">Your knowledge base is plain Markdown on your own computer. No lock-in. Human-readable. Survives the tooling.</p>
+      </div>
+
+      <div class="vault-grid fade-up">
+        <div class="vault-item">
+          <div class="vault-folder">/data</div>
+          <div class="vault-item-content">
+            <h4>Raw Sources</h4>
+            <p>Every document, article, or transcript the system has ever ingested. Append-only — nothing is ever edited after it lands. This is the source of truth and the lineage anchor for everything in memory.</p>
+          </div>
+        </div>
+        <div class="vault-item">
+          <div class="vault-folder">/memory</div>
+          <div class="vault-item-content">
+            <h4>The Wiki</h4>
+            <p>Structured, interlinked Markdown that compiles the raw sources into knowledge. Organized into <code>/profile</code>, <code>/projects</code>, and <code>/library</code>. This is the layer that compounds.</p>
+          </div>
+        </div>
+        <div class="vault-item">
+          <div class="vault-folder">/memory/profile</div>
+          <div class="vault-item-content">
+            <h4>Your Profile</h4>
+            <p>Who you are, your current priorities, recurring workflows, key people, and working style. Seeded by <code>/onboard</code> and updated by <code>/save</code> as your situation evolves.</p>
+          </div>
+        </div>
+        <div class="vault-item">
+          <div class="vault-folder">/memory/projects</div>
+          <div class="vault-item-content">
+            <h4>Projects</h4>
+            <p>Active and reference project knowledge. Decisions logged, blockers noted, status tracked. This is where your Chief of Staff holds the thread on everything you're working on.</p>
+          </div>
+        </div>
+        <div class="vault-item">
+          <div class="vault-folder">/memory/library</div>
+          <div class="vault-item-content">
+            <h4>Library</h4>
+            <p>Retained knowledge, research, reference material, and a decisions log. Written by <code>/capture</code> and <code>/sync</code> as sources are compiled into the wiki.</p>
+          </div>
+        </div>
+        <div class="vault-item">
+          <div class="vault-folder">/outputs</div>
+          <div class="vault-item-content">
+            <h4>Outputs</h4>
+            <p>Generated content worth keeping — daily briefs, query answers, weekly reviews. Named with dates so your history is auditable.</p>
+          </div>
+        </div>
+        <div class="vault-item">
+          <div class="vault-folder">memory.md</div>
+          <div class="vault-item-content">
+            <h4>Memory Index</h4>
+            <p>A one-file index of everything in <code>/memory</code>. Every skill reads this first to orient without loading every file. Keeping it sharp is what keeps the system fast as the vault grows.</p>
+          </div>
+        </div>
+        <div class="vault-item">
+          <div class="vault-folder">/trash</div>
+          <div class="vault-item-content">
+            <h4>Trash</h4>
+            <p>Things removed from context but never hard-deleted. Moving to trash is always preferable to deleting — the cost of keeping a file is near zero; the cost of losing something important is not.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout fade-up">
+        <strong>Tip: Visualize your vault in Obsidian.</strong> Open the vault folder in <a href="https://obsidian.md" target="_blank" rel="noopener" style="color: var(--accent2);">Obsidian</a> and your memory becomes a visual graph you can browse and click through. You don't need it to use the system — but it's a satisfying way to watch your knowledge base grow.
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- ══ TIPS ══ -->
+  <section class="section" id="tips">
+    <div class="container">
+      <div class="fade-up">
+        <p class="section-tag">Getting the Most Out of It</p>
+        <h2 class="section-title">Four habits that make the difference.</h2>
+        <p class="section-sub">The system rewards consistent use. These are the behaviours that separate a compounding knowledge base from an expensive chat window.</p>
+      </div>
+
+      <div class="tips-grid fade-up">
+        <div class="tip-card">
+          <div class="tip-number">01</div>
+          <h3>Save, every time.</h3>
+          <p>The single biggest difference between users who get value from this system and users who don't is the save habit. If something significant happened in a conversation — a decision, a new priority, new context — save it before you leave. A system you don't save to is just a chatbot.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-number">02</div>
+          <h3>Feed it what matters.</h3>
+          <p>The more you capture, the smarter the system gets. When you read something that matters to your business — a competitor's announcement, a market report, notes from a key meeting — hand it over with <code>/capture</code>. Every source makes every future answer sharper.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-number">03</div>
+          <h3>Talk to it like a colleague.</h3>
+          <p>It has context. Use it. "What should I be worried about going into the board meeting?" is a better question than anything you'd type into Google — because it knows your board, your business, and your last three months. Ask questions you'd ask a trusted senior colleague who knows everything.</p>
+        </div>
+        <div class="tip-card">
+          <div class="tip-number">04</div>
+          <h3>Let it push back.</h3>
+          <p>A good Chief of Staff doesn't just take orders — it notices patterns, flags what's being avoided, and tells you what you might not want to hear. The weekly review is designed to be honest with you. Don't soften the brief by only asking easy questions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- ══ INSTALLATION ══ -->
+  <section class="section" id="install">
+    <div class="container">
+      <div class="fade-up">
+        <p class="section-tag">Installation</p>
+        <h2 class="section-title">Works on every major platform.</h2>
+        <p class="section-sub">The SKILL.md format is an open cross-platform standard. The skills work anywhere; the vault works on platforms with local filesystem access.</p>
+      </div>
+
+      <div class="platform-grid fade-up">
+        <div class="platform-card">
+          <div class="platform-name">Claude Code / Cowork</div>
+          <div class="platform-cmd">/plugin install github.com/parallel79/ai-chief-of-staff</div>
+        </div>
+        <div class="platform-card">
+          <div class="platform-name">Any Platform (auto-detect)</div>
+          <div class="platform-cmd">npx ai-chief-of-staff-skills</div>
+        </div>
+        <div class="platform-card">
+          <div class="platform-name">Google Antigravity</div>
+          <div class="platform-cmd">npx ai-chief-of-staff-skills --platform antigravity</div>
+        </div>
+        <div class="platform-card">
+          <div class="platform-name">Gemini CLI</div>
+          <div class="platform-cmd">npx ai-chief-of-staff-skills --platform gemini</div>
+        </div>
+        <div class="platform-card">
+          <div class="platform-name">OpenAI Codex CLI</div>
+          <div class="platform-cmd">npx ai-chief-of-staff-skills --platform codex</div>
+        </div>
+        <div class="platform-card">
+          <div class="platform-name">GitHub Copilot</div>
+          <div class="platform-cmd">npx ai-chief-of-staff-skills --platform copilot</div>
+        </div>
+      </div>
+
+      <div class="callout fade-up">
+        <strong>Manual install:</strong> Copy each <code>skills/*/SKILL.md</code> file into your platform's skills directory. Claude Code global: <code>~/.claude/skills/</code>. Claude Code project: <code>.claude/skills/</code>.
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- ══ ARCHITECTURE ══ -->
+  <section class="section" id="architecture">
+    <div class="container">
+      <div class="fade-up">
+        <p class="section-tag">Under the Hood</p>
+        <h2 class="section-title">The architecture that makes it compound.</h2>
+        <p class="section-sub">No vector database, no embeddings, no vendor lock-in. Just Markdown files and an index.</p>
+      </div>
+
+      <div class="arch-layers fade-up">
+        <div class="arch-layer">
+          <div class="arch-layer-label">
+            /data
+            <small>Append-only · Source of truth</small>
+          </div>
+          <div class="arch-layer-desc">
+            <strong>Raw sources.</strong> Every document, article, or conversation that enters the system lands here first. Never edited after arrival — this is the audit trail. Any memory file can be traced back to a raw source in this folder.
+          </div>
+        </div>
+        <div class="arch-layer">
+          <div class="arch-layer-label">
+            /memory
+            <small>LLM-maintained · Compounds over time</small>
+          </div>
+          <div class="arch-layer-desc">
+            <strong>The compiled wiki.</strong> Structured, interlinked Markdown that distills the raw sources into knowledge. The model reads it, writes to it, and updates it — but it's also human-readable. If the AI tooling disappears tomorrow, the knowledge survives. This is the Karpathy LLM wiki pattern: compile knowledge ahead of time, not at query time.
+          </div>
+        </div>
+        <div class="arch-layer">
+          <div class="arch-layer-label">
+            CLAUDE.md
+            <small>Schema · Persona · Rules</small>
+          </div>
+          <div class="arch-layer-desc">
+            <strong>The schema.</strong> Defines who your Chief of Staff is, how the vault is structured, the rules it operates by, and the full skill list. This is the highest-leverage file in the system — most customization happens here. Every session starts by reading this file.
+          </div>
+        </div>
+        <div class="arch-layer">
+          <div class="arch-layer-label">
+            memory.md
+            <small>Index · Read first</small>
+          </div>
+          <div class="arch-layer-desc">
+            <strong>The index.</strong> Every skill reads this file before loading anything else. One-line summaries of every memory file let the model orient across the entire vault without loading every file. This is what keeps token usage flat as the vault grows — the system gets smarter without getting slower.
+          </div>
+        </div>
+      </div>
+
+      <!-- Memory file contract -->
+      <div class="fade-up" style="margin-top: 56px;">
+        <p class="section-tag">Memory File Contract</p>
+        <h3 style="font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 12px; letter-spacing: -0.5px;">Every memory file starts with this block.</h3>
+        <p style="font-size: 15px; color: var(--text-muted); line-height: 1.65; max-width: 560px;">Breaking this contract degrades every skill that reads memory. Never create a file in <code>/memory</code> without it.</p>
+      </div>
+
+      <div class="file-contract fade-up">
+        <div class="file-contract-header">
+          <span class="file-dot dot-r"></span>
+          <span class="file-dot dot-y"></span>
+          <span class="file-dot dot-g"></span>
+          &nbsp; memory file example
+        </div>
+        <pre><span class="yaml-comment">---</span>
+<span class="yaml-key">title:</span>    <span class="yaml-value">"Current Priorities"</span>
+<span class="yaml-key">summary:</span>  <span class="yaml-value">"The two or three things that matter most right now."</span>
+<span class="yaml-key">sources:</span>  <span class="yaml-value">["onboard", "session — 2026-06-26"]</span>
+<span class="yaml-key">aliases:</span>  <span class="yaml-value">["priorities", "focus", "goals"]</span>
+<span class="yaml-key">tags:</span>     <span class="yaml-value">["active"]</span>
+<span class="yaml-comment">---</span>
+
+<span style="color: var(--text-muted);">## Q3 Priority — Close the Series A
+...content...</span></pre>
+      </div>
+
+      <div style="margin-top: 28px;" class="fade-up">
+        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">Standard tag vocabulary — use these consistently across all memory files:</p>
+        <div class="tag-list">
+          <span class="vocab-tag">active</span>
+          <span class="vocab-tag">archived</span>
+          <span class="vocab-tag">decision</span>
+          <span class="vocab-tag">blocked</span>
+          <span class="vocab-tag">person</span>
+          <span class="vocab-tag">project</span>
+          <span class="vocab-tag">reference</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- ══ MAINTENANCE ══ -->
+  <section class="section" id="maintenance">
+    <div class="container">
+      <div class="fade-up">
+        <p class="section-tag">Maintenance</p>
+        <h2 class="section-title">Keeping the vault healthy.</h2>
+        <p class="section-sub">A vault left without maintenance slowly degrades. Most issues have simple fixes — and almost all of them start with one of three root causes.</p>
+      </div>
+
+      <div class="callout fade-up">
+        <strong>The three most common problems, in order:</strong> The memory index is stale. A source wasn't compiled (orphaned file in <code>/data</code>). The executive stopped saving. Check these first before anything else.
+      </div>
+
+      <table class="maint-table fade-up">
+        <thead>
+          <tr>
+            <th>Symptom</th>
+            <th>Likely Cause</th>
+            <th>Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Vault feels slow or unfocused</td>
+            <td><code>memory.md</code> is bloated or stale</td>
+            <td>Run <code>/lint</code>. Trim index entries to sharp one-line summaries.</td>
+          </tr>
+          <tr>
+            <td>Queries returning thin or generic answers</td>
+            <td>Sources in <code>/data</code> were never compiled</td>
+            <td>Run <code>/lint</code> to identify orphaned sources, then <code>/sync</code> to process them.</td>
+          </tr>
+          <tr>
+            <td>Memory contradicts itself</td>
+            <td>Two files have conflicting facts</td>
+            <td><code>/lint</code> surfaces it. You pick the correct version. Move the wrong one to <code>/trash</code> with a note.</td>
+          </tr>
+          <tr>
+            <td>Session doesn't pick up where I left off</td>
+            <td><code>/save</code> wasn't run at end of session</td>
+            <td>Nothing to recover — the conversation was working memory only. Run <code>/save</code> going forward. It takes 30 seconds.</td>
+          </tr>
+          <tr>
+            <td>Profile feels out of date</td>
+            <td>Role or priorities evolved, files weren't updated</td>
+            <td>Open a session, update your Chief of Staff on what changed, then run <code>/save</code>. Or tell it directly in any session.</td>
+          </tr>
+          <tr>
+            <td>Need to recover something removed</td>
+            <td>File was moved to trash</td>
+            <td>Check <code>/trash</code> — nothing is ever hard-deleted. Files there have a note explaining why they were removed.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- ══ CUSTOM SKILLS ══ -->
+  <section class="section" id="custom-skills">
+    <div class="container">
+      <div class="fade-up">
+        <p class="section-tag">Extensibility</p>
+        <h2 class="section-title">Build skills for your specific role.</h2>
+        <p class="section-sub">The eight baseline skills cover the core loop. Role-specific skills are where the system truly diverges — and where the real leverage lives.</p>
+      </div>
+
+      <div class="steps-list fade-up">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h3>Create a skill folder</h3>
+            <p>Inside the <code>.claude/skills/</code> directory (for project scope) or <code>~/.claude/skills/</code> (global), create a folder named after your skill. Inside it, create <code>SKILL.md</code>.</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h3>Write the frontmatter first</h3>
+            <p>The <code>description</code> field is the triggering mechanism — Claude reads it to decide whether to use the skill. Be generous: list the slash command <em>and</em> the natural-language phrases someone would actually say.<br /><br />
+            <strong style="color: var(--text-muted);">Weak:</strong> <code>"Generates a board report."</code><br />
+            <strong style="color: var(--accent2);">Strong:</strong> <code>"Use when the user says '/board-report', asks to prepare a board update, wants to generate a board deck, or needs to summarize progress for investors."</code></p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h3>Write the body in imperative voice</h3>
+            <p>"Read the vault." Not "The skill should read the vault." Explain <em>why</em> each step matters, not just what to do — skills that understand the why produce better judgment. Always read <code>memory.md</code> first; always update it if you write anything new.</p>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h3>Test against real prompts, then drop it in</h3>
+            <p>Try 2–3 realistic phrases you'd actually say. If it doesn't trigger, the problem is almost always in the <code>description</code> — expand the trigger phrases. Once it triggers correctly, the skill is live immediately. No restart needed.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- ══ LONG GAME ══ -->
+  <section class="section">
+    <div class="container">
+      <div class="fade-up" style="text-align: center; max-width: 640px; margin: 0 auto;">
+        <p class="section-tag">The Long Game</p>
+        <h2 class="section-title">Worth nothing on day one.<br />Indispensable at month three.</h2>
+        <p style="font-size: 17px; color: var(--text-muted); line-height: 1.75; margin-top: 16px;">
+          Give the system a month of consistent use — loading in, saving out, capturing what matters — and it becomes something you'd struggle to work without. Every session adds to it. Every decision you log becomes history you can draw on. Every source you capture makes the next answer sharper.
+        </p>
+        <p style="font-size: 17px; color: var(--text-muted); line-height: 1.75; margin-top: 16px;">
+          You're not setting up a tool. You're training a second brain.<br />Show up, save your work, and let it grow.
+        </p>
+        <p style="font-size: 15px; font-style: italic; color: var(--text-dim); margin-top: 28px;">
+          "Humans abandon wikis because the maintenance burden grows faster than the value.<br />LLMs don't get bored, don't forget to update a cross-reference." — Andrej Karpathy
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- ══ CTA ══ -->
+  <section class="cta-section" id="get-started">
+    <div class="container">
+      <div class="cta-inner fade-up">
+        <p class="section-tag" style="text-align: center; margin-bottom: 16px;">Ready to begin</p>
+        <h2 class="cta-title">Hire your Chief of Staff.</h2>
+        <p class="cta-sub">Install the skill pack, open your vault folder, and type <code style="font-family: 'JetBrains Mono', monospace; font-size: 14px; background: rgba(184,147,90,0.15); border: 1px solid rgba(184,147,90,0.3); padding: 3px 8px; border-radius: 4px; color: var(--accent2);">/onboard</code> to begin.</p>
+        <div class="cta-actions">
+          <a href="https://github.com/parallel79/ai-chief-of-staff" target="_blank" rel="noopener" class="btn-primary">
+            Install on GitHub →
+          </a>
+          <a href="#quickstart" class="btn-outline">
+            Read Quick Start ↑
+          </a>
+          <a href="https://parallel79.com" target="_blank" rel="noopener" class="btn-outline">
+            Parallel79°
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ FOOTER ══ -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-left">
+          Built by <a href="https://parallel79.com" target="_blank" rel="noopener">Parallel79°</a> · MIT License · <a href="https://github.com/parallel79/ai-chief-of-staff" target="_blank" rel="noopener">GitHub</a>
+        </div>
+        <div class="footer-right">
+          <a href="#quickstart">Quick Start</a>
+          <a href="#commands">Commands</a>
+          <a href="#vault">Vault</a>
+          <a href="#architecture">Architecture</a>
+          <a href="https://github.com/parallel79/ai-chief-of-staff" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Copy install command
+    function copyInstall(boxId, tipId, text) {
+      navigator.clipboard.writeText(text).catch(() => {});
+      const tip = document.getElementById(tipId);
+      if (tip) {
+        tip.classList.add('show');
+        setTimeout(() => tip.classList.remove('show'), 2200);
+      }
+    }
+
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(el => {
+        if (el.isIntersecting) {
+          el.target.classList.add('visible');
+          observer.unobserve(el.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -32px 0px' });
+
+    document.querySelectorAll('.fade-up').forEach((el, i) => {
+      el.style.transitionDelay = `${(i % 5) * 70}ms`;
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>

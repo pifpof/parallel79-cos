@@ -5,7 +5,7 @@
 
 ## What This Project Is
 
-**AI Chief of Staff** is a Claude Code Skill Pack — a set of nine interrelated skills that turns Claude Code into a personal knowledge operating system for an executive. Built on Andrej Karpathy's LLM wiki pattern: raw sources are compiled incrementally into a structured Markdown knowledge base that grows more valuable over time.
+**AI Chief of Staff** is a Claude Code Skill Pack — a set of eight interrelated skills that turns Claude Code into a personal knowledge operating system for an executive. Built on Andrej Karpathy's LLM wiki pattern: raw sources are compiled incrementally into a structured Markdown knowledge base that grows more valuable over time.
 
 **Origin:** Created by Shahed Khalili (Parallel79) to fulfil a consulting engagement (a multi-executive, 3-session workshop series). Now being packaged for submission to the Claude Marketplace.
 
@@ -46,34 +46,40 @@ ai-chief of staff/
 │   │   ├── profile/             ← Empty. Seeded by /onboard.
 │   │   ├── projects/            ← Empty. Written by /save and /capture.
 │   │   └── library/             ← Empty. Written by /capture and /sync.
-│   ├── output/                  ← Empty. Written by /brief, /review, /query.
+│   ├── output/                  ← Empty. Written by /review, /query.
 │   └── trash/                   ← Empty. Receives removed files.
 │
-├── skills/                      ← All 9 skills. Each is a folder with SKILL.md.
+├── skills/                      ← All 8 skills. Each is a folder with SKILL.md.
 │   ├── onboard/SKILL.md         ← First-time setup. Two-phase: define persona → brief
-│   ├── load/SKILL.md            ← Session start. Read vault → deliver brief.
+│   ├── start/SKILL.md           ← Session start. Read vault → deliver brief. Also the
+│   │                               one place to layer in extra, session-specific
+│   │                               instructions beyond CLAUDE.md. (Renamed from /load.)
 │   ├── save/SKILL.md            ← Session end. Synthesize → write back. THE keystone.
-│   ├── brief/SKILL.md           ← Daily morning read. Faster/lighter than /load.
 │   ├── review/SKILL.md          ← Weekly synthesis + pattern recognition. Self-saves.
 │   ├── capture/SKILL.md         ← Ingest one source → /data → compile into /memory.
 │   ├── sync/SKILL.md            ← Batch: process all uncompiled sources in /data.
 │   ├── query/SKILL.md           ← Answer from wiki. Writes to /outputs.
 │   └── lint/SKILL.md            ← Health check. Fix safe issues, surface judgment calls.
 │
-├── dist/                        ← EMPTY. Target for packaged distribution artifacts.
-└── docs/                        ← EMPTY. Target for marketplace-facing documentation.
+├── dist/                        ← Packaged distribution artifacts, built by install.sh:
+│                                    one combined ai-chief-of-staff.zip (the whole plugin,
+│                                    one-step install) plus one .skill file per skill.
+└── docs/                        ← Marketplace-facing documentation (docs/index.html).
 ```
+
+**`/brief` was removed** — its daily-read use case is covered by `/start`; a separate lighter skill wasn't earning its keep. **`/load` was renamed to `/start`** and reframed: beyond the standard vault-read brief, it's now the deliberate place to add extra, session-specific instructions that are too costly to run by default on every turn (a connector lookup, a calendar pull, anything CLAUDE.md shouldn't pay for on every message). See `skills/start/SKILL.md`.
+
+**`/start` and `/review` stay separate** — `/start` is fast and runs every session, `/review` is deep and runs weekly; merging them would force every session to pay the review's cost, or need branching logic to guess which mode to run. What `/start` does do (v1.3.0) is check `/outputs/reviews/` for the most recent `*-weekly-review.md` and flag in "On my radar" when it's more than ~10 days old — connective tissue between the two skills without merging their mechanics.
 
 ---
 
-## The Nine Skills — Summary
+## The Eight Skills — Summary
 
 | Skill | When | What it does |
 |---|---|---|
 | `/onboard` | Once | Two-phase hire: exec defines persona → briefs the CoS. Seeds vault. |
-| `/load` | Session start | Reads vault, delivers structured brief. Never ask exec to repeat context. |
+| `/start` | Session start | Reads vault, delivers structured brief. Never ask exec to repeat context. Also where extra, session-specific instructions beyond CLAUDE.md get run (e.g. a slow connector lookup), and flags in "On my radar" when `/review` is overdue (>~10 days). Formerly `/load`. |
 | `/save` | Session end | Synthesizes session → writes back to memory. The habit the system depends on. |
-| `/brief` | Daily | One-page morning read. Tighter than `/load`. Built for coffee. |
 | `/review` | Weekly | Honest look back, pattern recognition, sets one priority + 3 intentions. Self-saves. |
 | `/capture` | Ad hoc | Ingest one source. Preserve in `/data`, compile into wiki, cross-link. |
 | `/sync` | Batch | Catch up on everything dropped into `/data` since last sync. Oldest first. |
@@ -94,7 +100,7 @@ aliases: []      ← How exec might refer to this topic informally
 tags: []         ← active | archived | decision | blocked | person | project | reference
 ---
 ```
-Breaking this contract degrades `/query`, `/brief`, and `/lint`. Never create a memory file without it.
+Breaking this contract degrades `/query`, `/start`, and `/lint`. Never create a memory file without it.
 
 **Two write paths into memory:**
 1. Conversation → memory via `/save` and `/review`. Source: `session — [date]`
@@ -105,29 +111,6 @@ Breaking this contract degrades `/query`, `/brief`, and `/lint`. Never create a 
 **Trash, not delete** — never hard-delete. Move to `/trash` with a one-line note explaining why.
 
 **Tone** — direct, warm, senior colleague. No filler ("certainly", "great question"). No bullet points in spoken responses unless genuinely parallel items. No preamble.
-
----
-
-## Known Issues / Things That Need Fixing
-
-### `schema/memory.md` is wrong
-`schema/memory.md` currently contains the same content as `schema/CLAUDE.md` (the operating instructions). It should be an empty template for the vault's memory index file. 
-
-The correct `memory.md` template should look like:
-```markdown
-# Memory Index
-
-> Read this file to orient across the vault. Load individual files only for what's relevant.
-
-## Profile
-<!-- Entries added by /onboard -->
-
-## Projects
-<!-- Entries added by /save and /capture -->
-
-## Library
-<!-- Entries added by /capture and /sync -->
-```
 
 ---
 
@@ -144,11 +127,9 @@ ai-chief-of-staff/            ← repo / zip root (rename: no spaces)
 ├── skills/                   ← PREFERRED format (already matches current layout)
 │   ├── onboard/
 │   │   └── SKILL.md
-│   ├── load/
+│   ├── start/
 │   │   └── SKILL.md
 │   ├── save/
-│   │   └── SKILL.md
-│   ├── brief/
 │   │   └── SKILL.md
 │   ├── review/
 │   │   └── SKILL.md
@@ -170,12 +151,14 @@ The `commands/` folder is the legacy format. The current `skills/` layout is cor
 
 ### `plugin.json` format
 
-The official Anthropic minimal format only requires `name`, `description`, and `author`. The PositioningHQ production format extends this with version, homepage, repository, license, keywords, and a full skills inventory array. Use the extended format:
+**Correction (2026-09-03):** the previous version of this section documented `skills` as an array of objects (`{ "name", "path", "description", "command", "version", "tags" }`) and called it "verified." That was wrong — a real install (drag-and-drop in Cowork) failed validation with "skills list items must be strings ... got dict" for every entry. The actual schema: `skills` — if present at all — is a string or array of strings, each a relative path to a *directory* of skills, not an array of metadata objects. Per-skill metadata (description, trigger command, etc.) lives entirely in that skill's own `SKILL.md` frontmatter, never in the manifest.
+
+Only `name` is required. Everything else — `description`, `version`, `author`, `homepage`, `repository`, `license`, `keywords` — is optional. Since this plugin uses the default `skills/` directory at the plugin root, **omit `skills` entirely** — it's auto-discovered:
 
 ```json
 {
   "name": "ai-chief-of-staff",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "A personal AI Chief of Staff for executives. Maintains a structured knowledge base that compounds over time — knows your business, remembers context, and works alongside you every day.",
   "author": {
     "name": "Shahed Khalili / Parallel79",
@@ -184,24 +167,15 @@ The official Anthropic minimal format only requires `name`, `description`, and `
   "homepage": "https://parallel79.com",
   "repository": "https://github.com/parallel79/ai-chief-of-staff",
   "license": "MIT",
-  "keywords": ["chief-of-staff", "knowledge-management", "executive", "productivity", "memory", "wiki"],
-  "skills": [
-    { "name": "onboard", "path": "skills/onboard/SKILL.md", "command": "/onboard", "version": "1.0.0", "tags": ["setup"] },
-    { "name": "load",    "path": "skills/load/SKILL.md",    "command": "/load",    "version": "1.0.0", "tags": ["session"] },
-    { "name": "save",    "path": "skills/save/SKILL.md",    "command": "/save",    "version": "1.0.0", "tags": ["session"] },
-    { "name": "brief",   "path": "skills/brief/SKILL.md",   "command": "/brief",   "version": "1.0.0", "tags": ["daily"] },
-    { "name": "review",  "path": "skills/review/SKILL.md",  "command": "/review",  "version": "1.0.0", "tags": ["weekly"] },
-    { "name": "capture", "path": "skills/capture/SKILL.md", "command": "/capture", "version": "1.0.0", "tags": ["ingest"] },
-    { "name": "sync",    "path": "skills/sync/SKILL.md",    "command": "/sync",    "version": "1.0.0", "tags": ["ingest"] },
-    { "name": "query",   "path": "skills/query/SKILL.md",   "command": "/query",   "version": "1.0.0", "tags": ["retrieval"] },
-    { "name": "lint",    "path": "skills/lint/SKILL.md",    "command": "/lint",    "version": "1.0.0", "tags": ["maintenance"] }
-  ]
+  "keywords": ["chief-of-staff", "knowledge-management", "executive", "productivity", "memory", "wiki"]
 }
 ```
 
+Only add a `skills` field if skills live somewhere other than the default `skills/` directory, e.g. `"skills": ["./skills/", "./extra-skills/"]` — and even then, as bare path strings, never objects.
+
 ### SKILL.md frontmatter — two types
 
-**User-invoked slash command** (all 9 CoS skills are this type):
+**User-invoked slash command** (all 8 CoS skills are this type):
 ```yaml
 ---
 name: skill-name
@@ -215,19 +189,12 @@ allowed-tools: [Read, Write, Edit, Bash, WebFetch]  # pre-approves tools, reduce
 
 ### SKILL.md frontmatter — current state vs. required
 
-The current SKILL.md files use only `name` and `description` in frontmatter. To be fully marketplace-ready, each should also have:
-- `version: 1.0.0`
-- `allowed-tools:` listing the tools each skill actually uses (reduces permission prompts for users — good UX)
+All 8 SKILL.md files include `name`, `description`, `version`, and `allowed-tools` in frontmatter. `start` additionally sets `argument-hint`, since it's the one skill designed to take optional per-session instructions. No changes needed.
 
 ### What's still missing
 
-1. **`.claude-plugin/plugin.json`** — create this file (see format above)
-2. **`LICENSE`** — add MIT license file at repo root
-3. **`allowed-tools` in each SKILL.md** — add to reduce permission prompts
-4. **`version: 1.0.0` in each SKILL.md** — minor but expected
-5. **Fix `schema/memory.md`** — currently duplicates CLAUDE.md; should be empty memory index template
-6. **GitHub repo** — exists at `github.com/pifpof/parallel79-cof`; needed for marketplace install via `/install-plugin github.com/pifpof/parallel79-cof`
-7. **Submission** — via the Claude plugin directory submission form
+1. **GitHub repo** — exists at `github.com/pifpof/parallel79-cof`; needed for marketplace install via `/install-plugin github.com/pifpof/parallel79-cof`
+2. **Submission** — via the Claude plugin directory submission form
 
 ---
 
@@ -256,6 +223,58 @@ This context is useful for writing marketplace copy. The use case is concrete: 6
 8. **Update CLAUDE.md** in the schema if a new skill introduces a convention the whole system needs to know.
 
 ---
+
+## Distribution
+
+### Distribution channels (all configured)
+
+| Channel | How | Status |
+|---|---|---|
+| GitHub | `/plugin install github.com/parallel79/ai-chief-of-staff` | Needs repo (existing: `pifpof/parallel79-cof`) |
+| npx | `npx ai-chief-of-staff-skills [--platform <name>]` | Ready — `bin/install.js` + `package.json` |
+| npm | `/plugin install npm:ai-chief-of-staff-skills` | Needs `npm publish` after repo created |
+| Claude Marketplace | Search in-app | Needs submission |
+| agentskills.io | Community directory | Needs registration |
+
+### Platform support matrix
+
+The SKILL.md format is the agentskills.io open standard — portable to all major agentic tools with no modification.
+
+| Platform | Skills | Vault (memory wiki) |
+|---|---|---|
+| Claude Code | ✓ | ✓ |
+| Claude Cowork | ✓ | ✓ |
+| Google Antigravity | ✓ | ✓ |
+| Gemini CLI | ✓ | ✓ |
+| OpenAI Codex CLI | ✓ | ✓ (filesystem access) |
+| GitHub Copilot | ✓ | No (workspace-only) |
+| Browser-only tools | ✓ | No (no filesystem) |
+
+### Combined package (`install.sh`)
+
+Run `./install.sh` to build `dist/`. It now produces two kinds of output:
+
+1. **`dist/ai-chief-of-staff.zip`** — the whole plugin (`.claude-plugin/`, all of `skills/`, `schema/`, `README.md`, `LICENSE`) as one archive. This is the one-step install: unzip it and install the folder as a Claude Code plugin, or push it to GitHub and run `/plugin install <repo>`. It replaces the old ad hoc approach of manually zipping `skills/` in Finder (that produced `skills.zip` at the repo root, which is now stale and superseded — safe to delete).
+2. **`dist/<skill>.skill`** — one zip per skill, unchanged in format, kept for flows that only support installing a single skill at a time (e.g. dragging one skill into Cowork's Customize → Skills panel).
+
+Both are built with `COPYFILE_DISABLE=1` and `zip -X` to avoid macOS resource-fork cruft (`__MACOSX/`, `._*` files) — the older manual zips in `dist/` (`onboard-save-sync.zip`, `save-lint.zip`) had this problem and were manual workarounds for not having a combined package; they're superseded by `ai-chief-of-staff.zip` and safe to delete.
+
+### Installer (`bin/install.js`)
+
+Copies `skills/*/SKILL.md` to the correct directory for the target platform. Run with `npx ai-chief-of-staff-skills` or `npx ai-chief-of-staff-skills --platform <name>`. The `--vault` flag also copies `schema/` as a vault template.
+
+Supported platform flags: `claude`, `claude-project`, `cowork`, `antigravity`, `gemini`, `codex`, `copilot`.
+
+### Shared marketplace
+
+A shared `marketplace.json` lives at `../marketplace.json` (parallel79 org root). Host it on GitHub to enable: `/plugin marketplace add github.com/parallel79/skills-marketplace`.
+
+### What's still needed before publishing
+
+1. **Clarify GitHub repo** — use existing `pifpof/parallel79-cof` or create `parallel79/ai-chief-of-staff`
+2. **Run `npm publish`** — from the repo root after pushing to GitHub
+3. **Submit to Claude Marketplace** — via the Claude plugin directory submission form
+4. **Register on agentskills.io** — community directory for Antigravity/Gemini users
 
 ## Marketplace Submission Target
 

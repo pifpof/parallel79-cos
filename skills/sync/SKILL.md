@@ -55,7 +55,7 @@ Work through them in order, oldest first, so the memory reflects how knowledge a
 
 ## Step 3 — Update memory.md
 
-Once all sources are processed, update `memory.md` to reflect every new and changed file. The index must be current — the next `/load`, `/brief`, or `/query` depends on it.
+Once all sources are processed, update `memory.md` to reflect every new and changed file. The index must be current — the next `/start` or `/query` depends on it.
 
 ---
 

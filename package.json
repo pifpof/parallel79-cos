@@ -1,0 +1,42 @@
+{
+  "name": "ai-chief-of-staff-skills",
+  "version": "1.3.0",
+  "description": "AI Chief of Staff — a skill pack for Claude Code, Claude Cowork, Google Antigravity, Gemini CLI, and more. Maintains a structured knowledge base that compounds over time — knows your business, remembers context, and works alongside you every day.",
+  "author": "Shahed Khalili / Parallel79 <shahed@parallel79.com>",
+  "license": "MIT",
+  "homepage": "https://parallel79.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/parallel79/ai-chief-of-staff"
+  },
+  "keywords": [
+    "chief-of-staff",
+    "knowledge-management",
+    "executive",
+    "productivity",
+    "agent-skills",
+    "skill-pack",
+    "claude-code",
+    "claude-cowork",
+    "antigravity",
+    "gemini-cli",
+    "memory",
+    "wiki",
+    "personal-knowledge-base",
+    "pkm"
+  ],
+  "bin": {
+    "ai-chief-of-staff-skills": "./bin/install.js"
+  },
+  "files": [
+    "skills/",
+    "schema/",
+    "bin/",
+    ".claude-plugin/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}

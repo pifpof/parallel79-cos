@@ -240,7 +240,7 @@ Tell the executive what was set up. Keep it brief — two or three sentences. Na
 
 Then tell them how to start their next session:
 
-*"Next time we talk, just type `/load` and I'll pick up exactly where we left off."*
+*"Next time we talk, just type `/start` and I'll pick up exactly where we left off."*
 
 Close with something human. Not "setup complete." Something that sounds like the end of a good first meeting with someone you're going to work with for a long time.
 

@@ -1,7 +1,7 @@
 ---
 name: review
 description: "Weekly review from the AI Chief of Staff. Use this skill whenever the executive says '/review', wants a weekly review, asks 'how did the week go', wants to look back on the week, plan the week ahead, or step back and see the bigger picture across projects and priorities. Reads the full vault, surfaces what moved and what stalled, names patterns the executive may not be seeing, and sets the priority and intentions for the week ahead. Deeper and more reflective than a daily brief. Also writes the review back to memory."
-version: 1.0.0
+version: 1.1.0
 allowed-tools: [Read, Write, Edit]
 ---
 
@@ -9,7 +9,7 @@ allowed-tools: [Read, Write, Edit]
 
 ## What This Skill Does
 
-A structured, honest look back at the week and a clear setup for the week ahead. This is where the system earns its keep — the daily briefs keep the executive oriented, but the weekly review is where patterns surface, decisions get reviewed, and the bigger picture comes into focus.
+A structured, honest look back at the week and a clear setup for the week ahead. This is where the system earns its keep — `/start` keeps the executive oriented session to session, but the weekly review is where patterns surface, decisions get reviewed, and the bigger picture comes into focus.
 
 It is also the moment the compounding becomes visible. A good review draws on weeks of accumulated context to say something the executive couldn't see on their own.
 
@@ -35,7 +35,7 @@ Read the full vault silently before producing any output:
 6. Recent files in `/outputs/` — what was produced this week
 7. Scan `/data/` for sources captured this week that inform the picture
 
-If a prior review exists in `/outputs/`, read the most recent one — you need last week's intentions to hold this week accountable.
+If a prior review exists in `/outputs/reviews/`, read the most recent one — you need last week's intentions to hold this week accountable.
 
 ---
 
@@ -96,7 +96,7 @@ One pattern or risk to stay aware of. Something to notice — a decision that ca
 
 After delivering the review:
 
-1. Save the full review to `/outputs/[YYYY-MM-DD]-weekly-review.md` so next week's review can hold this one accountable.
+1. Save the full review to `/outputs/reviews/[YYYY-MM-DD]-weekly-review.md` so next week's review can hold this one accountable. (This is a dedicated subfolder — don't save weekly reviews loose in `/outputs/` alongside other output types.)
 
 2. Update `/memory/profile/priorities.md` if priorities shifted meaningfully this week.
 
