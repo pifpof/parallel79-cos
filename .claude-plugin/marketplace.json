@@ -1,0 +1,20 @@
+{
+  "name": "parallel79",
+  "description": "Skill packs from Parallel79.",
+  "owner": {
+    "name": "Shahed Khalili / Parallel79",
+    "email": "shahed@parallel79.com"
+  },
+  "plugins": [
+    {
+      "name": "ai-chief-of-staff",
+      "source": "./",
+      "description": "A personal AI Chief of Staff for executives. Maintains a structured knowledge base that compounds over time — knows your business, remembers context, and works alongside you every day.",
+      "version": "1.6.0",
+      "author": {
+        "name": "Shahed Khalili / Parallel79"
+      },
+      "license": "MIT"
+    }
+  ]
+}

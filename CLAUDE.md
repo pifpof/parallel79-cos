@@ -182,7 +182,7 @@ Only `name` is required. Everything else — `description`, `version`, `author`,
     "email": "shahed@parallel79.com"
   },
   "homepage": "https://parallel79.com",
-  "repository": "https://github.com/parallel79/ai-chief-of-staff",
+  "repository": "https://github.com/pifpof/parallel79-cos",
   "license": "MIT",
   "keywords": ["chief-of-staff", "knowledge-management", "executive", "productivity", "memory", "wiki"]
 }
@@ -210,8 +210,9 @@ All 9 SKILL.md files include `name`, `description`, `version`, and `allowed-tool
 
 ### What's still missing
 
-1. **GitHub repo** — exists at `github.com/pifpof/parallel79-cof`; needed for marketplace install via `/install-plugin github.com/pifpof/parallel79-cof`
-2. **Submission** — via the Claude plugin directory submission form
+1. **Submission** — via the Claude plugin directory submission form
+
+The repo (`github.com/pifpof/parallel79-cos`, public) doubles as its own single-plugin marketplace via `.claude-plugin/marketplace.json` (marketplace name `parallel79`, plugin `source: "./"`). Install: `/plugin marketplace add pifpof/parallel79-cos` then `/plugin install ai-chief-of-staff@parallel79`. There is no `/plugin install <github url>` command — a repo is installable only through a marketplace file. Keep the `version` in `marketplace.json` in step with `plugin.json`.
 
 ---
 
@@ -247,9 +248,10 @@ This context is useful for writing marketplace copy. The use case is concrete: 6
 
 | Channel | How | Status |
 |---|---|---|
-| GitHub | `/plugin install github.com/parallel79/ai-chief-of-staff` | Needs repo (existing: `pifpof/parallel79-cof`) |
-| npx | `npx ai-chief-of-staff-skills [--platform <name>]` | Ready — `bin/install.js` + `package.json` |
-| npm | `/plugin install npm:ai-chief-of-staff-skills` | Needs `npm publish` after repo created |
+| GitHub | `/plugin marketplace add pifpof/parallel79-cos` → `/plugin install ai-chief-of-staff@parallel79` | Live (v1.6.0) |
+| npx (from GitHub) | `npx github:pifpof/parallel79-cos [--platform <name>]` | Live — runs `bin/install.js` straight from the repo |
+| npx (from npm) | `npx ai-chief-of-staff-skills` | Needs `npm publish` |
+| npm | `/plugin install npm:ai-chief-of-staff-skills` | Needs `npm publish` |
 | Claude Marketplace | Search in-app | Needs submission |
 | agentskills.io | Community directory | Needs registration |
 
@@ -271,7 +273,7 @@ The SKILL.md format is the agentskills.io open standard — portable to all majo
 
 Run `./install.sh` to build `dist/`. It now produces two kinds of output:
 
-1. **`dist/ai-chief-of-staff.zip`** — the whole plugin (`.claude-plugin/`, all of `skills/`, `schema/`, `README.md`, `LICENSE`) as one archive. This is the one-step install: unzip it and install the folder as a Claude Code plugin, or push it to GitHub and run `/plugin install <repo>`. It replaces the old ad hoc approach of manually zipping `skills/` in Finder (that produced `skills.zip` at the repo root, which is now stale and superseded — safe to delete).
+1. **`dist/ai-chief-of-staff.zip`** — the whole plugin (`.claude-plugin/`, all of `skills/`, `schema/`, `README.md`, `LICENSE`) as one archive. This is the one-step install: unzip it and install the folder as a Claude Code plugin, or install from GitHub via the marketplace commands above. It replaces the old ad hoc approach of manually zipping `skills/` in Finder (that produced `skills.zip` at the repo root, which is now stale and superseded — safe to delete).
 2. **`dist/<skill>.skill`** — one zip per skill (the whole skill folder, including `references/`), kept for flows that only support installing a single skill at a time (e.g. dragging one skill into Cowork's Customize → Skills panel).
 
 Both are built with `COPYFILE_DISABLE=1` and `zip -X` to avoid macOS resource-fork cruft (`__MACOSX/`, `._*` files) — the older manual zips in `dist/` (`onboard-save-sync.zip`, `save-lint.zip`) had this problem and were manual workarounds for not having a combined package; they're superseded by `ai-chief-of-staff.zip` and safe to delete.
@@ -288,10 +290,9 @@ A shared `marketplace.json` lives at `../marketplace.json` (parallel79 org root)
 
 ### What's still needed before publishing
 
-1. **Clarify GitHub repo** — use existing `pifpof/parallel79-cof` or create `parallel79/ai-chief-of-staff`
-2. **Run `npm publish`** — from the repo root after pushing to GitHub
-3. **Submit to Claude Marketplace** — via the Claude plugin directory submission form
-4. **Register on agentskills.io** — community directory for Antigravity/Gemini users
+1. **Run `npm publish`** — from the repo root (needs `npm login`)
+2. **Submit to Claude Marketplace** — via the Claude plugin directory submission form
+3. **Register on agentskills.io** — community directory for Antigravity/Gemini users
 
 ## Marketplace Submission Target
 

@@ -109,22 +109,24 @@ You're not setting up a tool. You're training a second brain. Show up, save your
 
 **Claude Code / Claude Cowork — via plugin marketplace:**
 ```
-/plugin install github.com/parallel79/ai-chief-of-staff
+/plugin marketplace add pifpof/parallel79-cos
+/plugin install ai-chief-of-staff@parallel79
 ```
+To update later: `/plugin marketplace update parallel79`, then reinstall.
 
 **One package, installed in one shot:** `dist/ai-chief-of-staff.zip` bundles the whole plugin — every skill, the plugin manifest, the vault template, the license — as a single archive. Unzip it and install the folder as a Claude Code plugin, no picking through individual skills.
 
 **Any platform — via npx (auto-detects your tool):**
 ```bash
-npx ai-chief-of-staff-skills
+npx github:pifpof/parallel79-cos
 ```
 
 **Specific platform:**
 ```bash
-npx ai-chief-of-staff-skills --platform antigravity
-npx ai-chief-of-staff-skills --platform gemini
-npx ai-chief-of-staff-skills --platform codex
-npx ai-chief-of-staff-skills --platform copilot
+npx github:pifpof/parallel79-cos --platform antigravity
+npx github:pifpof/parallel79-cos --platform gemini
+npx github:pifpof/parallel79-cos --platform codex
+npx github:pifpof/parallel79-cos --platform copilot
 ```
 
 **Manual — copy each folder in `skills/` (the `SKILL.md` plus any `references/` folder alongside it) to your platform's skill directory:**

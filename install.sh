@@ -20,7 +20,8 @@
 # Install options:
 #   Whole plugin  → unzip dist/ai-chief-of-staff.zip and install the folder
 #                   as a Claude Code plugin, or push it to GitHub and run
-#                   /plugin install <repo>
+#                   /plugin marketplace add <owner/repo>, then
+#                   /plugin install ai-chief-of-staff@parallel79
 #   Single skill  → double-click a .skill file in Finder (Cowork installs
 #                   it automatically), or rename .skill → .zip and use
 #                   Customize → Skills → + → Upload a skill
@@ -113,7 +114,7 @@ say "Done — ${SKILL_COUNT} skills, one combined package → dist/"
 echo ""
 echo -e "${DIM}  Want everything in one shot?"
 echo -e "  Unzip dist/ai-chief-of-staff.zip and install the folder as a Claude"
-echo -e "  Code plugin (or push it to GitHub and run /plugin install <repo>)."
+echo -e "  Code plugin (or /plugin marketplace add pifpof/parallel79-cos)."
 echo ""
 echo -e "  Want just one skill?"
 echo -e "  Double-click its .skill file in Finder — Cowork installs it"
