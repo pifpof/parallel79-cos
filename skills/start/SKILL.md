@@ -1,7 +1,7 @@
 ---
 name: start
 description: "Deliberate start-of-session context restore for the AI Chief of Staff. Use this skill whenever the executive says '/start', returns after time away, asks 'where are things', wants a status update, or opens a conversation expecting the Chief of Staff to already know what's going on. This is the one place to layer in extra, session-specific instructions beyond the always-on rules in CLAUDE.md — for example, connecting to another system to pull information that's too time-consuming to fetch by default but is needed for certain kinds of sessions. Reads the vault, runs any extra instructions supplied, and opens with a sharp brief. Handles both a rich vault (full synthesis) and a sparse early-stage vault (honest, lighter open). Use this at the top of nearly every session. (Formerly named /load — same core behavior, now with room to go deeper.)"
-version: 1.3.0
+version: 1.4.0
 allowed-tools: [Read]
 argument-hint: "[optional: extra instructions for this session, e.g. 'also check our project tracker for anything overdue']"
 ---
@@ -55,6 +55,8 @@ Then scan `/memory/library/` — metadata blocks only unless something is direct
 
 Then check `/outputs/reviews/` for the most recent file matching `*-weekly-review.md` — that's the dedicated folder `/review` saves under. You only need its date, not its contents; you'll use it in Step 3.
 
+Then check `/outputs/goals/` for this week's goals. Find the most recent dated file named `YYYY-MM-DD-weekly-goals.md` (ignore anything starting with `_`, such as the template). If it is dated within the last 7 days, read it in full: the goals, which one is marked #1, each goal's definition of done, and the file's Status line (Draft or Confirmed). If the folder doesn't exist, the executive doesn't use weekly goals — skip this silently. You'll use it in Steps 3 and 4.
+
 Do not load `/trash`.
 
 ---
@@ -82,6 +84,11 @@ Before opening the session, make two quick judgment calls:
 
 Using what you found in Step 1: if the most recent `*-weekly-review.md` is more than ~10 days old, or none exists at all despite the vault otherwise being rich, `/review` is overdue. This only applies to a rich vault — don't flag it for a sparse one, and don't flag it if a review ran within the last ~10 days. Carry this forward to Step 4; it doesn't change how you open, only what shows up in the brief.
 
+**Where do this week's goals stand?** (only if the executive uses `/outputs/goals/`)
+
+- **Current file found:** for each goal, judge Done / On track / At risk / No evidence, using only what the vault and any Step 2 lookups show. Don't mark something done because it seems likely; if nothing in memory shows progress, it's "No evidence." Note whether the file is still a Draft awaiting confirmation.
+- **No file from the last 7 days:** this week's goals haven't been set. Carry that forward as a flag.
+
 ---
 
 ## Step 4 — Open the Session
@@ -97,11 +104,14 @@ Deliver a structured brief. No preamble. No greeting. Lead with what matters mos
 **Where things stand:**
 One short paragraph. Synthesize the most important thing happening right now across active priorities and projects. Lead with what is most urgent, most changed, or most at risk. Be specific — reference actual project names, decisions, or context from memory (and from Step 2, if anything relevant came back). Do not be generic.
 
+**This week's goals:** (only if the executive uses `/outputs/goals/`)
+One or two lines. Name the #1 goal and its status, then the rest as a count ("2 of 4 on track, 1 at risk: [goal]"). If the file is still a Draft, say it's awaiting confirmation. If no goals were set this week, say so plainly and suggest setting them. Don't list every goal.
+
 **On my radar:**
 Two to four items that need attention. Stalled tasks, open loops, decisions that haven't been made, anything that has come up more than once across sources. If Step 3 found `/review` overdue, include it here — one line, e.g. "It's been [N] days since the last review — worth running `/review` when there's a moment." Don't let it crowd out anything more urgent; it's one item among several, not a lead. If nothing needs flagging, say so — do not pad this section.
 
 **Suggested focus for today:**
-One thing. The single most valuable use of this session based on everything in memory. State it as a recommendation. The executive can redirect if they disagree.
+One thing. The single most valuable use of this session based on everything in memory. If this week's goals exist, default to moving the #1 goal (or whichever goal is most at risk) unless something more urgent has come up, and say why if you're recommending something else. State it as a recommendation. The executive can redirect if they disagree.
 
 ---
 
@@ -150,6 +160,7 @@ If they close without saving, note the risk: anything discussed in this session 
 - You have full context. Use it. Never waste the executive's time re-establishing what you already know.
 - The brief is not a summary of files you read. It is a synthesis — what matters, what's at risk, what's next. Those are different things.
 - `/start` is the deliberate on-ramp, not a repeat of CLAUDE.md. Reach for it — or its optional instructions — when a session needs something beyond the standing rules, not as a place to re-state what CLAUDE.md already covers.
+- This week's goals are the executive's own commitments. Check the brief against them: a session that never touches the #1 goal is worth naming.
 - If the same extra instruction keeps getting typed alongside `/start`, flag that it probably belongs in CLAUDE.md as a standing rule instead.
 - A sparse vault is not a failure. It is day one. Treat it accordingly.
 - The session is only as good as what gets written back at the end. Always prompt for `/save`.

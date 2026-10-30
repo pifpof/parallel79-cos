@@ -40,7 +40,7 @@ You don't need to memorize these. You'll learn them by using them. But here's th
 
 ### Every day
 
-**`/start`** — Start a session. Your Chief of Staff restores context and tells you where things stand. Add extra instructions right on the command — `/start also check X` — for anything this particular session needs that's beyond the standing rules in `CLAUDE.md`.
+**`/start`** — Start a session. Your Chief of Staff restores context and tells you where things stand. If you keep weekly goals in `/outputs/goals/` (one `YYYY-MM-DD-weekly-goals.md` file per week), it also reads this week's goals and tells you where your #1 goal stands. Add extra instructions right on the command — `/start also check X` — for anything this particular session needs that's beyond the standing rules in `CLAUDE.md`.
 
 **`/save`** — End a session. Writes what changed back to memory so nothing is lost.
 

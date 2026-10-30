@@ -9,3 +9,6 @@
 
 # Build artifacts (populated separately)
 dist/
+
+# Update requirements and implementation plans
+updates/

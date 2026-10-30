@@ -1,7 +1,7 @@
 ---
 name: capture
 description: "Ingest a source into the AI Chief of Staff's memory. Use this skill whenever the executive says '/capture', shares a URL, file, article, report, or document and wants it added to their system, says 'add this', 'save this source', 'read this and remember it', or drops in material they want the Chief of Staff to absorb. Clips the source into /data, reads it, extracts the takeaways that matter, and updates every relevant memory file. This is how new knowledge enters the system — the compilation step that turns raw material into structured memory."
-version: 1.0.0
+version: 1.1.0
 allowed-tools: [Read, Write, Edit, WebFetch]
 ---
 
@@ -98,6 +98,8 @@ Always set `sources` to point back to the `/data` file. This is the lineage — 
 ## Step 5 — Update memory.md and Confirm
 
 Update `memory.md` to reflect any new or changed files.
+
+Then add or update the source's row in `memory/sync-ledger.md` (source path, current time, memory files it fed) so `/sync` and `/lint` know it's compiled and current. Create the ledger if it doesn't exist.
 
 Then confirm to the executive in a few lines:
 

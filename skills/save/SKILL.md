@@ -1,8 +1,8 @@
 ---
 name: save
 description: "End-of-session memory write-back for the AI Chief of Staff. Use this skill whenever the executive is wrapping up a session, says '/save', 'save to memory', 'save this', 'remember this', or signals the conversation is ending. Synthesizes everything significant from the session — shifted priorities, project updates, decisions made, new people, new context — and writes it back to the vault, logs decisions, saves outputs, and updates the memory index. This is the habit that makes the system compound. Prompt for it before any session ends; nothing persists to the next session without it."
-version: 1.0.0
-allowed-tools: [Read, Write, Edit]
+version: 1.1.0
+allowed-tools: [Read, Write, Edit, Bash]
 ---
 
 # Chief of Staff — Save to Memory
@@ -111,11 +111,21 @@ If a brief, analysis, query response, or other generated content was produced an
 
 ---
 
+### Files edited in /data during the session
+
+Sessions often write straight into a living document in `/data` (adding a section to a roadmap, updating a plan) instead of a memory file. That knowledge is not in memory yet. For every `/data` file created or edited this session:
+
+- Make sure any new initiative, project, offering or event it now contains has a line in `memory.md` (pointer to the file and heading is enough)
+- Update that file's row in `memory/sync-ledger.md` to now, so `/sync` and `/lint` know it's current
+
+---
+
 ## Step 3 — Update memory.md
 
 After all files are written, update `memory.md` to reflect what changed:
 
 - Add entries for any new files created
+- Add a pointer for every new initiative, even if its detail lives in `/data` rather than `/memory`. If it isn't in the index, the next session won't find it
 - Update summaries for any files that changed significantly
 - Remove entries for any files moved to `/trash`
 
@@ -147,6 +157,8 @@ Before the session ends, run a quick internal check:
 - [ ] All new files created with metadata blocks
 - [ ] Decisions logged where relevant
 - [ ] Outputs saved to `/outputs/` if worth keeping
+- [ ] Every new initiative has a `memory.md` line, including ones written only into `/data`
+- [ ] `memory/sync-ledger.md` updated for any `/data` file touched this session
 - [ ] `memory.md` updated
 - [ ] Executive confirmed nothing was missed
 
