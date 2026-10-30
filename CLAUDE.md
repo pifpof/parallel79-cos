@@ -100,8 +100,8 @@ ai-chief of staff/
 - **No raw transcripts in the vault.** Deliberate exception to `/capture`'s "preserve raw in /data": the meeting tool is the source of record, the sanitized minutes file is the lineage anchor (`sources` points at `outputs/meetings/...`).
 - **External writes need approval** in the default `review: external-only` mode; minutes and memory are written immediately.
 - **`memory/meetings-ledger.md`** is the system file for processed meetings (dedupe, "since last"), parallel to `sync-ledger.md`.
-- **Not yet wired into other skills.** `/start` (radar line for undebriefed meetings + overdue follow-ups), `/save` (suggest `/minutes debrief`), `/review` (meeting/action-item flow), `/onboard` (optional meetings question) and `/lint` (ledger gaps, lineage, config) are planned but not built. Spec: `updates/ai-chief-of-staff-minutes/` (gitignored).
-- **Untested against real meetings.** Fixtures F1–F7 in the implementation plan still need running.
+- **Wired into the other skills**, each skipping silently when `memory/reference/meetings.md` doesn't exist: `/start` adds at most one radar line for undebriefed meetings and one for due/overdue/stale follow-ups (never processes meetings); `/save` offers `/minutes debrief` for meetings discussed but not in the ledger; `/review` adds a "Meetings and commitments" section (debriefed vs. held, items created vs. closed, waiting-on > 7 days); `/onboard` asks one optional question and writes the config; `/lint` checks config validity, ledger ↔ minutes consistency, and meetings > 7 days with no minutes. `/capture` and `/sync` hand meeting transcripts to `/minutes` instead of storing them in `/data`; `/query` reads the ledger and minutes for "what did X say/commit to". Spec: `updates/ai-chief-of-staff-minutes/` (gitignored).
+- **Tested** on a real meeting (F1, 2026-10-30). Remaining fixtures (F2–F7) not yet run.
 
 ---
 

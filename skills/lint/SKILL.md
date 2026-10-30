@@ -1,7 +1,7 @@
 ---
 name: lint
 description: "Health check for the AI Chief of Staff's memory. Use this skill whenever the executive says '/lint', asks to 'clean up the wiki', 'check the memory', 'tidy things up', wants to know if the system is healthy, or periodically as maintenance to keep the knowledge base from degrading. Scans memory for gaps, stale files, missing metadata, contradictions, and orphaned sources, then reports what needs attention and fixes what it safely can. This is what keeps a long-running vault healthy — the linting pass that stops the wiki from rotting over time."
-version: 1.1.0
+version: 1.2.0
 allowed-tools: [Read, Write, Edit, Bash]
 ---
 
@@ -50,6 +50,13 @@ Read `memory.md` and walk the full memory structure. Check `/data` against the c
 - Memory files whose `sources` point to `/data` files that no longer exist
 - `aliases` that collide across files, which would make `/query` ambiguous
 
+**Meetings (only if `memory/reference/meetings.md` exists):**
+- The config itself: required settings present (`meeting_tool`, `destination`, `review`), values from the allowed lists, and a non-placeholder `mapping` when `destination` isn't `markdown`. A broken config means `/minutes` silently routes nowhere useful.
+- `memory/meetings-ledger.md` rows whose minutes file no longer exists, and minutes files in `/outputs/meetings/` with no ledger row.
+- Minutes files missing frontmatter or a `source_id`.
+- If a meeting tool is connected, meetings older than 7 days that aren't in the ledger — commitments from those meetings are untracked. Candidates for `/minutes`. Skip titles matching `skip_title_patterns`.
+- Memory files whose `sources` point to an `outputs/meetings/` file that doesn't exist (same as broken lineage for `/data`).
+
 **Contradictions and gaps:**
 - Two memory files that state conflicting facts
 - Topics referenced repeatedly across files but lacking their own entry
@@ -67,6 +74,7 @@ Some issues you can fix without asking. Do these automatically and note them in 
 - Flag orphaned and stale `/data` sources for sync (don't auto-process them — that's `/sync`'s job, and the executive may want to review first)
 - Add a one-line `memory.md` pointer for any unindexed initiative found in a `/data` living document (pointer only; the detail stays where it is)
 - Create `memory/sync-ledger.md` if it's missing (empty table), so the next `/sync` can start recording
+- Add a ledger row for any minutes file that has a `source_id` but no row (the minutes exist; the ledger just missed them)
 
 Do **not** automatically:
 - Move anything to `/trash` or change `active` to `archived` — status is the executive's call
@@ -91,6 +99,8 @@ The things only the executive can decide:
 - Projects that look done but are still marked active — archive them?
 - Contradictions between files — which is correct?
 - Orphaned or stale sources in /data — run /sync to process them? (name the files and, for stale ones, when they were last edited vs. compiled)
+- Meetings older than a week with no minutes — run `/minutes` on them? (name them)
+- Meeting settings that look broken — fix now? (name the setting)
 Each as a short, specific question.
 
 **Overall:**
@@ -107,7 +117,7 @@ If the executive answers the open questions — yes archive that, this file is t
 ## Reminders
 
 - Fix the safe things silently; surface the judgment calls. Never make a status or deletion decision that belongs to the executive.
-- Orphaned and stale sources are a `/sync` job — flag them, don't process them here.
+- Orphaned and stale sources are a `/sync` job — flag them, don't process them here. Undebriefed meetings are a `/minutes` job — same rule.
 - "Referenced in `sources`" is not the same as "current." Check modified times against the ledger.
 - Contradictions get surfaced, never silently resolved. The executive knows which version is true.
 - Trash is not delete. When the executive approves removal, move to `/trash` with a note — never hard-delete.

@@ -1,7 +1,7 @@
 ---
 name: capture
 description: "Ingest a source into the AI Chief of Staff's memory. Use this skill whenever the executive says '/capture', shares a URL, file, article, report, or document and wants it added to their system, says 'add this', 'save this source', 'read this and remember it', or drops in material they want the Chief of Staff to absorb. Clips the source into /data, reads it, extracts the takeaways that matter, and updates every relevant memory file. This is how new knowledge enters the system — the compilation step that turns raw material into structured memory."
-version: 1.1.0
+version: 1.2.0
 allowed-tools: [Read, Write, Edit, WebFetch]
 ---
 
@@ -30,6 +30,8 @@ Identify what was handed to you:
 - **A URL** — fetch it and read the full content. Preserve the text as Markdown.
 - **An uploaded file** — read it using the appropriate method for its type.
 - **Pasted text** — use it directly.
+
+If the source is a **meeting transcript** or meeting notes, hand it to `/minutes` instead and say so in one line. `/minutes` extracts action items and keeps the raw transcript out of `/data` — capturing it here would store exactly the small talk and personal content it's designed to strip. Webinars and recorded talks are the exception: those are content, and `/capture` is the right home for them.
 
 If the source can't be accessed — a broken link, a paywalled page, a file that won't read — say so plainly and ask the executive how they'd like to proceed. Don't guess at content you couldn't read.
 

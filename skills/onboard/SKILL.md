@@ -1,7 +1,7 @@
 ---
 name: onboard
 description: "First-time setup for a new executive's AI Chief of Staff. Use this skill whenever someone is setting up their Chief of Staff for the first time, says '/onboard', wants to get started, asks how to begin, or has an empty or near-empty vault. Runs a two-phase hiring conversation: first the executive defines the persona, style, and name of their Chief of Staff, then they brief it on their role, business, priorities, and key people. Seeds the vault and writes the profile. Always use this before any other skill if the vault has not been set up yet."
-version: 1.0.0
+version: 1.1.0
 allowed-tools: [Read, Write, Edit]
 ---
 
@@ -143,6 +143,16 @@ This is a catch-all. Let them say what they want to say.
 
 ---
 
+### Step 2.6 — Meetings and to-dos (optional)
+
+Ask one light question — and make it easy to skip:
+
+*"Last practical one. Do you record your meetings — Granola, Otter, Fireflies, anything like that? And where do your to-dos live?"*
+
+If they answer, you'll write `memory/reference/meetings.md` in Phase 3. If they're unsure or want to skip it, move on — `/minutes` creates the file with safe defaults the first time it runs.
+
+---
+
 ## Phase 3 — Seed the Vault
 
 When Phase 2 is complete, write the following files. Write in third person from the Chief of Staff's perspective. Be specific — use the executive's actual words and details, not generic placeholders.
@@ -219,6 +229,12 @@ Content: Communication preferences, directness level, tone expectations, anythin
 
 ---
 
+**`/memory/reference/meetings.md`** (only if they answered Step 2.6)
+
+Copy the template from the `minutes` skill's `references/config-template.md`. Set `meeting_tool` to the tool they named (or `none`), and `destination` to their task system if it's one of airtable, asana, todoist, linear, trello or notion (otherwise `markdown`). Leave `mapping` as the placeholder — IDs and field names get filled in the first time `/minutes` routes to that system, with the executive. Leave every other setting at its default.
+
+---
+
 ### Update `memory.md`
 
 Add an entry for each new file created. Format:
@@ -230,6 +246,9 @@ Add an entry for each new file created. Format:
 - `memory/profile/workflows.md` — [one sentence summary]
 - `memory/profile/people.md` — [one sentence summary]
 - `memory/profile/style.md` — [one sentence summary]
+
+## System
+- `memory/reference/meetings.md` — how /minutes finds meetings and routes action items (only if created)
 ```
 
 ---

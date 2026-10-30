@@ -1,7 +1,7 @@
 ---
 name: start
 description: "Deliberate start-of-session context restore for the AI Chief of Staff. Use this skill whenever the executive says '/start', returns after time away, asks 'where are things', wants a status update, or opens a conversation expecting the Chief of Staff to already know what's going on. This is the one place to layer in extra, session-specific instructions beyond the always-on rules in CLAUDE.md — for example, connecting to another system to pull information that's too time-consuming to fetch by default but is needed for certain kinds of sessions. Reads the vault, runs any extra instructions supplied, and opens with a sharp brief. Handles both a rich vault (full synthesis) and a sparse early-stage vault (honest, lighter open). Use this at the top of nearly every session. (Formerly named /load — same core behavior, now with room to go deeper.)"
-version: 1.4.0
+version: 1.5.0
 allowed-tools: [Read]
 argument-hint: "[optional: extra instructions for this session, e.g. 'also check our project tracker for anything overdue']"
 ---
@@ -57,6 +57,13 @@ Then check `/outputs/reviews/` for the most recent file matching `*-weekly-revie
 
 Then check `/outputs/goals/` for this week's goals. Find the most recent dated file named `YYYY-MM-DD-weekly-goals.md` (ignore anything starting with `_`, such as the template). If it is dated within the last 7 days, read it in full: the goals, which one is marked #1, each goal's definition of done, and the file's Status line (Draft or Confirmed). If the folder doesn't exist, the executive doesn't use weekly goals — skip this silently. You'll use it in Steps 3 and 4.
 
+Then, if `memory/reference/meetings.md` exists, the executive uses `/minutes`. Read it and `memory/meetings-ledger.md`, then do two cheap checks (skip both silently if the config doesn't exist):
+
+- **Undebriefed meetings.** If `meeting_tool` is a connected tool, make one list/search call for meetings since the newest ledger entry (cap at 7 days). Count the ones not in the ledger, ignoring titles that match `skip_title_patterns` and anything the vault's CLAUDE.md says never to surface in a brief. One call only; if the connector isn't reachable, skip without comment. Never process meetings here — that's `/minutes`' job.
+- **Follow-ups due.** Count open "mine" items due today or overdue, and "waiting on" items more than 7 days old, from the configured `destination`: read `outputs/follow-ups.md` for `markdown`, or make one query against the external task system. Skip silently if it can't be reached.
+
+You'll use both in Step 4.
+
 Do not load `/trash`.
 
 ---
@@ -108,7 +115,7 @@ One short paragraph. Synthesize the most important thing happening right now acr
 One or two lines. Name the #1 goal and its status, then the rest as a count ("2 of 4 on track, 1 at risk: [goal]"). If the file is still a Draft, say it's awaiting confirmation. If no goals were set this week, say so plainly and suggest setting them. Don't list every goal.
 
 **On my radar:**
-Two to four items that need attention. Stalled tasks, open loops, decisions that haven't been made, anything that has come up more than once across sources. If Step 3 found `/review` overdue, include it here — one line, e.g. "It's been [N] days since the last review — worth running `/review` when there's a moment." Don't let it crowd out anything more urgent; it's one item among several, not a lead. If nothing needs flagging, say so — do not pad this section.
+Two to four items that need attention. Stalled tasks, open loops, decisions that haven't been made, anything that has come up more than once across sources. If Step 3 found `/review` overdue, include it here — one line, e.g. "It's been [N] days since the last review — worth running `/review` when there's a moment." Don't let it crowd out anything more urgent; it's one item among several, not a lead. If Step 1 found meetings not yet debriefed, add one line ("3 meetings since Tuesday not debriefed — `/minutes since last`"). If it found follow-ups due, overdue or stale, add one line naming the most urgent ("2 follow-ups overdue, oldest: send Acme the proposal (due Mon); waiting on Jordan's numbers for 9 days"). At most one line each, and only when the count is above zero. If nothing needs flagging, say so — do not pad this section.
 
 **Suggested focus for today:**
 One thing. The single most valuable use of this session based on everything in memory. If this week's goals exist, default to moving the #1 goal (or whichever goal is most at risk) unless something more urgent has come up, and say why if you're recommending something else. State it as a recommendation. The executive can redirect if they disagree.
@@ -164,4 +171,5 @@ If they close without saving, note the risk: anything discussed in this session 
 - If the same extra instruction keeps getting typed alongside `/start`, flag that it probably belongs in CLAUDE.md as a standing rule instead.
 - A sparse vault is not a failure. It is day one. Treat it accordingly.
 - The session is only as good as what gets written back at the end. Always prompt for `/save`.
+- `/start` notices meetings and follow-ups; it never processes them. One line each at most, and only when there's something to act on.
 - `/start` and `/review` are separate on purpose — one is fast and daily, the other is deep and weekly. Don't run a full review inside `/start`. Just notice when one's overdue and say so in one line; let the executive decide when to actually run it.

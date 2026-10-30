@@ -1,7 +1,7 @@
 ---
 name: review
 description: "Weekly review from the AI Chief of Staff. Use this skill whenever the executive says '/review', wants a weekly review, asks 'how did the week go', wants to look back on the week, plan the week ahead, or step back and see the bigger picture across projects and priorities. Reads the full vault, surfaces what moved and what stalled, names patterns the executive may not be seeing, and sets the priority and intentions for the week ahead. Deeper and more reflective than a daily brief. Also writes the review back to memory."
-version: 1.1.0
+version: 1.2.0
 allowed-tools: [Read, Write, Edit]
 ---
 
@@ -34,6 +34,7 @@ Read the full vault silently before producing any output:
 5. `/memory/library/decisions.md` if it exists — decisions logged this week
 6. Recent files in `/outputs/` — what was produced this week
 7. Scan `/data/` for sources captured this week that inform the picture
+8. If the executive uses `/minutes` (`memory/reference/meetings.md` exists): this week's rows in `memory/meetings-ledger.md`, the minutes files they point to in `/outputs/meetings/`, and open follow-ups from the configured destination (`outputs/follow-ups.md`, or one query to the external task system). If a meeting tool is connected, also count this week's meetings not in the ledger.
 
 If a prior review exists in `/outputs/reviews/`, read the most recent one — you need last week's intentions to hold this week accountable.
 
@@ -57,6 +58,11 @@ What progressed this week. Projects advanced, decisions made, loops closed, thin
 
 **What stalled:**
 What didn't move that should have. Be specific about why where you can see it. Stalled isn't failure — but unnamed, it becomes a pattern.
+
+---
+
+**Meetings and commitments:** (only if the executive uses `/minutes`)
+Three or four lines. How many meetings were debriefed vs. held (if the meeting tool can tell you). Action items: how many of the executive's own were created this week and how many were closed. "Waiting on" items older than 7 days, named with the person. The point is the commitment ledger, not activity: if the executive is creating follow-ups faster than closing them, or someone keeps owing them things, say so — that's a pattern, and it belongs in Patterns too.
 
 ---
 
@@ -114,4 +120,5 @@ Do this as part of the review — the executive shouldn't need to run `/save` se
 - The patterns section is where the value is. Spend the most care there.
 - If the vault shows little activity this week, that absence is itself a finding — name it.
 - Hold last week's intentions accountable. A review that never checks back is just a status update.
+- Commitments made in meetings are the easiest to lose. If the follow-up count only goes up, name it.
 - One priority for the week ahead. Resist the urge to list. Focus is the gift you're giving.

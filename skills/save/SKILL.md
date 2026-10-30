@@ -1,7 +1,7 @@
 ---
 name: save
 description: "End-of-session memory write-back for the AI Chief of Staff. Use this skill whenever the executive is wrapping up a session, says '/save', 'save to memory', 'save this', 'remember this', or signals the conversation is ending. Synthesizes everything significant from the session — shifted priorities, project updates, decisions made, new people, new context — and writes it back to the vault, logs decisions, saves outputs, and updates the memory index. This is the habit that makes the system compound. Prompt for it before any session ends; nothing persists to the next session without it."
-version: 1.1.0
+version: 1.2.0
 allowed-tools: [Read, Write, Edit, Bash]
 ---
 
@@ -39,6 +39,10 @@ Review everything discussed in the current conversation. Identify what needs to 
 
 **Outputs generated:**
 - Any briefs, analyses, or responses produced during the session worth keeping
+
+**Meetings discussed but not debriefed:**
+- If the session talked about a meeting in any substance — what someone said, what was agreed, who owes what — and the vault uses `/minutes` (`memory/reference/meetings.md` exists), check `memory/meetings-ledger.md`. If the meeting isn't there, suggest `/minutes debrief` before saving, in one line: *"We talked through the call with Jordan but it isn't in the meetings ledger — want to run `/minutes debrief` first so the action items get tracked?"* If they decline, save what was discussed as normal; just don't create action items here.
+- If the session already ran `/minutes`, its memory writes are done — don't duplicate them. Only save what the session added beyond the minutes.
 
 If nothing significant changed — a short session, a single task, no new context — say so honestly. A light save is still a save.
 
@@ -159,6 +163,7 @@ Before the session ends, run a quick internal check:
 - [ ] Outputs saved to `/outputs/` if worth keeping
 - [ ] Every new initiative has a `memory.md` line, including ones written only into `/data`
 - [ ] `memory/sync-ledger.md` updated for any `/data` file touched this session
+- [ ] Any meeting discussed in substance is in `memory/meetings-ledger.md`, or `/minutes debrief` was offered
 - [ ] `memory.md` updated
 - [ ] Executive confirmed nothing was missed
 

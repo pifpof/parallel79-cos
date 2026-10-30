@@ -1,7 +1,7 @@
 ---
 name: sync
 description: "Catch-up ingest for the AI Chief of Staff. Use this skill whenever the executive says '/sync', has dropped multiple files or sources into /data without processing them, says 'catch up on what I added', 'process my sources', 'I dumped a bunch of stuff in there', or wants the system to absorb everything that's accumulated since the last sync. Scans /data for raw sources that haven't been compiled into memory yet, reads them, and merges their knowledge into the existing wiki structure. This is the batch version of /capture — maintenance rather than intentional single-source ingest."
-version: 1.1.0
+version: 1.2.0
 allowed-tools: [Read, Write, Edit, Bash]
 ---
 
@@ -60,6 +60,8 @@ Create it if it doesn't exist. It is a system file: list it in `memory.md` once,
 
 ## Step 2 — Process Each Source
 
+**Meeting transcripts are not a `/sync` job.** If a new source is a meeting transcript or raw meeting notes (speaker turns, timestamps, an attendee list), don't compile it here — list it in the report as a candidate for `/minutes`, which extracts action items and strips the small talk and personal content a raw transcript carries. Leave the file where it is; the executive decides. Webinar and talk transcripts are content and sync as normal.
+
 For each **new** source, run the same compilation logic as `/capture`:
 
 1. Read the source through the lens of the executive's priorities, projects, and people
@@ -96,6 +98,8 @@ Summarize what the sync accomplished. Be concise but specific:
 *"Synced [N] sources ([n] new, [n] changed since last compile). [One line on what they covered.] Updated [which projects or topics], and added [N] new entries to the library. [One line flagging anything that stood out or needs the executive's attention, if relevant.]"*
 
 If any source couldn't be processed — unreadable file, ambiguous content — flag it here and ask how the executive wants to handle it.
+
+If any sources were meeting transcripts, name them in one line and offer `/minutes` on them.
 
 ---
 
