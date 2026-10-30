@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Chief of Staff — User Guide · Parallel79°</title>
-  <meta name="description" content="A complete guide to your AI Chief of Staff skill pack — installation, daily use, the eight commands, vault structure, and maintenance. By Parallel79°." />
+  <meta name="description" content="A complete guide to your AI Chief of Staff skill pack — installation, daily use, the nine commands, vault structure, and maintenance. By Parallel79°." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -952,7 +952,7 @@
     <div class="container">
       <div class="hero-eyebrow fade-up">
         <span class="eyebrow-dot"></span>
-        Claude Code Skill Pack · v1.0.0 · 9 Skills
+        Claude Code Skill Pack · v1.6.0 · 9 Skills
       </div>
       <h1 class="fade-up">
         Your AI <em class="gradient-text">Chief of Staff</em><br />
@@ -975,7 +975,7 @@
       </p>
       <div class="stats-bar fade-up">
         <div class="stat">
-          <div class="stat-number">8</div>
+          <div class="stat-number">9</div>
           <div class="stat-label">Skills</div>
         </div>
         <div class="stat">
@@ -1096,12 +1096,12 @@
 
   <hr class="section-divider" />
 
-  <!-- ══ EIGHT COMMANDS ══ -->
+  <!-- ══ NINE COMMANDS ══ -->
   <section class="section" id="commands">
     <div class="container">
       <div class="fade-up">
         <p class="section-tag">Skills Reference</p>
-        <h2 class="section-title">Eight commands. Complete coverage.</h2>
+        <h2 class="section-title">Nine commands. Complete coverage.</h2>
         <p class="section-sub">You don't need to memorize these — you'll learn them by using them. Here's the full set.</p>
       </div>
 
@@ -1173,7 +1173,7 @@
                 <div class="cmd-name">Capture a Source</div>
               </div>
               <div class="cmd-desc">Hand it something to remember — a URL, a report, a document, or pasted text. It reads the source, extracts what matters <em>to you specifically</em>, files the raw material in <code>/data</code>, and compiles the knowledge into the wiki with cross-links to existing memory. This is how the library grows.</div>
-              <div class="cmd-tip"><strong>Examples:</strong> A competitor's product update, an industry report, meeting notes from a client call, an article you want to remember.</div>
+              <div class="cmd-tip"><strong>Examples:</strong> A competitor's product update, an industry report, an article you want to remember. (For meetings, use <code>/minutes</code>.)</div>
             </div>
 
             <div class="cmd-card fade-up">
@@ -1208,6 +1208,19 @@
               </div>
               <div class="cmd-desc">Batch version of <code>/capture</code>. Dropped a stack of files into <code>/data</code> without processing them? Run <code>/sync</code> and the system catches up — scanning for unprocessed sources, reading them oldest-first, and compiling everything into the wiki.</div>
               <div class="cmd-tip"><strong>When:</strong> After a period of offline work, or when you've accumulated several documents you want absorbed at once.</div>
+            </div>
+
+            <div class="cmd-card fade-up">
+              <div class="cmd-card-header">
+                <div class="cmd-icon">📝</div>
+                <span class="cmd-badge badge-ingest">Ingest — Meetings</span>
+              </div>
+              <div>
+                <div class="cmd-command">/minutes</div>
+                <div class="cmd-name">Meeting Minutes</div>
+              </div>
+              <div class="cmd-desc">Turns a meeting into minutes, action items and memory. Pulls the transcript from a connected meeting tool like Granola — or takes a pasted transcript, or a quick spoken debrief (<code>/minutes debrief</code>). Strips the small talk and anything sensitive, writes clean minutes to <code>/outputs/meetings</code>, and sorts action items from your seat: what <em>you</em> owe, what you're <em>waiting on</em>, and what others owe each other. Updates people, projects and decisions in memory, and — once you approve — sends your to-dos to your task system. Raw transcripts never land in the vault.</div>
+              <div class="cmd-tip"><strong>When:</strong> After any meeting that mattered, or <code>/minutes today</code> at the end of the day. Settings live in <code>memory/reference/meetings.md</code>; until you point it at a task system, to-dos go to <code>outputs/follow-ups.md</code>.</div>
             </div>
 
             <div class="cmd-card fade-up">
@@ -1302,7 +1315,7 @@
           <div class="vault-folder">/outputs</div>
           <div class="vault-item-content">
             <h4>Outputs</h4>
-            <p>Generated content worth keeping — daily briefs, query answers, weekly reviews. Named with dates so your history is auditable.</p>
+            <p>Generated content worth keeping — daily briefs, query answers, weekly reviews, meeting minutes in <code>/outputs/meetings</code>. Named with dates so your history is auditable.</p>
           </div>
         </div>
         <div class="vault-item">
@@ -1347,7 +1360,7 @@
         <div class="tip-card">
           <div class="tip-number">02</div>
           <h3>Feed it what matters.</h3>
-          <p>The more you capture, the smarter the system gets. When you read something that matters to your business — a competitor's announcement, a market report, notes from a key meeting — hand it over with <code>/capture</code>. Every source makes every future answer sharper.</p>
+          <p>The more you capture, the smarter the system gets. When you read something that matters to your business — a competitor's announcement, a market report, hand it over with <code>/capture</code>. After a meeting that mattered, run <code>/minutes</code>. Every source makes every future answer sharper.</p>
         </div>
         <div class="tip-card">
           <div class="tip-number">03</div>
@@ -1565,7 +1578,7 @@
       <div class="fade-up">
         <p class="section-tag">Extensibility</p>
         <h2 class="section-title">Build skills for your specific role.</h2>
-        <p class="section-sub">The eight baseline skills cover the core loop. Role-specific skills are where the system truly diverges — and where the real leverage lives.</p>
+        <p class="section-sub">The nine baseline skills cover the core loop. Role-specific skills are where the system truly diverges — and where the real leverage lives.</p>
       </div>
 
       <div class="steps-list fade-up">

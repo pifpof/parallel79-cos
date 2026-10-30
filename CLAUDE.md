@@ -5,7 +5,7 @@
 
 ## What This Project Is
 
-**AI Chief of Staff** is a Claude Code Skill Pack — a set of eight interrelated skills that turns Claude Code into a personal knowledge operating system for an executive. Built on Andrej Karpathy's LLM wiki pattern: raw sources are compiled incrementally into a structured Markdown knowledge base that grows more valuable over time.
+**AI Chief of Staff** is a Claude Code Skill Pack — a set of nine interrelated skills that turns Claude Code into a personal knowledge operating system for an executive. Built on Andrej Karpathy's LLM wiki pattern: raw sources are compiled incrementally into a structured Markdown knowledge base that grows more valuable over time.
 
 **Origin:** Created by Shahed Khalili (Parallel79) to fulfil a consulting engagement (a multi-executive, 3-session workshop series). Now being packaged for submission to the Claude Marketplace.
 
@@ -39,17 +39,20 @@ ai-chief of staff/
 │
 ├── schema/                      ← Template vault (deployed per executive on /onboard)
 │   ├── CLAUDE.md                ← Operating instructions template (customised per exec)
-│   ├── memory.md                ← NEEDS FIX: currently duplicates CLAUDE.md — should be
-│   │                               an empty memory index template, not instructions
+│   ├── memory.md                ← Empty memory index template
 │   ├── data/                    ← Empty. Populated as sources arrive.
 │   ├── memory/
 │   │   ├── profile/             ← Empty. Seeded by /onboard.
-│   │   ├── projects/            ← Empty. Written by /save and /capture.
-│   │   └── library/             ← Empty. Written by /capture and /sync.
-│   ├── output/                  ← Empty. Written by /review, /query.
+│   │   ├── projects/            ← Empty. Written by /save, /capture, /minutes.
+│   │   ├── library/             ← Empty. Written by /capture and /sync.
+│   │   └── reference/           ← Empty. meetings.md created by /minutes on first run.
+│   ├── outputs/                 ← Written by /review, /query. (Renamed from output/
+│   │   └── meetings/               in v1.6.0 — every skill writes to /outputs.)
 │   └── trash/                   ← Empty. Receives removed files.
+│                                   (Empty folders carry a .gitkeep so git installs
+│                                    get the full structure.)
 │
-├── skills/                      ← All 8 skills. Each is a folder with SKILL.md.
+├── skills/                      ← All 9 skills. Each is a folder with SKILL.md.
 │   ├── onboard/SKILL.md         ← First-time setup. Two-phase: define persona → brief
 │   ├── start/SKILL.md           ← Session start. Read vault → deliver brief. Also the
 │   │                               one place to layer in extra, session-specific
@@ -59,7 +62,11 @@ ai-chief of staff/
 │   ├── capture/SKILL.md         ← Ingest one source → /data → compile into /memory.
 │   ├── sync/SKILL.md            ← Batch: process all uncompiled sources in /data.
 │   ├── query/SKILL.md           ← Answer from wiki. Writes to /outputs.
-│   └── lint/SKILL.md            ← Health check. Fix safe issues, surface judgment calls.
+│   ├── lint/SKILL.md            ← Health check. Fix safe issues, surface judgment calls.
+│   └── minutes/                 ← Meeting → minutes, action items, memory. (v1.6.0)
+│       ├── SKILL.md
+│       └── references/          ← config-template, minutes-template, destinations,
+│                                   language-notes-farsi
 │
 ├── dist/                        ← Packaged distribution artifacts, built by install.sh:
 │                                    one combined ai-chief-of-staff.zip (the whole plugin,
@@ -73,7 +80,7 @@ ai-chief of staff/
 
 ---
 
-## The Eight Skills — Summary
+## The Nine Skills — Summary
 
 | Skill | When | What it does |
 |---|---|---|
@@ -85,6 +92,16 @@ ai-chief of staff/
 | `/sync` | Batch | Catch up on everything dropped into `/data` since last sync. Oldest first. |
 | `/query` | Ad hoc | Answer question from compiled wiki. Lead with the answer. Save to `/outputs`. |
 | `/lint` | Weekly/monthly | Health check. Fix safe issues silently; surface judgment calls. Never delete. |
+| `/minutes` | After meetings | Granola (or paste / spoken debrief) → sanitized minutes in `/outputs/meetings/`, action items as mine / waiting on / others, memory + CRM updates, routing to the exec's task system after approval. Config in the vault at `memory/reference/meetings.md`. |
+
+### `/minutes` design notes (v1.6.0)
+
+- **Generic in the plugin, specific in the vault.** No names, base/table IDs or connectors in `skills/minutes/`. Everything executive-specific lives in `memory/reference/meetings.md`, created from `references/config-template.md` on first run. Before release, grep `skills/` and `schema/` for client names and IDs.
+- **No raw transcripts in the vault.** Deliberate exception to `/capture`'s "preserve raw in /data": the meeting tool is the source of record, the sanitized minutes file is the lineage anchor (`sources` points at `outputs/meetings/...`).
+- **External writes need approval** in the default `review: external-only` mode; minutes and memory are written immediately.
+- **`memory/meetings-ledger.md`** is the system file for processed meetings (dedupe, "since last"), parallel to `sync-ledger.md`.
+- **Not yet wired into other skills.** `/start` (radar line for undebriefed meetings + overdue follow-ups), `/save` (suggest `/minutes debrief`), `/review` (meeting/action-item flow), `/onboard` (optional meetings question) and `/lint` (ledger gaps, lineage, config) are planned but not built. Spec: `updates/ai-chief-of-staff-minutes/` (gitignored).
+- **Untested against real meetings.** Fixtures F1–F7 in the implementation plan still need running.
 
 ---
 
@@ -158,7 +175,7 @@ Only `name` is required. Everything else — `description`, `version`, `author`,
 ```json
 {
   "name": "ai-chief-of-staff",
-  "version": "1.2.0",
+  "version": "1.6.0",
   "description": "A personal AI Chief of Staff for executives. Maintains a structured knowledge base that compounds over time — knows your business, remembers context, and works alongside you every day.",
   "author": {
     "name": "Shahed Khalili / Parallel79",
@@ -175,7 +192,7 @@ Only add a `skills` field if skills live somewhere other than the default `skill
 
 ### SKILL.md frontmatter — two types
 
-**User-invoked slash command** (all 8 CoS skills are this type):
+**User-invoked slash command** (all 9 CoS skills are this type):
 ```yaml
 ---
 name: skill-name
@@ -189,7 +206,7 @@ allowed-tools: [Read, Write, Edit, Bash, WebFetch]  # pre-approves tools, reduce
 
 ### SKILL.md frontmatter — current state vs. required
 
-All 8 SKILL.md files include `name`, `description`, `version`, and `allowed-tools` in frontmatter. `start` additionally sets `argument-hint`, since it's the one skill designed to take optional per-session instructions. No changes needed.
+All 9 SKILL.md files include `name`, `description`, `version`, and `allowed-tools` in frontmatter. `start` and `minutes` additionally set `argument-hint`, since they take optional arguments. No changes needed.
 
 ### What's still missing
 
@@ -255,13 +272,13 @@ The SKILL.md format is the agentskills.io open standard — portable to all majo
 Run `./install.sh` to build `dist/`. It now produces two kinds of output:
 
 1. **`dist/ai-chief-of-staff.zip`** — the whole plugin (`.claude-plugin/`, all of `skills/`, `schema/`, `README.md`, `LICENSE`) as one archive. This is the one-step install: unzip it and install the folder as a Claude Code plugin, or push it to GitHub and run `/plugin install <repo>`. It replaces the old ad hoc approach of manually zipping `skills/` in Finder (that produced `skills.zip` at the repo root, which is now stale and superseded — safe to delete).
-2. **`dist/<skill>.skill`** — one zip per skill, unchanged in format, kept for flows that only support installing a single skill at a time (e.g. dragging one skill into Cowork's Customize → Skills panel).
+2. **`dist/<skill>.skill`** — one zip per skill (the whole skill folder, including `references/`), kept for flows that only support installing a single skill at a time (e.g. dragging one skill into Cowork's Customize → Skills panel).
 
 Both are built with `COPYFILE_DISABLE=1` and `zip -X` to avoid macOS resource-fork cruft (`__MACOSX/`, `._*` files) — the older manual zips in `dist/` (`onboard-save-sync.zip`, `save-lint.zip`) had this problem and were manual workarounds for not having a combined package; they're superseded by `ai-chief-of-staff.zip` and safe to delete.
 
 ### Installer (`bin/install.js`)
 
-Copies `skills/*/SKILL.md` to the correct directory for the target platform. Run with `npx ai-chief-of-staff-skills` or `npx ai-chief-of-staff-skills --platform <name>`. The `--vault` flag also copies `schema/` as a vault template.
+Copies each `skills/<name>/` folder (SKILL.md plus `references/`) to the correct directory for the target platform. Run with `npx ai-chief-of-staff-skills` or `npx ai-chief-of-staff-skills --platform <name>`. The `--vault` flag also copies `schema/` as a vault template.
 
 Supported platform flags: `claude`, `claude-project`, `cowork`, `antigravity`, `gemini`, `codex`, `copilot`.
 

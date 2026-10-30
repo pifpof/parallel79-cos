@@ -34,7 +34,7 @@ That's the core loop. Start the session, save at the end. Everything in between 
 
 ---
 
-## The Eight Commands
+## The Nine Commands
 
 You don't need to memorize these. You'll learn them by using them. But here's the full set so you know what's available.
 
@@ -54,6 +54,8 @@ You don't need to memorize these. You'll learn them by using them. But here's th
 
 **`/sync`** — Dropped a stack of files in and want them all absorbed at once? This catches the system up on everything new.
 
+**`/minutes`** — Turn a meeting into minutes and action items. If you record meetings with a tool like Granola, it pulls the transcript itself; otherwise paste one in, or just type `/minutes debrief` and tell it what happened. It strips the small talk, writes clean minutes into `outputs/meetings/`, and sorts the action items from your point of view: what *you* owe, what you're *waiting on* from others, and what others owe each other. Then it updates memory — new people, project progress, decisions — and, once you say yes, sends your to-dos to your task system. `/minutes today` does all of today's meetings in one go. The first run creates a settings file at `memory/reference/meetings.md` where you tell it where your to-dos live; until then they go to `outputs/follow-ups.md`.
+
 ### Asking the system
 
 **`/query`** — Ask a question and get an answer drawn from your own accumulated knowledge — not the open internet. "What did we decide about the vendor contract?" "Pull together everything we know about this client." The longer you've used the system, the better these answers get.
@@ -72,7 +74,7 @@ The folder has a few parts:
 
 - **`data`** — Raw material you've fed in. Reports, articles, documents. Never changed once it's there. This is the record of everything the system has ever read.
 - **`memory`** — What your Chief of Staff actually knows. Your profile, your projects, and a library of everything worth retaining. This is the part that compounds.
-- **`outputs`** — Things it produces for you. Briefs, answers, weekly reviews.
+- **`outputs`** — Things it produces for you. Briefs, answers, weekly reviews, meeting minutes.
 - **`trash`** — Things you've removed from the picture but don't want gone forever.
 
 If you want to *see* your system rather than just talk to it, open the folder in **Obsidian**. It turns your memory into a visual map you can browse and click through. You don't need it to use the system — but it's a satisfying way to watch your knowledge base grow.
@@ -86,6 +88,8 @@ If you want to *see* your system rather than just talk to it, open the folder in
 **Feed it.** The more you capture, the smarter it gets. When you read something that matters to your business, hand it over. Every source makes every future answer better.
 
 **Talk to it like a colleague, not a search box.** It has context. Use it. "What should I be worried about going into the board meeting?" is a better question than anything you'd type into Google — because it knows your board, your business, and your last three months.
+
+**Debrief your meetings.** Most of your decisions and commitments happen in meetings. Run `/minutes` after the important ones — or `/minutes today` at the end of the day — and none of it depends on you remembering to retell it.
 
 **Let it push back.** A good Chief of Staff doesn't just take orders — it notices patterns, flags what's being avoided, and tells you what you might not want to hear. That's the point. The weekly review especially is built to be honest with you.
 
@@ -123,7 +127,7 @@ npx ai-chief-of-staff-skills --platform codex
 npx ai-chief-of-staff-skills --platform copilot
 ```
 
-**Manual — copy the `skills/*/SKILL.md` files to your platform's skill directory:**
+**Manual — copy each folder in `skills/` (the `SKILL.md` plus any `references/` folder alongside it) to your platform's skill directory:**
 
 | Platform | Directory |
 |---|---|

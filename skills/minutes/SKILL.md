@@ -123,7 +123,7 @@ This is the Chief of Staff step — what turns minutes into knowledge. Plan the 
 
 - **People.** For each attendee and each person discussed: check `memory.md`, people files, and every file's `aliases` before deciding someone is new. New person who matters (a prospect, a new partner, someone the executive will deal with again) → create their file per the vault's people convention. Known person → add what was learned: role changes, preferences, context, what they're working on.
 - **Projects.** Add progress, decisions and blockers to the matching `/memory/projects/` files.
-- **Decisions.** Log material decisions in `/memory/decisions/YYYY-MM-DD-<slug>.md` using the vault's existing decision format. A decision is material if it commits money, time, direction or a relationship.
+- **Decisions.** Log material decisions the same way `/save` does: under a `## Decisions` section in the relevant project file (What was decided / Why / What it affects), or in `/memory/library/decisions.md` if it isn't project-specific. If the vault's CLAUDE.md defines a different decision log, follow that instead. A decision is material if it commits money, time, direction or a relationship.
 - **Priorities.** If the meeting moves a stated priority or this week's goals, note it in the relevant file. Don't rescore goals — that's `/review`'s job.
 - **CRM.** If config sets `crm_convention` to a file, read that file and follow it exactly: new contact, new opportunity, stage changes, follow-ups — whatever it specifies. If `crm_convention: none`, skip.
 - **Hourly clients.** If config has an `hourly_rule` and the meeting matches it, plan the time entry it describes. If the duration isn't known from the meeting metadata, ask for it on the review card.
