@@ -40,7 +40,7 @@ DIST_DIR="$REPO_ROOT/dist"
 TMP_DIR="$REPO_ROOT/.build-tmp"
 
 PACK_NAME="AI Chief of Staff"
-PACK_VERSION="1.3.0"
+PACK_VERSION="1.6.0"
 
 # ── Colours ───────────────────────────────────────────────────────────────────
 GOLD='\033[38;5;214m'; GREEN='\033[0;32m'; DIM='\033[2m'; RED='\033[0;31m'; NC='\033[0m'
@@ -92,9 +92,10 @@ for skill_dir in "$SKILLS_DIR"/*/; do
     continue
   fi
 
-  # Stage: tmp/<name>/SKILL.md (folder becomes the zip root)
-  mkdir -p "$TMP_DIR/$name"
-  cp "$md" "$TMP_DIR/$name/SKILL.md"
+  # Stage: tmp/<name>/ (folder becomes the zip root). Copy the whole skill
+  # folder, not just SKILL.md, so references/ templates ship with the skill.
+  cp -R "$skill_dir" "$TMP_DIR/$name"
+  find "$TMP_DIR/$name" -name ".DS_Store" -delete
 
   # Zip from inside tmp/ so the archive root is <name>/SKILL.md, not a full path
   (cd "$TMP_DIR" && zip -qrX "$DIST_DIR/${name}.skill" "$name/")

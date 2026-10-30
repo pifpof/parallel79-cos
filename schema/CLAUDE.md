@@ -78,6 +78,7 @@ Read silently. Do not narrate the process. The executive does not need to know y
 | `/capture <url or file>` | Ingest a source into /data. Extract takeaways. Update relevant memory files. |
 | `/sync` | Scan /data for unprocessed sources. Compile into memory. |
 | `/query <prompt>` | Ask a question against the clean wiki context. Writes answer to /outputs. |
+| `/minutes [keyword \| today \| debrief]` | Turn a meeting into minutes in /outputs/meetings, sort action items (mine / waiting on / others), route them after approval, and update memory. Settings in memory/reference/meetings.md. |
 
 ---
 

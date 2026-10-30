@@ -71,9 +71,9 @@ function main() {
     const skillSrc = path.join(skillsDir, skillName, 'SKILL.md');
     if (!fs.existsSync(skillSrc)) continue;
 
+    // Copy the whole skill folder so references/ templates ship with it
     const skillDest = path.join(targetBase, skillName);
-    fs.mkdirSync(skillDest, { recursive: true });
-    fs.copyFileSync(skillSrc, path.join(skillDest, 'SKILL.md'));
+    copyDir(path.join(skillsDir, skillName), skillDest);
     installed.push(skillName);
   }
 
