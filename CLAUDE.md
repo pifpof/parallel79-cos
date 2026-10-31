@@ -5,7 +5,7 @@
 
 ## What This Project Is
 
-**AI Chief of Staff** is a Claude Code Skill Pack — a set of nine interrelated skills that turns Claude Code into a personal knowledge operating system for an executive. Built on Andrej Karpathy's LLM wiki pattern: raw sources are compiled incrementally into a structured Markdown knowledge base that grows more valuable over time.
+**AI Chief of Staff** is a Claude Code Skill Pack — a set of ten interrelated skills that turns Claude Code into a personal knowledge operating system for an executive. Built on Andrej Karpathy's LLM wiki pattern: raw sources are compiled incrementally into a structured Markdown knowledge base that grows more valuable over time.
 
 **Origin:** Created by Shahed Khalili (Parallel79) to fulfil a consulting engagement (a multi-executive, 3-session workshop series). Now being packaged for submission to the Claude Marketplace.
 
@@ -52,7 +52,7 @@ ai-chief of staff/
 │                                   (Empty folders carry a .gitkeep so git installs
 │                                    get the full structure.)
 │
-├── skills/                      ← All 9 skills. Each is a folder with SKILL.md.
+├── skills/                      ← All 10 skills. Each is a folder with SKILL.md.
 │   ├── onboard/SKILL.md         ← First-time setup. Two-phase: define persona → brief
 │   ├── start/SKILL.md           ← Session start. Read vault → deliver brief. Also the
 │   │                               one place to layer in extra, session-specific
@@ -63,6 +63,7 @@ ai-chief of staff/
 │   ├── sync/SKILL.md            ← Batch: process all uncompiled sources in /data.
 │   ├── query/SKILL.md           ← Answer from wiki. Writes to /outputs.
 │   ├── lint/SKILL.md            ← Health check. Fix safe issues, surface judgment calls.
+│   ├── recenter/SKILL.md        ← Mid-session persona/tone reset. (v1.7.0)
 │   └── minutes/                 ← Meeting → minutes, action items, memory. (v1.6.0)
 │       ├── SKILL.md
 │       └── references/          ← config-template, minutes-template, destinations,
@@ -80,7 +81,7 @@ ai-chief of staff/
 
 ---
 
-## The Nine Skills — Summary
+## The Ten Skills — Summary
 
 | Skill | When | What it does |
 |---|---|---|
@@ -92,7 +93,15 @@ ai-chief of staff/
 | `/sync` | Batch | Catch up on everything dropped into `/data` since last sync. Oldest first. |
 | `/query` | Ad hoc | Answer question from compiled wiki. Lead with the answer. Save to `/outputs`. |
 | `/lint` | Weekly/monthly | Health check. Fix safe issues silently; surface judgment calls. Never delete. |
+| `/recenter` | Mid-session | Re-reads `CLAUDE.md` + `memory/profile/style.md`, checks recent replies for directness / pushback / register drift, names and corrects drift in one line, logs it to `style.md`'s `## Corrections`. Auto-triggered via the "Staying in Character" section of the schema `CLAUDE.md` (compaction, heavy tool output, persona complaints). |
 | `/minutes` | After meetings | Granola (or paste / spoken debrief) → sanitized minutes in `/outputs/meetings/`, action items as mine / waiting on / others, memory + CRM updates, routing to the exec's task system after approval. Config in the vault at `memory/reference/meetings.md`. |
+
+### `/recenter` design notes (v1.7.0)
+
+- **Why it exists:** context compaction summarizes long conversations and tends to keep task facts while dropping persona/tone framing, so the CoS drifts toward a generic assistant mid-session. Heavy tool output dilutes it the same way, more slowly.
+- **Trigger lives in the schema, not just the skill.** A skill description alone only fires when the model thinks of it; the "Staying in Character" section in `schema/CLAUDE.md` is what makes it run after compaction without being asked.
+- **Corrections log is `memory/profile/style.md` → `## Corrections`**, created on first real drift. Chosen over a separate feedback folder so it lives in the file `/onboard` already creates and `/start` already reads. A vault can point elsewhere via its own `CLAUDE.md`.
+- Generalized from a skill used in the author's own vault; no personal paths, names or rules carried over.
 
 ### `/minutes` design notes (v1.6.0)
 
@@ -175,7 +184,7 @@ Only `name` is required. Everything else — `description`, `version`, `author`,
 ```json
 {
   "name": "ai-chief-of-staff",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "A personal AI Chief of Staff for executives. Maintains a structured knowledge base that compounds over time — knows your business, remembers context, and works alongside you every day.",
   "author": {
     "name": "Shahed Khalili / Parallel79",
@@ -192,7 +201,7 @@ Only add a `skills` field if skills live somewhere other than the default `skill
 
 ### SKILL.md frontmatter — two types
 
-**User-invoked slash command** (all 9 CoS skills are this type):
+**User-invoked slash command** (all 10 CoS skills are this type):
 ```yaml
 ---
 name: skill-name
@@ -206,7 +215,7 @@ allowed-tools: [Read, Write, Edit, Bash, WebFetch]  # pre-approves tools, reduce
 
 ### SKILL.md frontmatter — current state vs. required
 
-All 9 SKILL.md files include `name`, `description`, `version`, and `allowed-tools` in frontmatter. `start` and `minutes` additionally set `argument-hint`, since they take optional arguments. No changes needed.
+All 10 SKILL.md files include `name`, `description`, `version`, and `allowed-tools` in frontmatter. `start` and `minutes` additionally set `argument-hint`, since they take optional arguments. No changes needed.
 
 ### What's still missing
 
@@ -248,7 +257,7 @@ This context is useful for writing marketplace copy. The use case is concrete: 6
 
 | Channel | How | Status |
 |---|---|---|
-| GitHub | `/plugin marketplace add pifpof/parallel79-cos` → `/plugin install ai-chief-of-staff@parallel79` | Live (v1.6.0) |
+| GitHub | `/plugin marketplace add pifpof/parallel79-cos` → `/plugin install ai-chief-of-staff@parallel79` | Live (v1.7.0) |
 | npx (from GitHub) | `npx github:pifpof/parallel79-cos [--platform <name>]` | Live — runs `bin/install.js` straight from the repo |
 | npx (from npm) | `npx ai-chief-of-staff-skills` | Needs `npm publish` |
 | npm | `/plugin install npm:ai-chief-of-staff-skills` | Needs `npm publish` |

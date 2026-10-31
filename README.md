@@ -34,7 +34,7 @@ That's the core loop. Start the session, save at the end. Everything in between 
 
 ---
 
-## The Nine Commands
+## The Ten Commands
 
 You don't need to memorize these. You'll learn them by using them. But here's the full set so you know what's available.
 
@@ -43,6 +43,8 @@ You don't need to memorize these. You'll learn them by using them. But here's th
 **`/start`** — Start a session. Your Chief of Staff restores context and tells you where things stand. If you keep weekly goals in `/outputs/goals/` (one `YYYY-MM-DD-weekly-goals.md` file per week), it also reads this week's goals and tells you where your #1 goal stands. Add extra instructions right on the command — `/start also check X` — for anything this particular session needs that's beyond the standing rules in `CLAUDE.md`.
 
 **`/save`** — End a session. Writes what changed back to memory so nothing is lost.
+
+**`/recenter`** — A mid-session reset. In a long session, your Chief of Staff can slowly lose its edge: softer, more hedged, more like a generic assistant. The usual cause is the conversation being automatically condensed to save space, which keeps the facts but can drop the "who you are" instructions. `/recenter` re-reads its instructions and your working style, checks its recent replies, and tells you in one line if it had drifted. It runs on its own after a long conversation is condensed; type it yourself whenever it doesn't sound like itself.
 
 ### Every week
 

@@ -76,7 +76,7 @@ tags: []
 
 ## 3. How the Skills Work Together
 
-Nine skills, grouped by function. They share two pieces of common infrastructure: they all read `CLAUDE.md` + `memory.md` to orient, and they all respect the memory file contract when writing.
+Ten skills, grouped by function. They share two pieces of common infrastructure: they all read `CLAUDE.md` + `memory.md` to orient, and they all respect the memory file contract when writing.
 
 ```
 SETUP        /onboard    Defines persona (writes CLAUDE.md) + seeds profile
@@ -86,6 +86,9 @@ SESSION      /start      Read vault → brief. Start of session. Also the one pl
                          CLAUDE.md (a slow connector lookup only this session
                          needs, say) — pass them as arguments: /start <extra>.
 LOOP         /save       Synthesize session → write back. End of session.
+             /recenter   Mid-session persona/tone reset. Re-reads CLAUDE.md +
+                         style.md, corrects and logs drift. Auto-triggered
+                         after context compaction.
 
 CONSUMPTION  /review     Weekly synthesis + accountability. Self-saves.
 
@@ -148,6 +151,12 @@ Keep everything executive-specific (names, base IDs, table IDs) in this file, ne
 
 `memory/meetings-ledger.md` records every processed meeting. It's what prevents duplicates on re-runs and what "since last" counts from; don't hand-edit it except to remove a row you want reprocessed.
 
+### Persona drift (`/recenter`)
+
+Long sessions dilute the persona. The main cause is context compaction: when a conversation is summarized to free up space, the summary keeps task facts and drops identity and tone framing. The result is a Chief of Staff that gets softer and more generic as the day goes on, which is exactly when the executive is relying on it most.
+
+`/recenter` is the fix. The "Staying in Character" section of `CLAUDE.md` tells the model to run it after compaction, after heavy tool output, and whenever the executive flags the persona. It re-reads `CLAUDE.md` and `memory/profile/style.md`, checks recent replies for directness, proactive pushback and register, and corrects forward in one line. Real drift gets a dated line in the `## Corrections` section of `style.md`, which the next `/recenter` reads first, so recurring failure patterns become visible. If an executive keeps complaining the system "isn't itself", check that section: the pattern is usually there.
+
 ### Manual interventions
 
 When you need to step in directly:
@@ -165,7 +174,7 @@ Never hard-delete. `/trash` exists so things can be removed from context without
 
 ## 5. Building New Skills
 
-Skills are the extension point. The nine baseline skills cover the core loop; role-specific and workflow-specific skills are where each executive's system diverges. This is the intended path — teach the pattern, then let each person extend it.
+Skills are the extension point. The ten baseline skills cover the core loop; role-specific and workflow-specific skills are where each executive's system diverges. This is the intended path — teach the pattern, then let each person extend it.
 
 ### Anatomy
 
