@@ -42,7 +42,7 @@ You don't need to memorize these. You'll learn them by using them. But here's th
 
 **`/start`** — Start a session. Your Chief of Staff restores context and tells you where things stand. If you keep weekly goals in `/outputs/goals/` (one `YYYY-MM-DD-weekly-goals.md` file per week), it also reads this week's goals and tells you where your #1 goal stands. Add extra instructions right on the command — `/start also check X` — for anything this particular session needs that's beyond the standing rules in `CLAUDE.md`.
 
-**`/save`** — End a session. Writes what changed back to memory so nothing is lost.
+**`/save`** — End a session. Writes what changed back to memory so nothing is lost, then updates the short card of what matters right now, so your next `/start` is quick and current.
 
 **`/recenter`** — A mid-session reset. In a long session, your Chief of Staff can slowly lose its edge: softer, more hedged, more like a generic assistant. The usual cause is the conversation being automatically condensed to save space, which keeps the facts but can drop the "who you are" instructions. `/recenter` re-reads its instructions and your working style, checks its recent replies, and tells you in one line if it had drifted. It runs on its own after a long conversation is condensed; type it yourself whenever it doesn't sound like itself.
 
@@ -64,7 +64,7 @@ You don't need to memorize these. You'll learn them by using them. But here's th
 
 ### Keeping it healthy
 
-**`/health-check`** — A tune-up. Every so often, run this and your Chief of Staff checks its own memory for anything stale, missing, or contradictory, cleans up what it safely can, and flags anything that needs your call. Weekly or monthly is plenty.
+**`/health-check`** — A tune-up. Every so often, run this and your Chief of Staff checks its own memory for anything stale, missing, or contradictory, cleans up what it safely can, and flags anything that needs your call. It also keeps startup fast: it rebuilds the card and the memory map from your files and tells you if anything has grown too large. Weekly or monthly is plenty.
 
 ---
 
@@ -75,7 +75,7 @@ Your system is just a folder of files on your computer. Nothing is locked away i
 The folder has a few parts:
 
 - **`data`** — Raw material you've fed in. Reports, articles, documents. Never changed once it's there. This is the record of everything the system has ever read.
-- **`memory`** — What your Chief of Staff actually knows. Your profile, your projects, and a library of everything worth retaining. This is the part that compounds.
+- **`memory`** — What your Chief of Staff actually knows. Your profile, your projects, and a library of everything worth retaining. This is the part that compounds. It also holds two small files that keep things fast: a map of the folders (`memory.md`) and a one-screen card of what matters right now (`memory/_state.md`). Each folder keeps its own short index, so your Chief of Staff can find anything without reading everything.
 - **`outputs`** — Things it produces for you. Briefs, answers, weekly reviews, meeting minutes.
 - **`trash`** — Things you've removed from the picture but don't want gone forever.
 
@@ -108,6 +108,8 @@ You're not setting up a tool. You're training a second brain. Show up, save your
 ---
 
 ## Installation
+
+**Upgrading from 1.x?** Version 2.0 changes how memory is laid out so `/start` stays fast as your vault grows. Your existing vault keeps working as it is. When you're ready, run `/health-check` and it will offer to convert it.
 
 **Claude Code / Claude Cowork — via plugin marketplace:**
 ```

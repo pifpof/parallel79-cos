@@ -87,13 +87,15 @@ Project files also carry `status: ""`.
 Ten skills, grouped by function. They share two pieces of common infrastructure: they all orient from `CLAUDE.md` + `memory.md` (the router), finding anything else through folder indexes and frontmatter search, and they all respect the memory file contract when writing.
 
 ```
-SETUP        /onboard    Defines persona (writes CLAUDE.md) + seeds profile
+SETUP        /onboard    Defines persona (writes CLAUDE.md) + seeds profile,
+                         the router, folder indexes and first card
 
 SESSION      /start      Read hot set (router + card + profile) → brief. Start of session. Also the one place
                          to run extra, session-specific instructions beyond
                          CLAUDE.md (a slow connector lookup only this session
                          needs, say) — pass them as arguments: /start <extra>.
-LOOP         /save       Synthesize session → write back. End of session.
+LOOP         /save       Synthesize session → write back → folder indexes →
+                         rewrite the hot-state card (last). End of session.
              /recenter   Mid-session persona/tone reset. Re-reads CLAUDE.md +
                          style.md, corrects and logs drift. Auto-triggered
                          after context compaction.
@@ -108,7 +110,11 @@ INGEST       /capture    One source → /data → compile into /memory.
 RETRIEVAL    /query      Question → read wiki → grounded answer → /outputs.
 
 MAINTENANCE  /health-check  Health check. Fix safe issues, surface judgment calls.
+                         Rebuilds folder indexes and the card from frontmatter;
+                         checks the ~12 KB /start budget.
 ```
+
+**v2.0.0: light `/start`.** `memory.md` became a router (folders, not files), each memory folder got an `_index.md`, and a hot-state card (`memory/_state.md`) now carries what matters right now. `/start` reads a fixed ~12 KB hot set, checks the card is current (falling back to the goals file and project frontmatter when it isn't), then loads on demand by frontmatter search. Frontmatter gained `updated` (all files) and `status` (projects). Pre-2.0 vaults keep working unchanged; `/health-check` offers the conversion.
 
 **`/load` was renamed to `/start`, and `/brief` was retired.** `/brief`'s fast-daily-read niche didn't earn a second skill once `/start` covers it — one command that also takes optional per-session instructions beats two overlapping ones. If you're maintaining a vault that predates this change, `/load` calls become `/start` calls and any workflow built around `/brief` should move to `/start`.
 
@@ -125,7 +131,7 @@ Both paths write through the same memory file contract and both update the folde
 
 ### The dependency that matters most
 
-`/save` is the keystone. Every consumption and retrieval skill is only as good as what `/save` wrote last session. If the executive doesn't save, the system silently stops compounding. This is a behavioral dependency, not a technical one — which is why the README and the workshop hammer the save habit. Worth keeping in mind when you diagnose "the system feels dumb" complaints: nine times out of ten, the executive stopped saving.
+`/save` is the keystone. Every consumption and retrieval skill is only as good as what `/save` wrote last session, and the hot-state card `/start` briefs from is written by `/save` as its last step. If the executive doesn't save, the system silently stops compounding. This is a behavioral dependency, not a technical one — which is why the README and the workshop hammer the save habit. Worth keeping in mind when you diagnose "the system feels dumb" complaints: nine times out of ten, the executive stopped saving.
 
 ---
 
@@ -254,4 +260,4 @@ When a new skill introduces a concept the whole system should understand — a n
 
 ---
 
-*The architecture is deliberately simple: Markdown files, an index, and a contract. Most problems resolve to one of three things — the index is stale, a source wasn't compiled, or the executive stopped saving. Check those first.*
+*The architecture is deliberately simple: Markdown files, an index, and a contract. Most problems resolve to one of three things — an index or the card is stale, a source wasn't compiled, or the executive stopped saving. Check those first.*

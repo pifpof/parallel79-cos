@@ -464,7 +464,7 @@
   <!-- ══ HERO ══ -->
   <section class="hero band-dark">
     <div class="container">
-      <p class="hero-eyebrow reveal">User guide · v1.7.0 · 10 skills</p>
+      <p class="hero-eyebrow reveal">User guide · v2.0.0 · 10 skills</p>
       <h1 class="reveal">Your AI Chief of Staff.</h1>
       <p class="hero-lede reveal">A system that knows your business, remembers your context and works alongside you every day. Not a chatbot. A colleague who never forgets.</p>
       <div class="reveal">
@@ -598,7 +598,7 @@
               <div class="cmd-command">/onboard</div>
               <h3>Onboard</h3>
             </div>
-            <p class="cmd-desc">A two-phase hiring conversation. First, you define the persona, style and name of your Chief of Staff. Then you brief them on who you are: your role, organisation, priorities, recurring workflows and key people. At the end, the vault holds your profile and the system is ready to work.<br /><br /><strong>Run this once</strong> before any other skill. The depth and specificity of your answers here set the quality of every session that follows. Don't rush it.</p>
+            <p class="cmd-desc">A two-phase hiring conversation. First, you define the persona, style and name of your Chief of Staff. Then you brief them on who you are: your role, organisation, priorities, recurring workflows and key people. At the end, the vault holds your profile, the memory map and your first card of what matters now, and the system is ready to work.<br /><br /><strong>Run this once</strong> before any other skill. The depth and specificity of your answers here set the quality of every session that follows. Don't rush it.</p>
             <p class="cmd-note"><strong>Tip:</strong> if you're vague, the system will be vague. Be specific about your priorities: not "grow revenue" but "close the Series A by Q3 with a lead investor already identified".</p>
           </article>
         </div>
@@ -629,7 +629,7 @@
               <div class="cmd-command">/save</div>
               <h3>Save to memory</h3>
             </div>
-            <p class="cmd-desc">Synthesises everything significant from the session (shifted priorities, decisions made, new context, new people) and writes it back to the vault. Updates the memory index. This is the keystone skill: without it, nothing accumulates.</p>
+            <p class="cmd-desc">Synthesises everything significant from the session (shifted priorities, decisions made, new context, new people) and writes it back to the vault. Updates the folder indexes, then rewrites the short card of what matters right now, which is what your next <code>/start</code> reads. This is the keystone skill: without it, nothing accumulates.</p>
             <p class="cmd-note"><strong>The rule:</strong> never close a session without typing <code>/save</code>. The system is only as good as what got written back last time.</p>
           </article>
 
@@ -712,7 +712,7 @@
               <div class="cmd-command">/health-check</div>
               <h3>Health check</h3>
             </div>
-            <p class="cmd-desc">A tune-up. Scans memory for files missing metadata, stale projects still marked active, sources that were never compiled, broken lineage, contradictions and index drift. It fixes what it safely can and surfaces the judgement calls that only you can make.</p>
+            <p class="cmd-desc">A tune-up. Scans memory for files missing metadata, stale projects still marked active, sources that were never compiled, broken lineage, contradictions, index drift and a stale or oversized startup card. It rebuilds the indexes and the card from your files, tells you how much <code>/start</code> reads, fixes what it safely can and surfaces the judgement calls that only you can make.</p>
             <p class="cmd-note"><strong>When:</strong> weekly or monthly. A clean vault means sharper briefs, better answers and faster starts.</p>
           </article>
         </div>
@@ -773,7 +773,11 @@
         </div>
         <div class="card vault-item reveal">
           <div class="vault-path">memory.md</div>
-          <div><h3>Memory index</h3><p>A one-file index of everything in <code>/memory</code>. Every skill reads it first to get oriented without loading every file. Keeping it sharp keeps the system fast as the vault grows.</p></div>
+          <div><h3>Memory map</h3><p>One row per memory folder: what lives there, when to open it, and where its own index is. Each folder keeps an <code>_index.md</code> with one line per file. Every skill starts from the map and finds files by searching, so the system stays fast as the vault grows.</p></div>
+        </div>
+        <div class="card vault-item reveal">
+          <div class="vault-path">memory/_state.md</div>
+          <div><h3>Today's card</h3><p>A one-screen snapshot: this week's #1 goal, active projects and their next step, open decisions, overdue items, last review. Written by <code>/save</code> and <code>/review</code>, read first by <code>/start</code>. If it falls behind, <code>/start</code> notices and <code>/health-check</code> rebuilds it.</p></div>
         </div>
         <div class="card vault-item reveal">
           <div class="vault-path">/trash</div>
@@ -929,7 +933,7 @@
       </div>
 
       <div class="callout reveal" style="background: var(--paper);">
-        <strong>The three most common problems, in order:</strong> the memory index is stale; a source wasn't compiled (an orphaned file in <code>/data</code>); or the executive stopped saving. Check these first.
+        <strong>The three most common problems, in order:</strong> the memory indexes or today's card are stale; a source wasn't compiled (an orphaned file in <code>/data</code>); or the executive stopped saving. Check these first.
       </div>
 
       <div class="table-wrap reveal">
@@ -1012,7 +1016,7 @@
           <span class="numeral" aria-hidden="true">3</span>
           <div>
             <h3>Write the body in the imperative</h3>
-            <p>"Read the vault." Not "The skill should read the vault." Explain why each step matters, not just what to do: skills that understand the why make better judgement calls. Always read <code>memory.md</code> first, and always update it if you write anything new.</p>
+            <p>"Read the vault." Not "The skill should read the vault." Explain why each step matters, not just what to do: skills that understand the why make better judgement calls. Always start from <code>memory.md</code> and find files by searching frontmatter. When you write something new, add a line to its folder's <code>_index.md</code>; touch <code>memory.md</code> only for a new folder.</p>
           </div>
         </li>
         <li class="card step reveal">
