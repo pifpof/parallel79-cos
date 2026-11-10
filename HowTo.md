@@ -224,7 +224,7 @@ Follow the patterns the baseline skills use, so the suite stays coherent:
 
 - **Imperative voice.** "Read the vault." Not "The skill should read the vault."
 - **Explain why, not just what.** A skill that says *why* a step matters produces better judgment than one that just lists rules. "Lead with the answer — the executive asked because they want to know" beats "Always put the answer first."
-- **Find, don't browse.** Any skill that touches memory reads the router, then searches frontmatter `aliases`/`summary` or the folder `_index.md`, then loads only the files it needs. Never read a whole folder.
+- **Find, don't browse.** Any skill that touches memory reads the router, then searches frontmatter `aliases`/`summary`/`description` or the folder `_index.md`, then loads only the files it needs. Never read a whole folder.
 - **Respect the memory contract.** Anything written to `/memory` gets a metadata block. Anything compiled from a source sets `sources` lineage. Add or refresh the folder `_index.md` line after writing; touch `memory.md` only for a new folder.
 - **Tone reminders at the end.** The baseline skills close with a short reminders section reinforcing the non-negotiables. This is where you re-state the easy-to-miss rules.
 - **Keep it under ~500 lines.** If a skill is getting long, push detail into a `references/` file and point to it.

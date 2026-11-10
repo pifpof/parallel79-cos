@@ -144,7 +144,7 @@ Breaking this contract degrades `/query`, `/start`, and `/health-check`. Never c
 
 **Fold convention.** Files that accumulate history keep the current state above a `<!-- history -->` line and history below it. `/start` reads above the line only.
 
-**Retrieval rule.** To find anything named in conversation, grep frontmatter `aliases`/`summary` across `memory/` and open the top 1 to 3 hits; fall back to the folder's `_index.md`. Never read a whole folder.
+**Retrieval rule.** To find anything named in conversation, grep frontmatter `aliases`/`summary`/`description` across `memory/` (other tools, Claude Code's memory among them, write the one-liner as `description`) and open the top 1 to 3 hits; fall back to the folder's `_index.md`. Never read a whole folder.
 
 **Template copies.** `skills/onboard/references/` holds copies of `schema/memory.md`, `schema/memory/_state.md` and a folder `_index.md`, because a plugin install doesn't deploy `schema/`. Keep them identical to the schema files.
 

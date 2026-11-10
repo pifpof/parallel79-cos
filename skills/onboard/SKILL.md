@@ -1,7 +1,7 @@
 ---
 name: onboard
 description: "First-time setup for a new executive's AI Chief of Staff. Use this skill whenever someone is setting up their Chief of Staff for the first time, says '/onboard', wants to get started, asks how to begin, or has an empty or near-empty vault. Runs a two-phase hiring conversation: first the executive defines the persona, style, and name of their Chief of Staff, then they brief it on their role, business, priorities, and key people. Seeds the vault and writes the profile. Always use this before any other skill if the vault has not been set up yet."
-version: 2.0.0
+version: 2.0.1
 allowed-tools: [Read, Write, Edit]
 ---
 

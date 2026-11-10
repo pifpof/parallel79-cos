@@ -1,7 +1,7 @@
 ---
 name: save
 description: "End-of-session memory write-back for the AI Chief of Staff. Use this skill whenever the executive is wrapping up a session, says '/save', 'save to memory', 'save this', 'remember this', or signals the conversation is ending. Synthesizes everything significant from the session — shifted priorities, project updates, decisions made, new people, new context — and writes it back to the vault, logs decisions, saves outputs, updates the folder indexes, and refreshes the hot-state card that the next /start reads. This is the habit that makes the system compound. Prompt for it before any session ends; nothing persists to the next session without it."
-version: 2.0.0
+version: 2.0.1
 allowed-tools: [Read, Write, Edit, Bash]
 ---
 
@@ -137,7 +137,7 @@ Sessions often write straight into a living document in `/data` (adding a sectio
 
 The vault has two levels of index. Keep them in step:
 
-- **Folder index (`memory/<folder>/_index.md`).** One line per file: `` `memory/<folder>/<file>.md`: hook `` of 150 characters or fewer, taken from the file's `summary`. Add a line for every new file, update the line for any file whose summary changed, and remove the line for any file moved to `/trash`.
+- **Folder index (`memory/<folder>/_index.md`).** One line per file: `` `memory/<folder>/<file>.md`: hook `` of 150 characters or fewer, taken from the file's `summary` (or `description` if it has no `summary`). Add a line for every new file, update the line for any file whose summary changed, and remove the line for any file moved to `/trash`.
 - **Router (`memory.md`).** Touch it only when a **new folder** appeared (add a row to its Folders table and create the folder's `_index.md`) or a new kind of question needs a "Where to look" row. Never list individual files here.
 - **Initiatives that live in `/data`.** A new initiative written only into a `/data` document still needs a line in the folder index it belongs to (usually `memory/projects/_index.md`): a pointer to the file and heading is enough. If it isn't indexed, the next session won't find it.
 

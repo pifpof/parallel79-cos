@@ -1,7 +1,7 @@
 ---
 name: health-check
 description: "Health check for the AI Chief of Staff's memory. Use this skill whenever the executive says '/health-check', '/lint', asks to 'clean up the wiki', 'check the memory', 'tidy things up', wants to know if the system is healthy, or periodically as maintenance to keep the knowledge base from degrading. Scans memory for gaps, stale files, missing metadata, contradictions, orphaned sources, an index that has grown too large and a stale hot-state card, then reports what needs attention and fixes what it safely can, including rebuilding the folder indexes and the card from the files. Run it weekly or monthly. It is what stops a long-running wiki from rotting over time. (Formerly named /lint. Same behaviour.)"
-version: 1.4.0
+version: 1.4.1
 allowed-tools: [Read, Write, Edit, Bash]
 ---
 
@@ -28,7 +28,7 @@ The output should leave the executive confident the system is healthy, or clear 
 Read `memory.md` (the router) and walk the full memory structure. This is the one skill that reads every file's frontmatter; it doesn't need to read every file's body. Check `/data` against the compiled record. Look for each of the following:
 
 **Missing or malformed metadata:**
-- Files in `/memory` with no metadata block, or with empty required fields (`title`, `summary`)
+- Files in `/memory` with no metadata block, or with empty required fields (`title`, and `summary` or `description`: files written by other tools use `description`, which counts)
 - Inconsistent or missing `tags`
 - Files with no `updated` date
 - Project files with no `status` line, or a `status` that contradicts the file's body (says "waiting on contract" when the body logs it as signed)
@@ -84,7 +84,7 @@ Read `memory.md` (the router) and walk the full memory structure. This is the on
 Some issues you can fix without asking. Do these automatically and note them in the report:
 
 - Add missing metadata blocks to files that clearly need them, inferring `title` and `summary` from content
-- **Rebuild every folder `_index.md` from frontmatter.** One line per file, path plus a hook of 150 characters or fewer cut from its `summary`. This is safe because the frontmatter is the source of truth; the index is derived. Create any missing `_index.md`, and add any missing folder row to the router
+- **Rebuild every folder `_index.md` from frontmatter.** One line per file, path plus a hook of 150 characters or fewer cut from its `summary` (or `description` when there is no `summary`). This is safe because the frontmatter is the source of truth; the index is derived. Create any missing `_index.md`, and add any missing folder row to the router
 - **Rebuild `memory/_state.md`** from the files when it's missing, stale or inaccurate, in the format `/save` uses, with `written_by: "/health-check"`. Safe for the same reason: the card is derived
 - Add a missing `updated` date from the file's last-modified time
 - Keep `memory.md` a router: if it has grown file-by-file lines, move each line into its folder's `_index.md` (nothing is lost; it changes place) and leave only the folder rows, the "Where to look" table and the system files. If the vault is an older one that still lists files throughout, don't convert it silently: offer the conversion in "Needs your call"

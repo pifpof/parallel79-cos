@@ -52,7 +52,7 @@ Project files also carry `status: ""`.
 
 **Field rules:**
 - `title` — plain name of the file's subject
-- `summary` — one sentence. What this file is about and why it matters.
+- `summary` — one sentence. What this file is about and why it matters. (Files written by other tools may call this `description`; treat the two as the same field.)
 - `sources` — filenames in `/data` this knowledge was drawn from
 - `aliases` — alternate names or shorthand the executive might use in conversation
 - `tags` — use these consistently: `active`, `archived`, `decision`, `blocked`, `person`, `project`, `reference`
@@ -68,7 +68,7 @@ Project files also carry `status: ""`.
 Start light, then load on demand.
 
 1. `CLAUDE.md` (you are reading it now), `memory.md` (the router) and `memory/_state.md` (the hot-state card) are enough to orient. `/start` reads a little more; see that skill.
-2. When the conversation names a person, project, client, decision or topic, find it: search frontmatter `aliases` and `summary` across `memory/` and open the top 1 to 3 hits. If nothing matches, read that folder's `_index.md`. Use the "Where to look" table in `memory.md`.
+2. When the conversation names a person, project, client, decision or topic, find it: search frontmatter `aliases`, `summary` and `description` across `memory/` and open the top 1 to 3 hits. If nothing matches, read that folder's `_index.md`. Use the "Where to look" table in `memory.md`.
 3. Never read a whole folder, and never load `/trash` unless explicitly asked.
 
 **Writing:** a new file gets one line in its folder's `_index.md`, never in `memory.md`. Only a new folder changes `memory.md`.

@@ -1,7 +1,7 @@
 ---
 name: minutes
 description: "Turn meetings into minutes, action items and memory for the AI Chief of Staff. Use whenever the executive says '/minutes', 'debrief my meeting', 'process today's meetings', 'what came out of my call with X', shares a meeting transcript, or says they just had a meeting. Pulls the transcript from a connected meeting tool (e.g. Granola) or takes a paste or spoken debrief, strips small talk and sensitive content, writes clean minutes, sorts action items into mine / waiting on / others, routes them to the executive's task system after approval, and compiles people, projects, decisions and CRM updates into memory."
-version: 1.1.0
+version: 1.1.1
 argument-hint: "[keyword | today | since last | debrief]"
 allowed-tools: [Read, Write, Edit, Bash]
 ---
@@ -121,7 +121,7 @@ Rules:
 
 This is the Chief of Staff step — what turns minutes into knowledge. Plan the updates now; write them in Step 7.
 
-- **People.** For each attendee and each person discussed: search every memory file's `aliases` and the people files before deciding someone is new (frontmatter search, not a folder read). New person who matters (a prospect, a new partner, someone the executive will deal with again) → create their file per the vault's people convention. Known person → add what was learned: role changes, preferences, context, what they're working on.
+- **People.** For each attendee and each person discussed: search every memory file's `aliases`, `summary` and `description` lines and the people files before deciding someone is new (frontmatter search, not a folder read). New person who matters (a prospect, a new partner, someone the executive will deal with again) → create their file per the vault's people convention. Known person → add what was learned: role changes, preferences, context, what they're working on.
 - **Projects.** Add progress, decisions and blockers to the matching `/memory/projects/` files.
 - **Decisions.** Log material decisions the same way `/save` does: under a `## Decisions` section in the relevant project file (What was decided / Why / What it affects), or in `/memory/library/decisions.md` if it isn't project-specific. If the vault's CLAUDE.md defines a different decision log, follow that instead. A decision is material if it commits money, time, direction or a relationship.
 - **Priorities.** If the meeting moves a stated priority or this week's goals, note it in the relevant file. Don't rescore goals — that's `/review`'s job.

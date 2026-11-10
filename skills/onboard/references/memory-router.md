@@ -46,4 +46,4 @@ updated: ""
 
 - **New file:** add one line to its folder's `_index.md`. Do not add it here.
 - **New folder:** add a row to the Folders table and create its `_index.md`.
-- **Finding something:** search frontmatter `aliases` and `summary` across `memory/` and open the top 1 to 3 hits. Never read a whole folder.
+- **Finding something:** search frontmatter `aliases`, `summary` and `description` across `memory/` and open the top 1 to 3 hits. Never read a whole folder.
