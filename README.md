@@ -64,7 +64,7 @@ You don't need to memorize these. You'll learn them by using them. But here's th
 
 ### Keeping it healthy
 
-**`/lint`** — A tune-up. Every so often, run this and your Chief of Staff checks its own memory for anything stale, missing, or contradictory, cleans up what it safely can, and flags anything that needs your call. Weekly or monthly is plenty.
+**`/health-check`** — A tune-up. Every so often, run this and your Chief of Staff checks its own memory for anything stale, missing, or contradictory, cleans up what it safely can, and flags anything that needs your call. Weekly or monthly is plenty.
 
 ---
 

@@ -62,7 +62,7 @@ ai-chief of staff/
 │   ├── capture/SKILL.md         ← Ingest one source → /data → compile into /memory.
 │   ├── sync/SKILL.md            ← Batch: process all uncompiled sources in /data.
 │   ├── query/SKILL.md           ← Answer from wiki. Writes to /outputs.
-│   ├── lint/SKILL.md            ← Health check. Fix safe issues, surface judgment calls.
+│   ├── health-check/SKILL.md    ← Health check. Fix safe issues, surface judgment calls.
 │   ├── recenter/SKILL.md        ← Mid-session persona/tone reset. (v1.7.0)
 │   └── minutes/                 ← Meeting → minutes, action items, memory. (v1.6.0)
 │       ├── SKILL.md
@@ -92,7 +92,7 @@ ai-chief of staff/
 | `/capture` | Ad hoc | Ingest one source. Preserve in `/data`, compile into wiki, cross-link. |
 | `/sync` | Batch | Catch up on everything dropped into `/data` since last sync. Oldest first. |
 | `/query` | Ad hoc | Answer question from compiled wiki. Lead with the answer. Save to `/outputs`. |
-| `/lint` | Weekly/monthly | Health check. Fix safe issues silently; surface judgment calls. Never delete. |
+| `/health-check` | Weekly/monthly | Health check. Fix safe issues silently; surface judgment calls. Never delete. |
 | `/recenter` | Mid-session | Re-reads `CLAUDE.md` + `memory/profile/style.md`, checks recent replies for directness / pushback / register drift, names and corrects drift in one line, logs it to `style.md`'s `## Corrections`. Auto-triggered via the "Staying in Character" section of the schema `CLAUDE.md` (compaction, heavy tool output, persona complaints). |
 | `/minutes` | After meetings | Granola (or paste / spoken debrief) → sanitized minutes in `/outputs/meetings/`, action items as mine / waiting on / others, memory + CRM updates, routing to the exec's task system after approval. Config in the vault at `memory/reference/meetings.md`. |
 
@@ -109,7 +109,7 @@ ai-chief of staff/
 - **No raw transcripts in the vault.** Deliberate exception to `/capture`'s "preserve raw in /data": the meeting tool is the source of record, the sanitized minutes file is the lineage anchor (`sources` points at `outputs/meetings/...`).
 - **External writes need approval** in the default `review: external-only` mode; minutes and memory are written immediately.
 - **`memory/meetings-ledger.md`** is the system file for processed meetings (dedupe, "since last"), parallel to `sync-ledger.md`.
-- **Wired into the other skills**, each skipping silently when `memory/reference/meetings.md` doesn't exist: `/start` adds at most one radar line for undebriefed meetings and one for due/overdue/stale follow-ups (never processes meetings); `/save` offers `/minutes debrief` for meetings discussed but not in the ledger; `/review` adds a "Meetings and commitments" section (debriefed vs. held, items created vs. closed, waiting-on > 7 days); `/onboard` asks one optional question and writes the config; `/lint` checks config validity, ledger ↔ minutes consistency, and meetings > 7 days with no minutes. `/capture` and `/sync` hand meeting transcripts to `/minutes` instead of storing them in `/data`; `/query` reads the ledger and minutes for "what did X say/commit to". Spec: `updates/ai-chief-of-staff-minutes/` (gitignored).
+- **Wired into the other skills**, each skipping silently when `memory/reference/meetings.md` doesn't exist: `/start` adds at most one radar line for undebriefed meetings and one for due/overdue/stale follow-ups (never processes meetings); `/save` offers `/minutes debrief` for meetings discussed but not in the ledger; `/review` adds a "Meetings and commitments" section (debriefed vs. held, items created vs. closed, waiting-on > 7 days); `/onboard` asks one optional question and writes the config; `/health-check` checks config validity, ledger ↔ minutes consistency, and meetings > 7 days with no minutes. `/capture` and `/sync` hand meeting transcripts to `/minutes` instead of storing them in `/data`; `/query` reads the ledger and minutes for "what did X say/commit to". Spec: `updates/ai-chief-of-staff-minutes/` (gitignored).
 - **Tested** on a real meeting (F1, 2026-10-30). Remaining fixtures (F2–F7) not yet run.
 
 ---
@@ -126,7 +126,7 @@ aliases: []      ← How exec might refer to this topic informally
 tags: []         ← active | archived | decision | blocked | person | project | reference
 ---
 ```
-Breaking this contract degrades `/query`, `/start`, and `/lint`. Never create a memory file without it.
+Breaking this contract degrades `/query`, `/start`, and `/health-check`. Never create a memory file without it.
 
 **Two write paths into memory:**
 1. Conversation → memory via `/save` and `/review`. Source: `session — [date]`
@@ -165,7 +165,7 @@ ai-chief-of-staff/            ← repo / zip root (rename: no spaces)
 │   │   └── SKILL.md
 │   ├── query/
 │   │   └── SKILL.md
-│   └── lint/
+│   └── health-check/
 │       └── SKILL.md
 ├── schema/                   ← Vault template (not a marketplace concept — bundle it
 │   └── ...                      here and document in README how /onboard deploys it)
@@ -184,7 +184,7 @@ Only `name` is required. Everything else — `description`, `version`, `author`,
 ```json
 {
   "name": "ai-chief-of-staff",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "A personal AI Chief of Staff for executives. Maintains a structured knowledge base that compounds over time — knows your business, remembers context, and works alongside you every day.",
   "author": {
     "name": "Shahed Khalili / Parallel79",
@@ -257,7 +257,7 @@ This context is useful for writing marketplace copy. The use case is concrete: 6
 
 | Channel | How | Status |
 |---|---|---|
-| GitHub | `/plugin marketplace add pifpof/parallel79-cos` → `/plugin install ai-chief-of-staff@parallel79` | Live (v1.7.0) |
+| GitHub | `/plugin marketplace add pifpof/parallel79-cos` → `/plugin install ai-chief-of-staff@parallel79` | Live (v1.8.0) |
 | npx (from GitHub) | `npx github:pifpof/parallel79-cos [--platform <name>]` | Live — runs `bin/install.js` straight from the repo |
 | npx (from npm) | `npx ai-chief-of-staff-skills` | Needs `npm publish` |
 | npm | `/plugin install npm:ai-chief-of-staff-skills` | Needs `npm publish` |

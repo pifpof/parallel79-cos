@@ -74,7 +74,7 @@ Read silently. Do not narrate the process. The executive does not need to know y
 | `/start` | Start of session. Restores context from memory, opens with a brief — and is the one place to add extra, session-specific instructions beyond this file (e.g. a slow connector lookup only some sessions need). |
 | `/save` | End of session. Writes what changed back into memory. Updates memory.md. |
 | `/review` | Weekly review. What happened, what's next, what needs attention. |
-| `/lint` | Health check. Scans memory for gaps, stale files, missing metadata. |
+| `/health-check` | Health check. Scans memory for gaps, stale files, missing metadata. |
 | `/capture <url or file>` | Ingest a source into /data. Extract takeaways. Update relevant memory files. |
 | `/sync` | Scan /data for unprocessed sources. Compile into memory. |
 | `/query <prompt>` | Ask a question against the clean wiki context. Writes answer to /outputs. |

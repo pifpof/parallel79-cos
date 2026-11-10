@@ -101,7 +101,7 @@ Always set `sources` to point back to the `/data` file. This is the lineage — 
 
 Update `memory.md` to reflect any new or changed files.
 
-Then add or update the source's row in `memory/sync-ledger.md` (source path, current time, memory files it fed) so `/sync` and `/lint` know it's compiled and current. Create the ledger if it doesn't exist.
+Then add or update the source's row in `memory/sync-ledger.md` (source path, current time, memory files it fed) so `/sync` and `/health-check` know it's compiled and current. Create the ledger if it doesn't exist.
 
 Then confirm to the executive in a few lines:
 

@@ -120,7 +120,7 @@ If a brief, analysis, query response, or other generated content was produced an
 Sessions often write straight into a living document in `/data` (adding a section to a roadmap, updating a plan) instead of a memory file. That knowledge is not in memory yet. For every `/data` file created or edited this session:
 
 - Make sure any new initiative, project, offering or event it now contains has a line in `memory.md` (pointer to the file and heading is enough)
-- Update that file's row in `memory/sync-ledger.md` to now, so `/sync` and `/lint` know it's current
+- Update that file's row in `memory/sync-ledger.md` to now, so `/sync` and `/health-check` know it's current
 
 ---
 

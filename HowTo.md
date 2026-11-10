@@ -50,7 +50,7 @@ vault/
 
 ## 2. The Memory File Contract
 
-Every file in `/memory` must open with this metadata block. The skills depend on it — break the contract and querying, briefing, and linting all degrade.
+Every file in `/memory` must open with this metadata block. The skills depend on it — break the contract and querying, briefing, and health checks all degrade.
 
 ```yaml
 ---
@@ -68,7 +68,7 @@ tags: []
 | `summary` | One sentence — what this file is and why it matters | This is what skills read from the index before deciding whether to load the full file. Keep it sharp. |
 | `sources` | Filenames in `/data` this was compiled from | The lineage. Use `session — [date]` when knowledge came from conversation, not a document. |
 | `aliases` | Alternate names / shorthand the executive uses | This is how `/query` resolves "the migration thing" to `project-alpha.md`. |
-| `tags` | Status and type labels | Drives filtering in `/start`, `/review`, `/lint`. Keep the vocabulary consistent. |
+| `tags` | Status and type labels | Drives filtering in `/start`, `/review`, `/health-check`. Keep the vocabulary consistent. |
 
 **Standard tag vocabulary:** `active`, `archived`, `decision`, `blocked`, `person`, `project`, `reference`. Add to this set deliberately — every new tag is something the skills need to understand. Don't let it sprawl.
 
@@ -99,7 +99,7 @@ INGEST       /capture    One source → /data → compile into /memory.
 
 RETRIEVAL    /query      Question → read wiki → grounded answer → /outputs.
 
-MAINTENANCE  /lint       Health check. Fix safe issues, surface judgment calls.
+MAINTENANCE  /health-check  Health check. Fix safe issues, surface judgment calls.
 ```
 
 **`/load` was renamed to `/start`, and `/brief` was retired.** `/brief`'s fast-daily-read niche didn't earn a second skill once `/start` covers it — one command that also takes optional per-session instructions beats two overlapping ones. If you're maintaining a vault that predates this change, `/load` calls become `/start` calls and any workflow built around `/brief` should move to `/start`.
@@ -125,7 +125,7 @@ Both paths write through the same memory file contract and both update `memory.m
 
 ### Routine maintenance
 
-`/lint` is the built-in maintenance tool. It catches the common decay modes:
+`/health-check` is the built-in maintenance tool. It catches the common decay modes:
 
 - Files missing or with malformed metadata
 - `active` projects that are actually done
@@ -163,7 +163,7 @@ When you need to step in directly:
 
 - **Vault feels slow or unfocused** — `memory.md` is probably bloated or stale. Trim it to sharp one-line summaries. The index should be scannable in one read.
 - **Queries returning thin answers** — check whether sources are actually being compiled. Orphaned files in `/data` mean `/capture` or `/sync` isn't running. Check `sources` coverage.
-- **Memory contradicts itself** — `/lint` surfaces these but won't resolve them. A human picks the correct version. Move the wrong one to `/trash` with a note.
+- **Memory contradicts itself** — `/health-check` surfaces these but won't resolve them. A human picks the correct version. Move the wrong one to `/trash` with a note.
 - **Profile drift** — as the executive's role evolves, `/memory/profile/` goes stale. There's no automatic trigger for this; periodically re-confirm priorities and workflows.
 
 ### The trash rule
@@ -238,7 +238,7 @@ When a new skill introduces a concept the whole system should understand — a n
 | Add a status or type label | `CLAUDE.md` → tag vocabulary, then use it in skills |
 | Fix a slow or unfocused vault | Trim `memory.md` to sharp summaries |
 | Diagnose thin query answers | Check `/data` for orphaned (uncompiled) sources, run `/sync` |
-| Resolve a contradiction | `/lint` surfaces it; a human resolves it; loser → `/trash` |
+| Resolve a contradiction | `/health-check` surfaces it; a human resolves it; loser → `/trash` |
 | Add a new capability | New skill folder with `SKILL.md`; update `CLAUDE.md` if it adds a convention |
 | Recover something removed | Check `/trash` — nothing is ever hard-deleted |
 | Change where meeting action items go | `memory/reference/meetings.md` → `destination` + `mapping` |

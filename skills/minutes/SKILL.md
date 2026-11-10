@@ -174,7 +174,7 @@ In this order, so a failure part-way leaves the vault consistent:
 ```markdown
 ---
 title: "Meetings ledger"
-summary: "Every meeting processed by /minutes: source ID, minutes path, what was routed. Checked by /start and /lint."
+summary: "Every meeting processed by /minutes: source ID, minutes path, what was routed. Checked by /start and /health-check."
 tags: [system]
 ---
 

@@ -8,7 +8,7 @@ tags: [reference, system]
 
 # Meeting settings
 
-Read by `/minutes` on every run, and by `/start`, `/review` and `/lint`. Edit freely — plain language is fine where a value needs explaining.
+Read by `/minutes` on every run, and by `/start`, `/review` and `/health-check`. Edit freely — plain language is fine where a value needs explaining.
 
 ## Source
 meeting_tool: detect          # detect | granola | fireflies | otter | fathom | zoom | none

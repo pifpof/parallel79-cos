@@ -709,7 +709,7 @@
               <span class="chip">Maintenance</span>
             </div>
             <div>
-              <div class="cmd-command">/lint</div>
+              <div class="cmd-command">/health-check</div>
               <h3>Health check</h3>
             </div>
             <p class="cmd-desc">A tune-up. Scans memory for files missing metadata, stale projects still marked active, sources that were never compiled, broken lineage, contradictions and index drift. It fixes what it safely can and surfaces the judgement calls that only you can make.</p>
@@ -940,17 +940,17 @@
             <tr>
               <td>Vault feels slow or unfocused</td>
               <td><code>memory.md</code> is bloated or stale</td>
-              <td>Run <code>/lint</code>. Trim index entries to sharp one-line summaries.</td>
+              <td>Run <code>/health-check</code>. Trim index entries to sharp one-line summaries.</td>
             </tr>
             <tr>
               <td>Queries return thin or generic answers</td>
               <td>Sources in <code>/data</code> were never compiled</td>
-              <td>Run <code>/lint</code> to find orphaned sources, then <code>/sync</code> to process them.</td>
+              <td>Run <code>/health-check</code> to find orphaned sources, then <code>/sync</code> to process them.</td>
             </tr>
             <tr>
               <td>Memory contradicts itself</td>
               <td>Two files have conflicting facts</td>
-              <td><code>/lint</code> surfaces it. You pick the correct version and move the wrong one to <code>/trash</code> with a note.</td>
+              <td><code>/health-check</code> surfaces it. You pick the correct version and move the wrong one to <code>/trash</code> with a note.</td>
             </tr>
             <tr>
               <td>Session doesn't pick up where I left off</td>

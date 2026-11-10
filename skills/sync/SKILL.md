@@ -45,7 +45,7 @@ The record of what was compiled and when lives in `memory/sync-ledger.md` (see "
 ```markdown
 ---
 title: "Sync ledger"
-summary: "When each /data source was last compiled into memory. Maintained by /sync, /capture and /save; checked by /lint."
+summary: "When each /data source was last compiled into memory. Maintained by /sync, /capture and /save; checked by /health-check."
 tags: [system]
 ---
 

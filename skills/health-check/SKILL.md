@@ -1,17 +1,17 @@
 ---
-name: lint
-description: "Health check for the AI Chief of Staff's memory. Use this skill whenever the executive says '/lint', asks to 'clean up the wiki', 'check the memory', 'tidy things up', wants to know if the system is healthy, or periodically as maintenance to keep the knowledge base from degrading. Scans memory for gaps, stale files, missing metadata, contradictions, and orphaned sources, then reports what needs attention and fixes what it safely can. This is what keeps a long-running vault healthy — the linting pass that stops the wiki from rotting over time."
-version: 1.2.0
+name: health-check
+description: "Health check for the AI Chief of Staff's memory. Use this skill whenever the executive says '/health-check', '/lint', asks to 'clean up the wiki', 'check the memory', 'tidy things up', wants to know if the system is healthy, or periodically as maintenance to keep the knowledge base from degrading. Scans memory for gaps, stale files, missing metadata, contradictions, and orphaned sources, then reports what needs attention and fixes what it safely can. Run it weekly or monthly. It is what stops a long-running wiki from rotting over time. (Formerly named /lint. Same behaviour.)"
+version: 1.3.0
 allowed-tools: [Read, Write, Edit, Bash]
 ---
 
-# Chief of Staff — Lint
+# Chief of Staff — Health Check
 
 ## What This Skill Does
 
 Runs a health check across the entire memory and reports what it finds. Over time, any knowledge base accumulates rough edges — files missing metadata, projects marked active that are really done, sources dropped in `/data` that never got compiled, two files that quietly contradict each other. Left alone, these degrade the quality of every brief, query, and review.
 
-Linting catches them. The executive runs it periodically — weekly or monthly — to keep the system clean. This is what makes a wiki maintainable where human-maintained wikis fail: the maintenance burden falls on the Chief of Staff, not the executive.
+The health check catches them. The executive runs it periodically — weekly or monthly — to keep the system clean. This is what makes a wiki maintainable where human-maintained wikis fail: the maintenance burden falls on the Chief of Staff, not the executive.
 
 ---
 
