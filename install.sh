@@ -41,7 +41,7 @@ DIST_DIR="$REPO_ROOT/dist"
 TMP_DIR="$REPO_ROOT/.build-tmp"
 
 PACK_NAME="AI Chief of Staff"
-PACK_VERSION="1.8.0"
+PACK_VERSION="2.0.0"
 
 # ── Colours ───────────────────────────────────────────────────────────────────
 GOLD='\033[38;5;214m'; GREEN='\033[0;32m'; DIM='\033[2m'; RED='\033[0;31m'; NC='\033[0m'

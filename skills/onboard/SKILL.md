@@ -1,7 +1,7 @@
 ---
 name: onboard
 description: "First-time setup for a new executive's AI Chief of Staff. Use this skill whenever someone is setting up their Chief of Staff for the first time, says '/onboard', wants to get started, asks how to begin, or has an empty or near-empty vault. Runs a two-phase hiring conversation: first the executive defines the persona, style, and name of their Chief of Staff, then they brief it on their role, business, priorities, and key people. Seeds the vault and writes the profile. Always use this before any other skill if the vault has not been set up yet."
-version: 1.1.0
+version: 2.0.0
 allowed-tools: [Read, Write, Edit]
 ---
 
@@ -157,6 +157,16 @@ If they answer, you'll write `memory/reference/meetings.md` in Phase 3. If they'
 
 When Phase 2 is complete, write the following files. Write in third person from the Chief of Staff's perspective. Be specific — use the executive's actual words and details, not generic placeholders.
 
+**First, make sure the memory layout exists.** If `memory.md` has no Folders table, or `memory/_state.md` or the folder `_index.md` files are missing (a plugin install doesn't copy the template vault), create them from this skill's references:
+
+- `memory.md` from `references/memory-router.md`
+- `memory/_state.md` from `references/state-card.md`
+- `memory/profile/_index.md`, `memory/projects/_index.md`, `memory/library/_index.md` and `memory/reference/_index.md` from `references/folder-index.md`, with the folder name and its one-line description filled in (the descriptions are in the router's Folders table)
+
+Never overwrite a `memory.md` that already lists files; that is an older vault, so add the new files beside it and leave it alone.
+
+Every file below gets `updated: "[today, YYYY-MM-DD]"` in its metadata block.
+
 ### Files to create:
 
 **`/memory/profile/about.md`**
@@ -183,7 +193,7 @@ aliases: [priorities, focus, goals]
 tags: [active]
 ---
 ```
-Content: Each priority named and explained. Why it matters. What's in the way.
+Content: Each priority named and explained. Why it matters. What's in the way. End the file with a line `<!-- history -->`: current priorities stay above it, and later changes are logged below it so `/start` can read just the top.
 
 ---
 
@@ -197,7 +207,7 @@ aliases: [workflows, meetings, cadence]
 tags: [active, reference]
 ---
 ```
-Content: Each recurring workflow listed with cadence, purpose, and any relevant context.
+Content: Each recurring workflow listed with cadence, purpose, and any relevant context. End the file with a line `<!-- history -->`, as for priorities.
 
 ---
 
@@ -235,21 +245,11 @@ Copy the template from the `minutes` skill's `references/config-template.md`. Se
 
 ---
 
-### Update `memory.md`
+### Update the indexes and the card
 
-Add an entry for each new file created. Format:
+Add one line per new file to its folder's `_index.md`: `` `memory/profile/about.md`: [summary, 150 characters or fewer] ``. Do the same in `memory/reference/_index.md` for `meetings.md` if you created it. Do not list files in `memory.md`; it is the router and already names every folder.
 
-```
-## Profile
-- `memory/profile/about.md` — [one sentence summary]
-- `memory/profile/priorities.md` — [one sentence summary]
-- `memory/profile/workflows.md` — [one sentence summary]
-- `memory/profile/people.md` — [one sentence summary]
-- `memory/profile/style.md` — [one sentence summary]
-
-## System
-- `memory/reference/meetings.md` — how /minutes finds meetings and routes action items (only if created)
-```
+Then write the first `memory/_state.md`: set `updated` to now and `written_by: "/onboard"`, put the top priority under **This week** as `- Top priority: [priority]`, and leave the other sections empty. It fills in as projects and goals appear.
 
 ---
 

@@ -24,7 +24,7 @@ When you're talking to your Chief of Staff, everything is live — but temporary
 
 Two commands bookend almost every session:
 
-**Start with `/start`** — your Chief of Staff reads everything it knows and opens with a brief on where things stand. You never have to catch it up.
+**Start with `/start`** — your Chief of Staff reads a short card of what matters right now and the map of everything it knows, then opens with a brief on where things stand. It stays quick however much it remembers, and pulls in more as the conversation goes. You never have to catch it up.
 
 **End with `/save`** — before you close, it writes down what changed: decisions you made, priorities that shifted, anything new. This is what makes tomorrow's session pick up cleanly.
 

@@ -1,7 +1,7 @@
 ---
 name: review
 description: "Weekly review from the AI Chief of Staff. Use this skill whenever the executive says '/review', wants a weekly review, asks 'how did the week go', wants to look back on the week, plan the week ahead, or step back and see the bigger picture across projects and priorities. Reads the full vault, surfaces what moved and what stalled, names patterns the executive may not be seeing, and sets the priority and intentions for the week ahead. Deeper and more reflective than a daily brief. Also writes the review back to memory."
-version: 1.2.0
+version: 1.3.0
 allowed-tools: [Read, Write, Edit]
 ---
 
@@ -27,10 +27,10 @@ The value here is the pattern recognition — the things the executive is too cl
 
 Read the full vault silently before producing any output:
 
-1. `memory.md` — orient across everything
-2. `/memory/profile/priorities.md` — what was supposed to matter
+1. `memory.md` (the router) and `memory/_state.md` (the hot-state card) — orient, and see what the vault believed at the start of the week
+2. `/memory/profile/priorities.md` — what was supposed to matter (above `<!-- history -->`; read below it only to see how priorities shifted this week)
 3. `/memory/profile/workflows.md` — the week's expected cadence
-4. All files in `/memory/projects/` tagged `active` — full read, not just metadata
+4. Every file in `/memory/projects/` tagged `active` — find them through `memory/projects/_index.md` or a frontmatter search, then a full read, not just metadata. The review is the one skill that earns the deep read
 5. `/memory/library/decisions.md` if it exists — decisions logged this week
 6. Recent files in `/outputs/` — what was produced this week
 7. Scan `/data/` for sources captured this week that inform the picture
@@ -106,9 +106,11 @@ After delivering the review:
 
 2. Update `/memory/profile/priorities.md` if priorities shifted meaningfully this week.
 
-3. Update active project files in `/memory/projects/` to reflect where things now stand.
+3. Update active project files in `/memory/projects/` to reflect where things now stand: content, `status` line and `updated` date.
 
-4. Update `memory.md` to reflect any changes.
+4. Update the folder `_index.md` lines for any file whose summary changed. Touch `memory.md` only if a folder was added.
+
+5. Rewrite `memory/_state.md` last, as `/save` does (same format, 2 KB cap), with `written_by: "/review"`: the week ahead's #1 priority, active projects from their new `status` lines, open decisions and overdue items the review surfaced, and today as the last review date.
 
 Do this as part of the review — the executive shouldn't need to run `/save` separately after a review.
 

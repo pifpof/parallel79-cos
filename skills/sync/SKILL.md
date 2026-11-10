@@ -1,7 +1,7 @@
 ---
 name: sync
 description: "Catch-up ingest for the AI Chief of Staff. Use this skill whenever the executive says '/sync', has dropped multiple files or sources into /data without processing them, says 'catch up on what I added', 'process my sources', 'I dumped a bunch of stuff in there', or wants the system to absorb everything that's accumulated since the last sync. Scans /data for raw sources that haven't been compiled into memory yet, reads them, and merges their knowledge into the existing wiki structure. This is the batch version of /capture — maintenance rather than intentional single-source ingest."
-version: 1.2.0
+version: 1.3.0
 allowed-tools: [Read, Write, Edit, Bash]
 ---
 
@@ -11,7 +11,7 @@ allowed-tools: [Read, Write, Edit, Bash]
 
 Scans the raw sources folder for anything that hasn't been compiled into memory yet, and processes it. Where `/capture` handles one intentional source, `/sync` is the catch-up pass — the executive has dropped a stack of material into `/data` and wants the system to absorb all of it.
 
-This is Karpathy's compilation step run in batch: read the unprocessed raw material, compile it into the wiki, update the index.
+This is Karpathy's compilation step run in batch: read the unprocessed raw material, compile it into the wiki, update the folder indexes.
 
 ---
 
@@ -51,10 +51,10 @@ tags: [system]
 
 | Source | Last compiled | Memory files it feeds |
 |---|---|---|
-| data/product-roadmap.md | 2026-09-24 10:15 | memory.md (Roadmap), memory/projects/platform-launch.md |
+| data/product-roadmap.md | 2026-09-24 10:15 | memory/projects/_index.md (Roadmap), memory/projects/platform-launch.md |
 ```
 
-Create it if it doesn't exist. It is a system file: list it in `memory.md` once, don't treat it as knowledge.
+Create it if it doesn't exist. It is a system file: the router's System files list already names it; don't treat it as knowledge.
 
 ---
 
@@ -66,7 +66,7 @@ For each **new** source, run the same compilation logic as `/capture`:
 
 1. Read the source through the lens of the executive's priorities, projects, and people
 2. Extract the takeaways that matter to *this* executive
-3. Update existing memory files where relevant — add insights, note the source in metadata
+3. Update existing memory files where relevant — add insights, note the source in metadata, set `updated`, and rewrite a project's `status` line if its state moved
 4. Create new library files for topics worth retaining on their own
 5. Always set `sources` lineage pointing back to the `/data` filename
 
@@ -75,7 +75,7 @@ For each **changed** or **unledgered** source, read the whole file, not a skim, 
 1. Walk the file section by section (every heading is a candidate unit of knowledge)
 2. For each section, check whether memory already covers it and whether memory's version is current. A status line, date, or decision that moved in the source but not in memory counts as a gap
 3. Merge only the new or changed knowledge, and note where memory now disagrees with the source so the executive can see it
-4. **Every distinct initiative, project, offering or event found in a living document must get at least a one-line pointer in `memory.md`**, even if its detail stays in `/data`. An initiative that exists only inside a backlog file is invisible to `/start` and `/query`
+4. **Every distinct initiative, project, offering or event found in a living document must get at least a one-line pointer in the right folder's `_index.md`** (usually `memory/projects/_index.md`), even if its detail stays in `/data`. An initiative that exists only inside a backlog file is invisible to `/start` and `/query`
 
 Work through them in order, oldest first, so the memory reflects how knowledge accumulated over time.
 
@@ -85,9 +85,11 @@ After each source is processed, update its row in `memory/sync-ledger.md` with t
 
 ---
 
-## Step 3 — Update memory.md
+## Step 3 — Update the Indexes
 
-Once all sources are processed, update `memory.md` to reflect every new and changed file. The index must be current — the next `/start` or `/query` depends on it.
+Once all sources are processed, add or refresh a line in each folder's `_index.md` for every new and changed file. Touch `memory.md` (the router) only if a new folder was created. The indexes must be current — the next `/start` or `/query` finds things through them. In an older vault whose `memory.md` still lists files, update `memory.md` as before.
+
+If the sync moved a project's state, the hot-state card is now behind. Don't rewrite it here; say in the report that the next `/save` will refresh it.
 
 ---
 
@@ -107,7 +109,7 @@ If any sources were meeting transcripts, name them in one line and offer `/minut
 
 - Check the ledger, not just `sources`. A filename in `sources` means the file was compiled once, not that memory reflects what it says today.
 - Re-reading a changed file is not double-processing. Merge only what's new; don't duplicate what memory already holds.
-- Every initiative gets a `memory.md` line. If it's only findable by opening the right file in `/data`, it's lost.
+- Every initiative gets a folder-index line. If it's only findable by opening the right file in `/data`, it's lost.
 - Oldest first — let the memory reflect the real sequence of how knowledge arrived.
 - Related sources get compiled together, not in isolation. The connections are the value.
 - If nothing is unprocessed, say so and stop. A clean sync is a valid outcome.

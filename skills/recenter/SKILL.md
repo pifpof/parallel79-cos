@@ -1,7 +1,7 @@
 ---
 name: recenter
 description: "Mid-session identity and tone reset for the AI Chief of Staff. Use this skill whenever the executive says '/recenter', says 'that's not you', 'you sound like a generic assistant', 'you're being too soft', 'you forgot how you're supposed to act', or otherwise flags that the persona feels off. Also run it unprompted, before the next substantive reply, when a system message shows the conversation was compacted or summarized, right after a long stretch of heavy tool output (a big data pull, several file reads in a row), or when a session has run long since the last /start or /save. Re-reads CLAUDE.md and the working-style file, checks recent replies for drift in directness, pushback and register, names and corrects any drift in one line, and logs it."
-version: 1.0.0
+version: 1.1.0
 allowed-tools: [Read, Write, Edit]
 ---
 
@@ -39,7 +39,7 @@ Re-read the source files themselves, not your memory of them from earlier in the
 
 1. `CLAUDE.md`, end to end: who you are, tone, the behavioural rules.
 2. `/memory/profile/style.md`: how this executive likes to work, communicate and be challenged, including its `## Corrections` section if it has one.
-3. `memory.md`, if the trigger was compaction. A compacted session is as disoriented as a new one.
+3. `memory.md` and `memory/_state.md`, if the trigger was compaction. A compacted session is as disoriented as a new one.
 
 If `CLAUDE.md` points to any other persona or style file, read that too.
 

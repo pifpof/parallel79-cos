@@ -1,7 +1,7 @@
 ---
 name: capture
 description: "Ingest a source into the AI Chief of Staff's memory. Use this skill whenever the executive says '/capture', shares a URL, file, article, report, or document and wants it added to their system, says 'add this', 'save this source', 'read this and remember it', or drops in material they want the Chief of Staff to absorb. Clips the source into /data, reads it, extracts the takeaways that matter, and updates every relevant memory file. This is how new knowledge enters the system — the compilation step that turns raw material into structured memory."
-version: 1.2.0
+version: 1.3.0
 allowed-tools: [Read, Write, Edit, WebFetch]
 ---
 
@@ -77,7 +77,7 @@ This is the compilation step. Based on what you extracted:
 **Update existing files** where the source is relevant:
 - Add the insight to the relevant `/memory/projects/` file
 - Add to a person's entry if the source informs it
-- Note the new `source` filename in the metadata block of any file you update
+- Note the new `source` filename in the metadata block of any file you update, and set its `updated` date
 
 **Create a new library file** if the source introduces a topic worth retaining on its own:
 
@@ -90,6 +90,7 @@ summary: ""
 sources: ["[the data filename you just created]"]
 aliases: []
 tags: [reference]
+updated: "[YYYY-MM-DD]"
 ---
 ```
 
@@ -97,9 +98,9 @@ Always set `sources` to point back to the `/data` file. This is the lineage — 
 
 ---
 
-## Step 5 — Update memory.md and Confirm
+## Step 5 — Update the Indexes and Confirm
 
-Update `memory.md` to reflect any new or changed files.
+Add a line to the folder's `_index.md` for each new file, and refresh the line for any file whose summary changed. Touch `memory.md` (the router) only if you created a new folder. If a project's state changed because of this source, rewrite its `status` line. In an older vault whose `memory.md` still lists files, update `memory.md` as before.
 
 Then add or update the source's row in `memory/sync-ledger.md` (source path, current time, memory files it fed) so `/sync` and `/health-check` know it's compiled and current. Create the ledger if it doesn't exist.
 

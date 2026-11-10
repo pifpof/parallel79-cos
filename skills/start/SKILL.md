@@ -1,8 +1,8 @@
 ---
 name: start
-description: "Deliberate start-of-session context restore for the AI Chief of Staff. Use this skill whenever the executive says '/start', returns after time away, asks 'where are things', wants a status update, or opens a conversation expecting the Chief of Staff to already know what's going on. This is the one place to layer in extra, session-specific instructions beyond the always-on rules in CLAUDE.md — for example, connecting to another system to pull information that's too time-consuming to fetch by default but is needed for certain kinds of sessions. Reads the vault, runs any extra instructions supplied, and opens with a sharp brief. Handles both a rich vault (full synthesis) and a sparse early-stage vault (honest, lighter open). Use this at the top of nearly every session. (Formerly named /load — same core behavior, now with room to go deeper.)"
-version: 1.5.0
-allowed-tools: [Read]
+description: "Deliberate start-of-session context restore for the AI Chief of Staff. Use this skill whenever the executive says '/start', returns after time away, asks 'where are things', wants a status update, or opens a conversation expecting the Chief of Staff to already know what's going on. This is the one place to layer in extra, session-specific instructions beyond the always-on rules in CLAUDE.md — for example, connecting to another system to pull information that's too time-consuming to fetch by default but is needed for certain kinds of sessions. Reads the vault, runs any extra instructions supplied, and opens with a sharp brief. Starts light: reads a small, fixed hot set (the memory router, the hot-state card, the profile essentials) whatever the vault size, and knows where everything else lives so it can pull more when the conversation needs it. Handles both a rich vault (full synthesis) and a sparse early-stage vault (honest, lighter open). Use this at the top of nearly every session."
+version: 2.0.0
+allowed-tools: [Read, Bash]
 argument-hint: "[optional: extra instructions for this session, e.g. 'also check our project tracker for anything overdue']"
 ---
 
@@ -10,7 +10,9 @@ argument-hint: "[optional: extra instructions for this session, e.g. 'also check
 
 ## What This Skill Does
 
-Reads the vault, runs any extra instructions given for this particular session, and opens with a sharp brief. The executive should never need to explain where things stand — you already know. And if this session needs more context than the vault alone can give, you go get it before you open your mouth.
+Reads a small hot set from the vault, runs any extra instructions given for this particular session, and opens with a sharp brief. The executive should never need to explain where things stand — you already know. And if this session needs more context than the vault alone can give, you go get it before you open your mouth.
+
+**Light start, deep reach.** `/start` does not read the vault. It reads the map of the vault (`memory.md`), the compiled picture of right now (`memory/_state.md`) and a few small profile slices. That is enough to brief well, and it stays the same size however large the vault grows. Everything else is one search away, and Step 5 says how to find it when the conversation goes there.
 
 ---
 
@@ -38,33 +40,47 @@ If the vault is sparse — early days, not much written yet — acknowledge it h
 
 ---
 
-## Step 1 — Read the Vault
+## Step 1 — Read the Hot Set
 
-Read the following files silently, in this order:
+Read these silently, in **one batched shell call** (each separate read is a round trip):
 
-1. `CLAUDE.md` — confirm your operating instructions and persona
-2. `memory.md` — get oriented across all memory without reading every file
-3. `/memory/profile/about.md` — who this executive is
-4. `/memory/profile/priorities.md` — what matters most right now
-5. `/memory/profile/workflows.md` — recurring meetings and workflows
-6. `/memory/profile/style.md` — how they like to work
+1. `CLAUDE.md` — **only if it is not already in your context.** Most tools load it automatically; don't read it twice.
+2. `memory.md` — the router: what each folder holds, when to open it, where its index is, and the "Where to look" table you'll use in Step 5.
+3. `memory/_state.md` — the hot-state card: this week's #1 goal, active projects and their next step, open decisions, overdue items, last review.
+4. `memory/profile/about.md` and `memory/profile/style.md` — in full. Both are small.
+5. `memory/profile/priorities.md` — **above the `<!-- history -->` line only** (for example `sed '/<!-- history -->/,$d'`). If the file has no marker, read it whole.
+6. The newest `outputs/reviews/*-weekly-review.md` — **its filename date only** (`ls -t | head -1`), to cross-check the card.
 
-Then scan `/memory/projects/` — read summaries from the metadata blocks first. Load full files only for projects tagged `active`.
+Do not read project files, the library, `workflows.md`, folder indexes or `/trash` here. They are Step 5's job, and only when the conversation needs them.
 
-Then scan `/memory/library/` — metadata blocks only unless something is directly relevant to active priorities.
+### Is the card current?
 
-Then check `/outputs/reviews/` for the most recent file matching `*-weekly-review.md` — that's the dedicated folder `/review` saves under. You only need its date, not its contents; you'll use it in Step 3.
+The card is a cache. Before trusting it, check:
 
-Then check `/outputs/goals/` for this week's goals. Find the most recent dated file named `YYYY-MM-DD-weekly-goals.md` (ignore anything starting with `_`, such as the template). If it is dated within the last 7 days, read it in full: the goals, which one is marked #1, each goal's definition of done, and the file's Status line (Draft or Confirmed). If the folder doesn't exist, the executive doesn't use weekly goals — skip this silently. You'll use it in Steps 3 and 4.
+- its `updated` date is within the last 7 days, **and**
+- no file under `memory/` (other than the card and the `_index.md` files) has a modified time newer than the card (`find memory -newer memory/_state.md -name '*.md' ! -name '_index.md' ! -name '_state.md'`).
 
-Then, if `memory/reference/meetings.md` exists, the executive uses `/minutes`. Read it and `memory/meetings-ledger.md`, then do two cheap checks (skip both silently if the config doesn't exist):
+**Card current:** brief from it. Don't open the goals file or project files to re-check it.
 
-- **Undebriefed meetings.** If `meeting_tool` is a connected tool, make one list/search call for meetings since the newest ledger entry (cap at 7 days). Count the ones not in the ledger, ignoring titles that match `skip_title_patterns` and anything the vault's CLAUDE.md says never to surface in a brief. One call only; if the connector isn't reachable, skip without comment. Never process meetings here — that's `/minutes`' job.
-- **Follow-ups due.** Count open "mine" items due today or overdue, and "waiting on" items more than 7 days old, from the configured `destination`: read `outputs/follow-ups.md` for `markdown`, or make one query against the external task system. Skip silently if it can't be reached.
+**Card missing or stale** (a new vault, a vault mid-migration, `/save` skipped, or files edited by hand): fall back to the slices the card summarises, in one more batched call:
 
-You'll use both in Step 4.
+- the newest `outputs/goals/YYYY-MM-DD-weekly-goals.md` within the last 7 days, if the folder exists (ignore files starting with `_`): the `Status:` line and the "This week's goals" section only;
+- the frontmatter only (`title`, `summary`, `status`, `updated`) of every file in `memory/projects/` tagged `active`.
 
-Do not load `/trash`.
+Then add one line to "On my radar": the card was behind, and `/save` will refresh it. Don't rebuild the card here; `/start` only reads.
+
+**Older vault with no router** (`memory.md` lists files rather than folders, or there is no `memory/_state.md` and no `_index.md` anywhere): read `memory.md` as it is and use the fallback above. Say nothing about the layout.
+
+### Meetings and follow-ups (only if `memory/reference/meetings.md` exists)
+
+The card already carries overdue follow-ups if `/minutes` wrote it. Add two cheap checks only for what the card can't know:
+
+- **Undebriefed meetings.** If `meeting_tool` is a connected tool, make one list/search call for meetings since the newest row in `memory/meetings-ledger.md` (read just the top rows; cap at 7 days). Count the ones not in the ledger, ignoring titles that match `skip_title_patterns` and anything the vault's CLAUDE.md says never to surface in a brief. One call only; if the connector isn't reachable, skip without comment. Never process meetings here — that's `/minutes`' job.
+- **Follow-ups due** (only when the card is stale or has no Overdue section). Count open "mine" items due today or overdue, and "waiting on" items more than 7 days old, from the configured `destination`: read `outputs/follow-ups.md` for `markdown`, or make one query against the external task system. Skip silently if it can't be reached.
+
+### Budget
+
+The hot set (everything above except `CLAUDE.md`) should be about 12 KB. If it is well over, add one line to "On my radar": the memory index has grown too large, run `/health-check`.
 
 ---
 
@@ -89,11 +105,12 @@ Before opening the session, make two quick judgment calls:
 
 **Is `/review` overdue?**
 
-Using what you found in Step 1: if the most recent `*-weekly-review.md` is more than ~10 days old, or none exists at all despite the vault otherwise being rich, `/review` is overdue. This only applies to a rich vault — don't flag it for a sparse one, and don't flag it if a review ran within the last ~10 days. Carry this forward to Step 4; it doesn't change how you open, only what shows up in the brief.
+Using the card's Review line (or the filename date from Step 1 if the card is stale): if the most recent `*-weekly-review.md` is more than ~10 days old, or none exists at all despite the vault otherwise being rich, `/review` is overdue. This only applies to a rich vault — don't flag it for a sparse one, and don't flag it if a review ran within the last ~10 days. Carry this forward to Step 4; it doesn't change how you open, only what shows up in the brief.
 
 **Where do this week's goals stand?** (only if the executive uses `/outputs/goals/`)
 
-- **Current file found:** for each goal, judge Done / On track / At risk / No evidence, using only what the vault and any Step 2 lookups show. Don't mark something done because it seems likely; if nothing in memory shows progress, it's "No evidence." Note whether the file is still a Draft awaiting confirmation.
+- **Card current:** take the #1 goal and the status counts from the card. Adjust only if a Step 2 lookup shows something newer.
+- **Card stale, current goals file found:** for each goal, judge Done / On track / At risk / No evidence, using only what the vault and any Step 2 lookups show. Don't mark something done because it seems likely; if nothing in memory shows progress, it's "No evidence." Note whether the file is still a Draft awaiting confirmation.
 - **No file from the last 7 days:** this week's goals haven't been set. Carry that forward as a flag.
 
 ---
@@ -140,6 +157,14 @@ Then let them lead. Build context from the conversation. At the end of the sessi
 
 Once the executive confirms focus or redirects, work the session with full context.
 
+**Load on demand.** The hot set told you where things stand; now pull detail only where the session goes.
+
+- **When the focus is confirmed**, load the full file for the project or topic it names. That is the one full read `/start` always earns.
+- **When the conversation names a person, client, project, decision or topic**, find it by searching frontmatter, not by browsing: `grep -ril` for the name across the `aliases:` and `summary:` lines in `memory/`, then open the top 1 to 3 hits. Use the "Where to look" table in `memory.md` to pick the right folder first.
+- **If the search finds nothing**, read that folder's `_index.md`. If it still isn't there, say so and ask. Don't guess.
+- **Never read a whole folder**, and never re-read the router or the card mid-session; they're already in context.
+- **History lives below `<!-- history -->`.** Read it only when the question is about how something got here.
+
 **During the session:**
 - Never ask the executive to re-explain something already in memory
 - Connect dots across projects and priorities when relevant
@@ -166,6 +191,8 @@ If they close without saving, note the risk: anything discussed in this session 
 
 - You have full context. Use it. Never waste the executive's time re-establishing what you already know.
 - The brief is not a summary of files you read. It is a synthesis — what matters, what's at risk, what's next. Those are different things.
+- Light start, deep reach. Read the hot set, brief from it, then fetch only what the conversation names. A start that opens every project file is a start that gets slower every week.
+- The card is a cache. Trust it when it's current, fall back when it isn't, and never write it from `/start`.
 - `/start` is the deliberate on-ramp, not a repeat of CLAUDE.md. Reach for it — or its optional instructions — when a session needs something beyond the standing rules, not as a place to re-state what CLAUDE.md already covers.
 - This week's goals are the executive's own commitments. Check the brief against them: a session that never touches the #1 goal is worth naming.
 - If the same extra instruction keeps getting typed alongside `/start`, flag that it probably belongs in CLAUDE.md as a standing rule instead.

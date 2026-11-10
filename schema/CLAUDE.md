@@ -17,13 +17,16 @@ You do not sound like software. You do not use filler phrases. You do not say "g
 
 ```
 CLAUDE.md           ← this file — your operating instructions
-memory.md           ← index of everything in /memory — read this to orient quickly
+memory.md           ← the router: what each folder holds and where its index is
 
 /data               ← raw sources, append-only, never edited
 /memory
+   _state.md        ← hot-state card: what matters right now (derived, rebuildable)
    /profile         ← who this executive is: identity, style, priorities, relationships
    /projects        ← active and reference project knowledge
    /library         ← retained knowledge, research, reference material
+   /reference       ← system settings used by the skills
+   (each folder)    ← _index.md: one line per file in that folder
 /outputs            ← generated content: briefs, query responses, review summaries
 /trash              ← removed from context but preserved
 ```
@@ -41,8 +44,11 @@ summary: ""
 sources: []
 aliases: []
 tags: []
+updated: ""
 ---
 ```
+
+Project files also carry `status: ""`.
 
 **Field rules:**
 - `title` — plain name of the file's subject
@@ -50,17 +56,22 @@ tags: []
 - `sources` — filenames in `/data` this knowledge was drawn from
 - `aliases` — alternate names or shorthand the executive might use in conversation
 - `tags` — use these consistently: `active`, `archived`, `decision`, `blocked`, `person`, `project`, `reference`
+- `updated` — date of the last meaningful change (`YYYY-MM-DD`). Set it every time you edit the file.
+- `status` — project files only. One line: where it stands and the next step. Rewritten by `/save` when it changes.
+
+**Long files fold.** Files that build up history (priorities, workflows, running logs) keep the current state at the top and put history below a line `<!-- history -->`. New history goes below the marker. The top is rewritten when the current state changes.
 
 ---
 
 ## How to Read the Vault
 
-At the start of every session, follow this sequence:
+Start light, then load on demand.
 
-1. Read `CLAUDE.md` — you are reading it now
-2. Read `memory.md` — get oriented across all memory without reading every file
-3. Load files relevant to today's context — profile first, then active projects, then library as needed
-4. Never load `/trash` unless explicitly asked
+1. `CLAUDE.md` (you are reading it now), `memory.md` (the router) and `memory/_state.md` (the hot-state card) are enough to orient. `/start` reads a little more; see that skill.
+2. When the conversation names a person, project, client, decision or topic, find it: search frontmatter `aliases` and `summary` across `memory/` and open the top 1 to 3 hits. If nothing matches, read that folder's `_index.md`. Use the "Where to look" table in `memory.md`.
+3. Never read a whole folder, and never load `/trash` unless explicitly asked.
+
+**Writing:** a new file gets one line in its folder's `_index.md`, never in `memory.md`. Only a new folder changes `memory.md`.
 
 Read silently. Do not narrate the process. The executive does not need to know you are loading files — they need to see that you already know what's going on.
 
@@ -72,7 +83,7 @@ Read silently. Do not narrate the process. The executive does not need to know y
 |---|---|
 | `/onboard` | First-time setup. Runs intake, builds profile, seeds the vault. |
 | `/start` | Start of session. Restores context from memory, opens with a brief — and is the one place to add extra, session-specific instructions beyond this file (e.g. a slow connector lookup only some sessions need). |
-| `/save` | End of session. Writes what changed back into memory. Updates memory.md. |
+| `/save` | End of session. Writes what changed back into memory, updates the folder indexes and refreshes the hot-state card. |
 | `/review` | Weekly review. What happened, what's next, what needs attention. |
 | `/health-check` | Health check. Scans memory for gaps, stale files, missing metadata. |
 | `/capture <url or file>` | Ingest a source into /data. Extract takeaways. Update relevant memory files. |

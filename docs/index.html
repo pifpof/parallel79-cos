@@ -560,7 +560,7 @@
           <span class="numeral" aria-hidden="true">4</span>
           <div>
             <h3>Start each session with /start</h3>
-            <p>Every time you open a new session, type <code>/start</code>. Your Chief of Staff reads the vault and opens with a brief on where things stand. You never have to catch it up. Need something extra for this session, such as a slow connector check or a calendar pull? Add it to the command: <code>/start also check our project tracker</code>.</p>
+            <p>Every time you open a new session, type <code>/start</code>. Your Chief of Staff reads a short card of what matters right now and the map of its memory, then opens with a brief on where things stand. It stays quick however much it remembers, and pulls in more as the conversation goes. You never have to catch it up. Need something extra for this session, such as a slow connector check or a calendar pull? Add it to the command: <code>/start also check our project tracker</code>.</p>
           </div>
         </li>
         <li class="card step reveal">
@@ -616,7 +616,7 @@
               <div class="cmd-command">/start</div>
               <h3>Start session</h3>
             </div>
-            <p class="cmd-desc">Reads your vault and opens with a sharp brief: where things stand, what's on the radar and a suggested focus for today. You never have to catch it up. It's also where you go beyond the standing rules in <code>CLAUDE.md</code>: add extra instructions to the command (<code>/start also check our project tracker</code>) when a session needs a slower lookup that shouldn't run every time.</p>
+            <p class="cmd-desc">Reads a short card of what matters right now, plus the map of everything it knows, and opens with a sharp brief: where things stand, what's on the radar and a suggested focus for today. You never have to catch it up. It's also where you go beyond the standing rules in <code>CLAUDE.md</code>: add extra instructions to the command (<code>/start also check our project tracker</code>) when a session needs a slower lookup that shouldn't run every time.</p>
             <p class="cmd-note"><strong>When:</strong> at the top of every working session. Pair it with <code>/save</code> at the end. Formerly <code>/load</code>.</p>
           </article>
 
@@ -884,8 +884,8 @@
           <p><strong>The schema.</strong> Defines who your Chief of Staff is, how the vault is structured, the rules it works by and the full skill list. This is the most important file in the system: most customisation happens here. Every session starts by reading it.</p>
         </div>
         <div class="card layer reveal">
-          <div class="layer-label">memory.md<small>Index · read first</small></div>
-          <p><strong>The index.</strong> Every skill reads this file before loading anything else. One-line summaries of every memory file let the model get oriented across the whole vault without opening every file. That's what keeps token use flat as the vault grows: the system gets smarter without getting slower.</p>
+          <div class="layer-label">memory.md<small>Map · read first</small></div>
+          <p><strong>The map.</strong> One line per memory folder: what lives there, when to open it, and where its own index is. Next to it, a short card (<code>memory/_state.md</code>) holds what matters right now. A session starts from the map and the card, then finds anything else by searching. That's what keeps startup flat as the vault grows: the system gets smarter without getting slower.</p>
         </div>
       </div>
 
@@ -900,6 +900,7 @@
 <span class="y-key">sources:</span>  ["onboard", "session — 2026-06-26"]
 <span class="y-key">aliases:</span>  ["priorities", "focus", "goals"]
 <span class="y-key">tags:</span>     ["active"]
+<span class="y-key">updated:</span>  "2026-06-26"
 <span class="y-dim">---</span>
 
 <span class="y-dim">## Q3 priority: close the Series A
@@ -939,8 +940,8 @@
           <tbody>
             <tr>
               <td>Vault feels slow or unfocused</td>
-              <td><code>memory.md</code> is bloated or stale</td>
-              <td>Run <code>/health-check</code>. Trim index entries to sharp one-line summaries.</td>
+              <td>The memory map, the card or a profile file has grown</td>
+              <td>Run <code>/health-check</code>. It reports the startup load, rebuilds the indexes and the card, and offers to fold long files.</td>
             </tr>
             <tr>
               <td>Queries return thin or generic answers</td>

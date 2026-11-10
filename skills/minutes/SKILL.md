@@ -1,7 +1,7 @@
 ---
 name: minutes
 description: "Turn meetings into minutes, action items and memory for the AI Chief of Staff. Use whenever the executive says '/minutes', 'debrief my meeting', 'process today's meetings', 'what came out of my call with X', shares a meeting transcript, or says they just had a meeting. Pulls the transcript from a connected meeting tool (e.g. Granola) or takes a paste or spoken debrief, strips small talk and sensitive content, writes clean minutes, sorts action items into mine / waiting on / others, routes them to the executive's task system after approval, and compiles people, projects, decisions and CRM updates into memory."
-version: 1.0.0
+version: 1.1.0
 argument-hint: "[keyword | today | since last | debrief]"
 allowed-tools: [Read, Write, Edit, Bash]
 ---
@@ -32,9 +32,9 @@ The supporting files live in this skill's `references/` folder:
 
 ## Step 0 — Load Config
 
-Read `CLAUDE.md` and `memory.md` to orient, then read `memory/reference/meetings.md`.
+Read `memory.md` (the router) to orient, and `CLAUDE.md` only if it isn't already in your context. Then read `memory/reference/meetings.md`.
 
-If it doesn't exist, create it from `references/config-template.md` with safe defaults (`meeting_tool: detect`, `destination: markdown`, `review: external-only`), add it to `memory.md` under a System/Reference heading, and tell the executive in one line: *"Created meeting settings at memory/reference/meetings.md — action items go to outputs/follow-ups.md until you point them somewhere else."* Then carry on; don't stop to interview them.
+If it doesn't exist, create it from `references/config-template.md` with safe defaults (`meeting_tool: detect`, `destination: markdown`, `review: external-only`), add a line for it to `memory/reference/_index.md` (or to `memory.md` in an older vault that has no folder indexes), and tell the executive in one line: *"Created meeting settings at memory/reference/meetings.md — action items go to outputs/follow-ups.md until you point them somewhere else."* Then carry on; don't stop to interview them.
 
 Everything specific to this executive — task system, field mappings, CRM convention, hourly-client rules, language notes — comes from that file. Never hard-code it here.
 
@@ -121,13 +121,13 @@ Rules:
 
 This is the Chief of Staff step — what turns minutes into knowledge. Plan the updates now; write them in Step 7.
 
-- **People.** For each attendee and each person discussed: check `memory.md`, people files, and every file's `aliases` before deciding someone is new. New person who matters (a prospect, a new partner, someone the executive will deal with again) → create their file per the vault's people convention. Known person → add what was learned: role changes, preferences, context, what they're working on.
+- **People.** For each attendee and each person discussed: search every memory file's `aliases` and the people files before deciding someone is new (frontmatter search, not a folder read). New person who matters (a prospect, a new partner, someone the executive will deal with again) → create their file per the vault's people convention. Known person → add what was learned: role changes, preferences, context, what they're working on.
 - **Projects.** Add progress, decisions and blockers to the matching `/memory/projects/` files.
 - **Decisions.** Log material decisions the same way `/save` does: under a `## Decisions` section in the relevant project file (What was decided / Why / What it affects), or in `/memory/library/decisions.md` if it isn't project-specific. If the vault's CLAUDE.md defines a different decision log, follow that instead. A decision is material if it commits money, time, direction or a relationship.
 - **Priorities.** If the meeting moves a stated priority or this week's goals, note it in the relevant file. Don't rescore goals — that's `/review`'s job.
 - **CRM.** If config sets `crm_convention` to a file, read that file and follow it exactly: new contact, new opportunity, stage changes, follow-ups — whatever it specifies. If `crm_convention: none`, skip.
 - **Hourly clients.** If config has an `hourly_rule` and the meeting matches it, plan the time entry it describes. If the duration isn't known from the meeting metadata, ask for it on the review card.
-- **Lineage.** Every memory file you touch gets the minutes file path added to its `sources`.
+- **Lineage.** Every memory file you touch gets the minutes file path added to its `sources` and today's `updated` date. A project whose state moved gets a rewritten `status` line.
 
 ---
 
@@ -183,9 +183,10 @@ tags: [system]
 | granola:abc123 | 2026-03-12 | Acme discovery call | outputs/meetings/2026-03-12-acme-discovery-call.md | 2026-03-12 14:05 | 3 mine → todoist; 1 waiting → markdown |
 ```
 
-Newest rows at the top. For paste and debrief mode, use `paste:<slug>` / `debrief:<slug>` as the source ID. Create the ledger if it doesn't exist and list it once in `memory.md` as a system file.
+Newest rows at the top. For paste and debrief mode, use `paste:<slug>` / `debrief:<slug>` as the source ID. Create the ledger if it doesn't exist. The router's System files list already names it; in an older vault, list it once in `memory.md`.
 
-5. **`memory.md`** — add or update entries for any new or materially changed memory files.
+5. **Folder indexes** — add or update the line in the right `memory/<folder>/_index.md` for any new or materially changed memory file. Touch `memory.md` only for a new folder (or, in an older vault with no folder indexes, update `memory.md` as before).
+6. **Hot-state card** — if `memory/_state.md` exists, rewrite its **Overdue or stale** section from the follow-ups as they now stand, rewrite the line of any project whose `status` changed, and set `updated` and `written_by: "/minutes"`. Leave the other sections as they are. Keep it under 2 KB.
 
 ---
 

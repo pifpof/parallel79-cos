@@ -1,7 +1,7 @@
 ---
 name: query
 description: "Ask a question against the AI Chief of Staff's structured memory. Use this skill whenever the executive says '/query', asks a question about their own business, projects, decisions, or history, says 'what do we know about X', 'what did we decide on Y', 'pull together everything on Z', or wants a synthesized answer drawn from their accumulated memory rather than the open internet. Reads the clean wiki context and answers from it — more coherent and far cheaper than flat search because the knowledge is already compiled. Writes substantial answers to /outputs for the record."
-version: 1.1.0
+version: 1.2.0
 allowed-tools: [Read, Write]
 ---
 
@@ -36,13 +36,13 @@ Read what the executive is asking. Identify:
 
 Read efficiently using the index first:
 
-1. Read `memory.md` to find which files are relevant
-2. Use `aliases` and `tags` in metadata blocks to locate the right files even if the executive's phrasing doesn't match filenames exactly
-3. Load the relevant files fully
+1. Read `memory.md` (the router) to pick the right folder. Its "Where to look" table maps kinds of question to folders
+2. Search frontmatter, don't browse: `grep` the `aliases:`, `summary:` and `tags:` lines across `memory/` for the names and terms in the question, so you find the right files even when the phrasing doesn't match filenames. If that finds nothing, read the folder's `_index.md`
+3. Load the top hits fully. For a synthesis across many files (all active projects, every vendor), read frontmatter first and load in full only the files that bear on the answer. Read below a file's `<!-- history -->` line only when the question is about how something got here
 4. If the question touches raw sources, check `/data` for the original material
 5. If the question is about a meeting or what someone said, agreed or owes ("what did Jordan commit to?", "when did we last talk to Acme?"), check `memory/meetings-ledger.md` and the minutes in `/outputs/meetings/` — they're the sanitized record of meetings, and the ledger is the fastest index by date and attendee. Open follow-ups live in the destination set in `memory/reference/meetings.md`
 
-Read only what's relevant. The whole point of the compiled wiki is that you don't need to load everything to answer well — the index and summaries let you find the right files fast.
+Read only what's relevant. The whole point of the compiled wiki is that you don't need to load everything to answer well — the router, the folder indexes and the frontmatter let you find the right files fast. Never read a whole folder.
 
 ---
 

@@ -23,7 +23,7 @@ Three layers:
 CLAUDE.md     ← Schema. Operating instructions + persona. Highest-leverage file.
 ```
 
-**Why Markdown, not RAG:** No vector DB, no embeddings. Knowledge is compiled ahead of time into a human-readable wiki. The index (`memory.md`) lets the model orient without reading every file — token usage stays flat as the vault grows.
+**Why Markdown, not RAG:** No vector DB, no embeddings. Knowledge is compiled ahead of time into a human-readable wiki. A two-level index lets the model orient without reading every file: `memory.md` is a router that lists folders, and each folder's `_index.md` lists its files. A small hot-state card (`memory/_state.md`) carries what matters right now. `/start` reads the router, the card and a few profile slices, so its load stays flat as the vault grows (v2.0.0; before that the root index listed every file and grew with the vault).
 
 **Why this compounds:** Every `/save`, every `/capture`, every `/review` adds to the wiki. A year-old decision is queryable. A month-old conversation is still context. The longer it runs, the smarter it gets.
 
@@ -39,13 +39,14 @@ ai-chief of staff/
 │
 ├── schema/                      ← Template vault (deployed per executive on /onboard)
 │   ├── CLAUDE.md                ← Operating instructions template (customised per exec)
-│   ├── memory.md                ← Empty memory index template
+│   ├── memory.md                ← Router template: folders, "Where to look", system files
 │   ├── data/                    ← Empty. Populated as sources arrive.
 │   ├── memory/
-│   │   ├── profile/             ← Empty. Seeded by /onboard.
-│   │   ├── projects/            ← Empty. Written by /save, /capture, /minutes.
-│   │   ├── library/             ← Empty. Written by /capture and /sync.
-│   │   └── reference/           ← Empty. meetings.md created by /minutes on first run.
+│   │   ├── _state.md            ← Hot-state card template (v2.0.0)
+│   │   ├── profile/             ← Seeded by /onboard. _index.md template.
+│   │   ├── projects/            ← Written by /save, /capture, /minutes. _index.md template.
+│   │   ├── library/             ← Written by /capture and /sync. _index.md template.
+│   │   └── reference/           ← meetings.md created by /minutes on first run. _index.md template.
 │   ├── outputs/                 ← Written by /review, /query. (Renamed from output/
 │   │   └── meetings/               in v1.6.0 — every skill writes to /outputs.)
 │   └── trash/                   ← Empty. Receives removed files.
@@ -53,8 +54,11 @@ ai-chief of staff/
 │                                    get the full structure.)
 │
 ├── skills/                      ← All 10 skills. Each is a folder with SKILL.md.
-│   ├── onboard/SKILL.md         ← First-time setup. Two-phase: define persona → brief
-│   ├── start/SKILL.md           ← Session start. Read vault → deliver brief. Also the
+│   ├── onboard/                 ← First-time setup. Two-phase: define persona → brief
+│   │   ├── SKILL.md
+│   │   └── references/          ← memory-router, state-card, folder-index (copies of
+│   │                               the schema templates, for plugin installs)
+│   ├── start/SKILL.md           ← Session start. Read hot set → deliver brief. Also the
 │   │                               one place to layer in extra, session-specific
 │   │                               instructions beyond CLAUDE.md. (Renamed from /load.)
 │   ├── save/SKILL.md            ← Session end. Synthesize → write back. THE keystone.
@@ -86,8 +90,8 @@ ai-chief of staff/
 | Skill | When | What it does |
 |---|---|---|
 | `/onboard` | Once | Two-phase hire: exec defines persona → briefs the CoS. Seeds vault. |
-| `/start` | Session start | Reads vault, delivers structured brief. Never ask exec to repeat context. Also where extra, session-specific instructions beyond CLAUDE.md get run (e.g. a slow connector lookup), and flags in "On my radar" when `/review` is overdue (>~10 days). Formerly `/load`. |
-| `/save` | Session end | Synthesizes session → writes back to memory. The habit the system depends on. |
+| `/start` | Session start | Reads a fixed ~12 KB hot set (router, card, about, style, top of priorities), checks the card is current (falls back to goals + project frontmatter if not), delivers a structured brief, then loads on demand by frontmatter search. Never ask exec to repeat context. Also where extra, session-specific instructions beyond CLAUDE.md get run (e.g. a slow connector lookup), and flags in "On my radar" when `/review` is overdue (>~10 days). Formerly `/load`. |
+| `/save` | Session end | Synthesizes session → writes back to memory, updates folder indexes, rewrites the hot-state card last. The habit the system depends on. |
 | `/review` | Weekly | Honest look back, pattern recognition, sets one priority + 3 intentions. Self-saves. |
 | `/capture` | Ad hoc | Ingest one source. Preserve in `/data`, compile into wiki, cross-link. |
 | `/sync` | Batch | Catch up on everything dropped into `/data` since last sync. Oldest first. |
@@ -124,6 +128,8 @@ summary: ""      ← One sentence. Read from index before loading full file.
 sources: []      ← Filenames in /data, or "session — [date]" for conversation-derived
 aliases: []      ← How exec might refer to this topic informally
 tags: []         ← active | archived | decision | blocked | person | project | reference
+updated: ""      ← YYYY-MM-DD of the last meaningful change. Set on every edit.
+status: ""       ← Project files only: where it stands + next step. Feeds the card.
 ---
 ```
 Breaking this contract degrades `/query`, `/start`, and `/health-check`. Never create a memory file without it.
@@ -132,7 +138,17 @@ Breaking this contract degrades `/query`, `/start`, and `/health-check`. Never c
 1. Conversation → memory via `/save` and `/review`. Source: `session — [date]`
 2. Document → memory via `/capture` and `/sync`. Source: the `/data` filename
 
-**The index (`memory.md`)** — every skill reads this before loading individual files. Every write to memory must update it. If the index drifts, the whole system degrades silently.
+**The two-level index (v2.0.0).** `memory.md` is a router: one row per folder, a "Where to look" table, the system files. It never lists individual files and stays under 6 KB. Each folder has an `_index.md` with one line per file (150 characters or fewer), derived from frontmatter `summary`. Every write adds or refreshes the folder-index line; only a new folder touches the router. `/health-check` can rebuild every `_index.md` from frontmatter, so index drift is recoverable.
+
+**The hot-state card (`memory/_state.md`, v2.0.0).** 2 KB, about 15 lines: this week's #1 goal, active projects (from their `status` lines), open decisions, overdue items, last review. Written last by `/save` and `/review`, partly refreshed by `/minutes`, seeded by `/onboard`, rebuilt by `/health-check`. It is a cache: every line traces to a file, nothing from live connectors goes on it, and `/start` distrusts it when it's more than 7 days old or older than any memory file, falling back to the goals file and project frontmatter.
+
+**Fold convention.** Files that accumulate history keep the current state above a `<!-- history -->` line and history below it. `/start` reads above the line only.
+
+**Retrieval rule.** To find anything named in conversation, grep frontmatter `aliases`/`summary` across `memory/` and open the top 1 to 3 hits; fall back to the folder's `_index.md`. Never read a whole folder.
+
+**Template copies.** `skills/onboard/references/` holds copies of `schema/memory.md`, `schema/memory/_state.md` and a folder `_index.md`, because a plugin install doesn't deploy `schema/`. Keep them identical to the schema files.
+
+**Older vaults.** Every skill degrades gracefully on a pre-2.0 vault (a `memory.md` that lists files, no card, no folder indexes): it keeps using `memory.md` as before and says nothing. `/health-check` offers the conversion.
 
 **Trash, not delete** — never hard-delete. Move to `/trash` with a one-line note explaining why.
 

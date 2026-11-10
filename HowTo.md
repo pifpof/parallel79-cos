@@ -21,13 +21,15 @@ There are three logical layers:
 ```
 vault/
 ├── CLAUDE.md           # schema / operating instructions — read first every session
-├── memory.md           # index of everything in /memory — read second
+├── memory.md           # the router: one row per memory folder — read second
 ├── README.md           # executive-facing guide
 ├── HowTo.md            # this file
 │
 ├── data/               # raw sources, append-only, never edited
 ├── memory/
+│   ├── _state.md       # hot-state card: what matters right now (derived, rebuildable)
 │   ├── profile/        # identity, priorities, workflows, people, style
+│   │   └── _index.md   # one line per file (every memory folder has one)
 │   ├── projects/       # active and reference project knowledge
 │   ├── library/        # retained knowledge, research, reference, decisions log
 │   ├── reference/      # system settings, e.g. meetings.md (/minutes config)
@@ -43,7 +45,8 @@ vault/
 ### Why this design
 
 - **Markdown over a database** — portable, human-auditable, no vendor lock-in, readable in any editor and viewable as a graph in Obsidian. If the tooling disappears, the knowledge survives.
-- **`memory.md` as an index** — lets the model orient across the whole vault without reading every file. Skills read the index first, then load only the files they need. This is what keeps token usage flat as the vault grows.
+- **A two-level index and a card** — `memory.md` lists folders, not files; each folder's `_index.md` lists its files; `memory/_state.md` is a 15-line card of what matters right now. `/start` reads the router, the card and a few profile slices (about 12 KB), whatever the vault size, then finds anything else by searching frontmatter. This is what keeps token usage flat as the vault grows. (Before v2.0.0, `memory.md` listed every file and grew with the vault.)
+- **Current state on top, history below** — long files keep the current state above a `<!-- history -->` line, so `/start` reads only the part that matters today.
 - **Lineage via `sources`** — every memory file traces back to the `/data` file(s) it was compiled from. Nothing is generated from thin air, and any claim can be audited back to its origin.
 
 ---
@@ -59,8 +62,11 @@ summary: ""
 sources: []
 aliases: []
 tags: []
+updated: ""
 ---
 ```
+
+Project files also carry `status: ""`.
 
 | Field | Purpose | Notes |
 |---|---|---|
@@ -69,6 +75,8 @@ tags: []
 | `sources` | Filenames in `/data` this was compiled from | The lineage. Use `session — [date]` when knowledge came from conversation, not a document. |
 | `aliases` | Alternate names / shorthand the executive uses | This is how `/query` resolves "the migration thing" to `project-alpha.md`. |
 | `tags` | Status and type labels | Drives filtering in `/start`, `/review`, `/health-check`. Keep the vocabulary consistent. |
+| `updated` | Date of the last meaningful change | Set on every edit. `/health-check` uses it to find stale files, and `/start` to judge whether the card is current. |
+| `status` | Project files only: where it stands, the next step | One line. `/save` rewrites it; the hot-state card is compiled from it. |
 
 **Standard tag vocabulary:** `active`, `archived`, `decision`, `blocked`, `person`, `project`, `reference`. Add to this set deliberately — every new tag is something the skills need to understand. Don't let it sprawl.
 
@@ -76,12 +84,12 @@ tags: []
 
 ## 3. How the Skills Work Together
 
-Ten skills, grouped by function. They share two pieces of common infrastructure: they all read `CLAUDE.md` + `memory.md` to orient, and they all respect the memory file contract when writing.
+Ten skills, grouped by function. They share two pieces of common infrastructure: they all orient from `CLAUDE.md` + `memory.md` (the router), finding anything else through folder indexes and frontmatter search, and they all respect the memory file contract when writing.
 
 ```
 SETUP        /onboard    Defines persona (writes CLAUDE.md) + seeds profile
 
-SESSION      /start      Read vault → brief. Start of session. Also the one place
+SESSION      /start      Read hot set (router + card + profile) → brief. Start of session. Also the one place
                          to run extra, session-specific instructions beyond
                          CLAUDE.md (a slow connector lookup only this session
                          needs, say) — pass them as arguments: /start <extra>.
@@ -113,7 +121,7 @@ Everything that enters memory comes through one of two paths:
 
 `/minutes` is a hybrid: it compiles from a source like `/capture` does, but the source is a meeting and the lineage points at the minutes file in `/outputs/meetings/`, not at `/data`. That's deliberate — raw transcripts are full of small talk and personal content that shouldn't live in the vault, so they stay in the meeting tool and the sanitized minutes become the lineage anchor.
 
-Both paths write through the same memory file contract and both update `memory.md`. If you build a new skill that writes to memory, it must do both too.
+Both paths write through the same memory file contract and both update the folder `_index.md`. If you build a new skill that writes to memory, it must do both too, and refresh `memory/_state.md` if it changes what matters this week.
 
 ### The dependency that matters most
 
@@ -133,7 +141,7 @@ Both paths write through the same memory file contract and both update `memory.m
 - Broken lineage — `sources` pointing to deleted files
 - Colliding `aliases` that make `/query` ambiguous
 - Contradictions between files
-- `memory.md` drifting out of sync with the actual files
+- folder indexes drifting out of sync with the actual files (it rebuilds them from frontmatter), a router that has grown past 6 KB, and a hot-state card that's stale or older than the files it summarises
 
 Recommend executives run it weekly or monthly. It fixes what's safe automatically and surfaces judgment calls rather than guessing.
 
@@ -161,7 +169,7 @@ Long sessions dilute the persona. The main cause is context compaction: when a c
 
 When you need to step in directly:
 
-- **Vault feels slow or unfocused** — `memory.md` is probably bloated or stale. Trim it to sharp one-line summaries. The index should be scannable in one read.
+- **Vault feels slow or unfocused** — the router or a profile file has probably grown. Run `/health-check`: it reports the `/start` load against its ~12 KB budget, rebuilds the indexes and the card, and offers to fold long files.
 - **Queries returning thin answers** — check whether sources are actually being compiled. Orphaned files in `/data` mean `/capture` or `/sync` isn't running. Check `sources` coverage.
 - **Memory contradicts itself** — `/health-check` surfaces these but won't resolve them. A human picks the correct version. Move the wrong one to `/trash` with a note.
 - **Profile drift** — as the executive's role evolves, `/memory/profile/` goes stale. There's no automatic trigger for this; periodically re-confirm priorities and workflows.
@@ -210,8 +218,8 @@ Follow the patterns the baseline skills use, so the suite stays coherent:
 
 - **Imperative voice.** "Read the vault." Not "The skill should read the vault."
 - **Explain why, not just what.** A skill that says *why* a step matters produces better judgment than one that just lists rules. "Lead with the answer — the executive asked because they want to know" beats "Always put the answer first."
-- **Read the index first.** Any skill that touches memory should read `memory.md`, then load only relevant files. Don't load the whole vault.
-- **Respect the memory contract.** Anything written to `/memory` gets a metadata block. Anything compiled from a source sets `sources` lineage. Update `memory.md` after writing.
+- **Find, don't browse.** Any skill that touches memory reads the router, then searches frontmatter `aliases`/`summary` or the folder `_index.md`, then loads only the files it needs. Never read a whole folder.
+- **Respect the memory contract.** Anything written to `/memory` gets a metadata block. Anything compiled from a source sets `sources` lineage. Add or refresh the folder `_index.md` line after writing; touch `memory.md` only for a new folder.
 - **Tone reminders at the end.** The baseline skills close with a short reminders section reinforcing the non-negotiables. This is where you re-state the easy-to-miss rules.
 - **Keep it under ~500 lines.** If a skill is getting long, push detail into a `references/` file and point to it.
 
@@ -236,7 +244,7 @@ When a new skill introduces a concept the whole system should understand — a n
 |---|---|
 | Change the Chief of Staff's persona or rules | `CLAUDE.md` → Who You Are / Tone |
 | Add a status or type label | `CLAUDE.md` → tag vocabulary, then use it in skills |
-| Fix a slow or unfocused vault | Trim `memory.md` to sharp summaries |
+| Fix a slow or unfocused vault | `/health-check`: rebuild indexes and card, fold long files |
 | Diagnose thin query answers | Check `/data` for orphaned (uncompiled) sources, run `/sync` |
 | Resolve a contradiction | `/health-check` surfaces it; a human resolves it; loser → `/trash` |
 | Add a new capability | New skill folder with `SKILL.md`; update `CLAUDE.md` if it adds a convention |
