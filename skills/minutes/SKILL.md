@@ -1,7 +1,7 @@
 ---
 name: minutes
 description: "Turn meetings into minutes, action items and memory for the AI Chief of Staff. Use whenever the executive says '/minutes', 'debrief my meeting', 'process today's meetings', 'what came out of my call with X', shares a meeting transcript, or says they just had a meeting. Pulls the transcript from a connected meeting tool (e.g. Granola) or takes a paste or spoken debrief, strips small talk and sensitive content, writes clean minutes, sorts action items into mine / waiting on / others, routes them to the executive's task system after approval, and compiles people, projects, decisions and CRM updates into memory."
-version: 1.1.1
+version: 1.2.0
 argument-hint: "[keyword | today | since last | debrief]"
 allowed-tools: [Read, Write, Edit, Bash]
 ---
@@ -34,7 +34,12 @@ The supporting files live in this skill's `references/` folder:
 
 Read `memory.md` (the router) to orient, and `CLAUDE.md` only if it isn't already in your context. Then read `memory/reference/meetings.md`.
 
-If it doesn't exist, create it from `references/config-template.md` with safe defaults (`meeting_tool: detect`, `destination: markdown`, `review: external-only`), add a line for it to `memory/reference/_index.md` (or to `memory.md` in an older vault that has no folder indexes), and tell the executive in one line: *"Created meeting settings at memory/reference/meetings.md — action items go to outputs/follow-ups.md until you point them somewhere else."* Then carry on; don't stop to interview them.
+If it doesn't exist, this is the first run. Ask two short questions, one per message, each easy to skip (onboarding no longer asks them):
+
+1. *"Do you record your meetings with a tool like Granola, Otter or Fireflies? So I know where to find transcripts."*
+2. *"Where do your to-dos live? For example: Todoist / Asana / a list I keep for you."*
+
+Then create the file from `references/config-template.md`: `meeting_tool` set to the tool they named (`detect` if they skipped, `none` if they don't record), `destination` set to their task system if it's one of airtable, asana, todoist, linear, trello or notion (otherwise `markdown`), `review: external-only`, everything else at its default. Leave `mapping` as the placeholder; IDs and field names get filled in with the executive the first time you route to that system. Add a line for the file to `memory/reference/_index.md` (or to `memory.md` in an older vault that has no folder indexes), confirm in one line where action items will go, and carry on with the meeting.
 
 Everything specific to this executive — task system, field mappings, CRM convention, hourly-client rules, language notes — comes from that file. Never hard-code it here.
 

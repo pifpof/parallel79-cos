@@ -87,8 +87,9 @@ Project files also carry `status: ""`.
 Ten skills, grouped by function. They share two pieces of common infrastructure: they all orient from `CLAUDE.md` + `memory.md` (the router), finding anything else through folder indexes and frontmatter search, and they all respect the memory file contract when writing.
 
 ```
-SETUP        /onboard    Defines persona (writes CLAUDE.md) + seeds profile,
-                         the router, folder indexes and first card
+SETUP        /onboard    Nine questions, one at a time, in two parts → persona
+                         + concrete length rule (CLAUDE.md), profile, wishlist,
+                         router, folder indexes, first card. Resumable.
 
 SESSION      /start      Read hot set (router + card + profile) → brief. Start of session. Also the one place
                          to run extra, session-specific instructions beyond

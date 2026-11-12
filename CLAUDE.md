@@ -54,10 +54,11 @@ ai-chief of staff/
 │                                    get the full structure.)
 │
 ├── skills/                      ← All 10 skills. Each is a folder with SKILL.md.
-│   ├── onboard/                 ← First-time setup. Two-phase: define persona → brief
+│   ├── onboard/                 ← First-time setup. Nine questions, two parts: how I work → your world
 │   │   ├── SKILL.md
-│   │   └── references/          ← memory-router, state-card, folder-index (copies of
-│   │                               the schema templates, for plugin installs)
+│   │   └── references/          ← interview-script (every question's wording), wishlist and
+│   │                               onboarding-progress templates; memory-router, state-card,
+│   │                               folder-index (copies of the schema templates, for plugin installs)
 │   ├── start/SKILL.md           ← Session start. Read hot set → deliver brief. Also the
 │   │                               one place to layer in extra, session-specific
 │   │                               instructions beyond CLAUDE.md. (Renamed from /load.)
@@ -89,7 +90,7 @@ ai-chief of staff/
 
 | Skill | When | What it does |
 |---|---|---|
-| `/onboard` | Once | Two-phase hire: exec defines persona → briefs the CoS. Seeds vault. |
+| `/onboard` | Once | First meeting: nine questions, one at a time, with why-lines and example answers. Parks specific tasks in `memory/profile/wishlist.md`, writes a concrete length rule into `CLAUDE.md`, resumable via `memory/profile/onboarding-progress.md`. Seeds vault. (v3.0.0, CO 003) |
 | `/start` | Session start | Reads a fixed ~12 KB hot set (router, card, about, style, top of priorities), checks the card is current (falls back to goals + project frontmatter if not), delivers a structured brief, then loads on demand by frontmatter search. Never ask exec to repeat context. Also where extra, session-specific instructions beyond CLAUDE.md get run (e.g. a slow connector lookup), and flags in "On my radar" when `/review` is overdue (>~10 days). Formerly `/load`. |
 | `/save` | Session end | Synthesizes session → writes back to memory, updates folder indexes, rewrites the hot-state card last. The habit the system depends on. |
 | `/review` | Weekly | Honest look back, pattern recognition, sets one priority + 3 intentions. Self-saves. |
@@ -107,13 +108,23 @@ ai-chief of staff/
 - **Corrections log is `memory/profile/style.md` → `## Corrections`**, created on first real drift. Chosen over a separate feedback folder so it lives in the file `/onboard` already creates and `/start` already reads. A vault can point elsewhere via its own `CLAUDE.md`.
 - Generalized from a skill used in the author's own vault; no personal paths, names or rules carried over.
 
+### `/onboard` design notes (v3.0.0, CO 003)
+
+- **Why it changed:** two client Session 1s (2026-11-10, 2026-11-12) showed the old interview losing a non-technical executive: stacked questions, open questions with no anchor, deep dives into the first specific task mentioned, past-chat facts asserted wrongly, long replies after she asked for short ones, a 90-second first reply, and no clear "how do I use this tomorrow". Spec: `updates/change-order-003-onboard-ux-simplification.md` (gitignored).
+- **The wording lives in `references/interview-script.md`,** not in `SKILL.md`. Edit questions, why-lines and examples there. Nine questions, numbered 1–9 across both parts so resume ("we stopped at question 6") is unambiguous.
+- **First reply before any file access.** The intro is sent cold; the progress check and layout check run after "Ready?". Trade-off: a returning user sees the intro once more before the resume offer. The intro says it will pick up where they left off.
+- **Writes once per part,** plus a small progress write after every answer (`memory/profile/onboarding-progress.md`, tagged `system`).
+- **Specific tasks are parked, never designed,** in `memory/profile/wishlist.md`: the menu for workshop Session 2.
+- **Brevity is a concrete rule, not an adjective.** The schema `CLAUDE.md` Tone section opens with `Default replies: 5 lines or fewer…`; `/onboard` rewrites that line from the executive's answer. Every skill reads it, which is how verbosity elsewhere gets fixed without touching other skills.
+- **Meeting tool and to-do location moved to `/minutes` first run.**
+
 ### `/minutes` design notes (v1.6.0)
 
 - **Generic in the plugin, specific in the vault.** No names, base/table IDs or connectors in `skills/minutes/`. Everything executive-specific lives in `memory/reference/meetings.md`, created from `references/config-template.md` on first run. Before release, grep `skills/` and `schema/` for client names and IDs.
 - **No raw transcripts in the vault.** Deliberate exception to `/capture`'s "preserve raw in /data": the meeting tool is the source of record, the sanitized minutes file is the lineage anchor (`sources` points at `outputs/meetings/...`).
 - **External writes need approval** in the default `review: external-only` mode; minutes and memory are written immediately.
 - **`memory/meetings-ledger.md`** is the system file for processed meetings (dedupe, "since last"), parallel to `sync-ledger.md`.
-- **Wired into the other skills**, each skipping silently when `memory/reference/meetings.md` doesn't exist: `/start` adds at most one radar line for undebriefed meetings and one for due/overdue/stale follow-ups (never processes meetings); `/save` offers `/minutes debrief` for meetings discussed but not in the ledger; `/review` adds a "Meetings and commitments" section (debriefed vs. held, items created vs. closed, waiting-on > 7 days); `/onboard` asks one optional question and writes the config; `/health-check` checks config validity, ledger ↔ minutes consistency, and meetings > 7 days with no minutes. `/capture` and `/sync` hand meeting transcripts to `/minutes` instead of storing them in `/data`; `/query` reads the ledger and minutes for "what did X say/commit to". Spec: `updates/ai-chief-of-staff-minutes/` (gitignored).
+- **Wired into the other skills**, each skipping silently when `memory/reference/meetings.md` doesn't exist: `/start` adds at most one radar line for undebriefed meetings and one for due/overdue/stale follow-ups (never processes meetings); `/save` offers `/minutes debrief` for meetings discussed but not in the ledger; `/review` adds a "Meetings and commitments" section (debriefed vs. held, items created vs. closed, waiting-on > 7 days); `/minutes` asks the meeting-tool and to-do questions itself on first run (moved out of `/onboard` in v2.1.0); `/health-check` checks config validity, ledger ↔ minutes consistency, and meetings > 7 days with no minutes. `/capture` and `/sync` hand meeting transcripts to `/minutes` instead of storing them in `/data`; `/query` reads the ledger and minutes for "what did X say/commit to". Spec: `updates/ai-chief-of-staff-minutes/` (gitignored).
 - **Tested** on a real meeting (F1, 2026-10-30). Remaining fixtures (F2–F7) not yet run.
 
 ---
@@ -200,7 +211,7 @@ Only `name` is required. Everything else — `description`, `version`, `author`,
 ```json
 {
   "name": "ai-chief-of-staff",
-  "version": "1.8.0",
+  "version": "2.1.0",
   "description": "A personal AI Chief of Staff for executives. Maintains a structured knowledge base that compounds over time — knows your business, remembers context, and works alongside you every day.",
   "author": {
     "name": "Shahed Khalili / Parallel79",
@@ -273,7 +284,7 @@ This context is useful for writing marketplace copy. The use case is concrete: 6
 
 | Channel | How | Status |
 |---|---|---|
-| GitHub | `/plugin marketplace add pifpof/parallel79-cos` → `/plugin install ai-chief-of-staff@parallel79` | Live (v1.8.0) |
+| GitHub | `/plugin marketplace add pifpof/parallel79-cos` → `/plugin install ai-chief-of-staff@parallel79` | Live (v2.1.0) |
 | npx (from GitHub) | `npx github:pifpof/parallel79-cos [--platform <name>]` | Live — runs `bin/install.js` straight from the repo |
 | npx (from npm) | `npx ai-chief-of-staff-skills` | Needs `npm publish` |
 | npm | `/plugin install npm:ai-chief-of-staff-skills` | Needs `npm publish` |

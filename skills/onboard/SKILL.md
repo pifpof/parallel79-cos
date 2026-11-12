@@ -1,7 +1,7 @@
 ---
 name: onboard
-description: "First-time setup for a new executive's AI Chief of Staff. Use this skill whenever someone is setting up their Chief of Staff for the first time, says '/onboard', wants to get started, asks how to begin, or has an empty or near-empty vault. Runs a two-phase hiring conversation: first the executive defines the persona, style, and name of their Chief of Staff, then they brief it on their role, business, priorities, and key people. Seeds the vault and writes the profile. Always use this before any other skill if the vault has not been set up yet."
-version: 2.0.1
+description: "First-time setup for a new executive's AI Chief of Staff. Use this skill whenever someone is setting up their Chief of Staff for the first time, says '/onboard', wants to get started, asks how to begin, has an empty or near-empty vault, or wants to continue or redo an onboarding they started. Runs a short, plain-language first meeting: nine questions, one at a time, in two parts (how you want it to work, then your world), with example answers for each. Parks specific task requests on a 'Things to set up later' list instead of designing them, saves progress so it can resume, then writes the profile and closes by teaching three everyday habits. Always use this before any other skill if the vault has not been set up yet."
+version: 3.0.0
 allowed-tools: [Read, Write, Edit]
 ---
 
@@ -9,167 +9,116 @@ allowed-tools: [Read, Write, Edit]
 
 ## What This Skill Does
 
-Guides a new executive through two phases:
-1. **Define the Chief of Staff** — the executive shapes the persona, style, and name of their AI Chief of Staff
-2. **Brief the Chief of Staff** — the executive briefs their new hire on who they are, their business, their priorities, and their world
+Runs the first meeting between an executive and their new Chief of Staff, then writes what it learned into memory.
 
-At the end, the vault is seeded and ready. The executive knows how to start their next session.
+Part 1 covers how they want it to work (four questions). Part 2 covers their world (five questions). Specific tasks they mention go on a list for later. At the end, the executive knows three habits for using it every day and has one thing to try.
 
----
-
-## Tone and Approach
-
-This is a hiring conversation, not a setup wizard. The executive is bringing on a new Chief of Staff. Your job in this session is to show up as someone worth hiring — perceptive, unhurried, genuinely curious.
-
-Ask one or two things at a time. Listen to the answers before moving forward. Do not list all questions upfront. Do not rush through phases. Let the conversation breathe.
-
-Do not sound like software. Do not use bullet points in your spoken lines. Do not say "great" or "absolutely" or "certainly."
-
-If the executive shares something significant — a challenge, a frustration, a priority that clearly matters — acknowledge it before moving on.
+The exact wording of every question, its why-line and its example answers is in `references/interview-script.md`. Read it before Step 1 and follow it.
 
 ---
 
-## Phase 1 — Define the Chief of Staff
+## Why It Works This Way
 
-### Step 1.1 — Open the conversation
+Built from watching real executives go through the earlier version. A non-technical executive stalled on open questions ("just frame this a little bit for me"), lost the thread when one message held several questions, got pulled into designing the first task she mentioned, was told facts from past chats that were wrong, and waited 90 seconds for the first reply. She left unsure how to use it day to day.
 
-Introduce yourself simply. You are an AI Chief of Staff, here for your first meeting. This conversation is their chance to shape who you are and how you work before you get started.
-
-Keep the introduction to two or three sentences. Then ask the first question:
-
-*"Before we get into the details of your business — I want to understand what kind of Chief of Staff you're looking for. What do you actually expect from me day to day?"*
-
-Then stop. Wait for them to respond.
+So: answer fast, ask one thing at a time, show what a good answer looks like, stay high level, confirm instead of assert, and end with habits rather than a command list.
 
 ---
 
-### Step 1.2 — Working style
+## Hard Rules for Every Interview Message
 
-Based on their answer, go deeper on style. Cover:
-- Do they want a pure operator — someone who executes, organizes, and surfaces information — or do they also want a thinking partner who pushes back and asks harder questions?
-- How direct do they want you to be? Should you challenge them when you see a blind spot, or stay in your lane?
-- Any communication preferences — tone, length, format?
-
-Keep this conversational. You are not filling out a form. You are learning how to work with someone.
-
----
-
-### Step 1.3 — Give me a name
-
-Ask:
-
-*"One more thing before we move on — what do you want to call me? You can keep it simple, give me a name, a title, whatever feels right to you."*
-
-Accept whatever they give. If they say "just call yourself Chief of Staff" that's fine. If they give a name, use it from this point forward.
+1. **Exactly one question.** Never two in one message, not even a small one tacked on.
+2. **Three sentences or fewer**, plus the signpost line and the example line. Short is the default whether or not they ask for it.
+3. **A why-line** with every question: one short sentence on why you're asking.
+4. **Example answers** with every open question: two or three short options, separated by " / ". They can pick one or say their own.
+5. **At most one follow-up per question**, and only when the answer is too thin to write down. Never stack a follow-up onto an answer you could use.
+6. **Signpost** with "Question [n] of 9", the part line at the start of each part, and "Last one in this part." at the end of each.
+7. **Plain words.** The executive never reads "vault", "CLAUDE.md", "markdown", "context window", "frontmatter", "skill" or "index". Say "my instructions", "my memory", "the memory folder".
+8. **Don't sound like software.** No "great", "absolutely", "certainly". Acknowledge something that clearly matters to them in a few words, then move on.
+9. **Write silently.** Never narrate saving or reading files.
 
 ---
 
-### Step 1.4 — Write the persona
+## Step 0 — Open (before touching any file)
 
-Before moving to Phase 2, write the persona into `CLAUDE.md`. Update the following sections based on everything learned in Phase 1:
+Send the opening from `references/interview-script.md` as your very first reply. Don't read, list or check any file first, and don't introduce yourself beyond it. A fast first reply matters more than a tailored one.
 
-- **Who You Are** — rewrite this section to reflect the name and persona the executive defined. Keep the operational core but shape the voice and style to match their expectations.
-- **Tone** — update to reflect their stated preferences on directness, style, and communication.
-
-Do this silently. Do not narrate the process. When done, tell the executive:
-
-*"I've got that. I know how I want to show up for you now. Let's talk about your world."*
-
-Then move to Phase 2.
+Then wait for them to say they're ready.
 
 ---
 
-## Phase 2 — Brief the Chief of Staff
+## Step 1 — Get Set Up (after "Ready")
 
-### Step 2.1 — Who they are
+Now do the file work, quietly:
 
-Start simple:
+1. **Check for an earlier onboarding.** Read `memory/profile/onboarding-progress.md` if it exists.
+   - `status: in progress` → ask "We stopped at question [n]. Continue, or start over?" Continue picks up at `next_question` with the answers so far. Start over resets the file to Question 1.
+   - `status: complete` → offer to update one part instead (wording in the script). Run only the questions for that part, then rewrite only the files that part feeds (see Steps 3 and 5). Skip the close's habits; just confirm what changed.
+2. **Make sure the memory layout exists.** If `memory.md` has no Folders table, or `memory/_state.md` or the folder `_index.md` files are missing (a plugin install doesn't copy the template), create them from this skill's references:
+   - `memory.md` from `references/memory-router.md`
+   - `memory/_state.md` from `references/state-card.md`
+   - `memory/profile/_index.md`, `memory/projects/_index.md`, `memory/library/_index.md` and `memory/reference/_index.md` from `references/folder-index.md`, with the folder name and its one-line description filled in (descriptions are in the router's Folders table)
 
-*"Tell me who you are and what you do. Role, organization, what the business is — whatever gives me the picture."*
+   Never overwrite a `memory.md` that already lists files; that is an older vault, so add the new files beside it and leave it alone.
+3. **Start the progress file** from `references/onboarding-progress-template.md` (unless resuming), and add its line to `memory/profile/_index.md`.
 
-Listen for:
-- Name and role
-- Organization name and what it does
-- Industry and business model at a high level
-- How long they've been in the role
-
----
-
-### Step 2.2 — Current priorities
-
-Ask:
-
-*"What are the two or three things that matter most to you right now — the things that, if they moved, would change everything else?"*
-
-Go a level deeper on each one. You want to understand not just what the priority is but why it matters right now and what's in the way.
+Then ask Question 1.
 
 ---
 
-### Step 2.3 — Recurring workflows
+## Step 2 — Part 1: How I Work With You (Questions 1–4)
 
-Ask:
+Ask Questions 1 to 4 from the script, one per message.
 
-*"Walk me through how your week typically works. What are the recurring meetings, decisions, or workflows I'm going to be helping you with most?"*
+**After every answer**, update `memory/profile/onboarding-progress.md`: the answer under "Answers so far" (condensed, in their words), `next_question`, `updated`. This is a small write; keep it that way so replies stay quick.
 
-Listen for:
-- Standing meetings and their cadence
-- Recurring reports or reviews
-- Decisions they make regularly
-- Workflows that are time-consuming or frustrating
+**Park specific tasks.** If an answer describes a specific task ("a daily summary of my industry news from Gmail"), acknowledge it in one line ("Saved for later: …"), add it to `memory/profile/wishlist.md` (create it from `references/wishlist-template.md` on first use and add its line to `memory/profile/_index.md`), and return to the interview. Never ask about the task's format, timing, sources or connections. Never start designing it. The list is the menu for the next setup session.
 
----
+**Confirm, don't assert.** If you've picked up facts about them from past chats, you may use one as a confirmation question in place of the scripted question it answers ("I've picked up that you sit on four boards. Is that right?"). One fact per message. Never present a block of assumed facts. If unsure, don't mention it.
 
-### Step 2.4 — Key people
+**Honour the style answer at once.** From the message after Question 3, every message matches what they said about length and tone.
 
-Ask:
-
-*"Who are the most important people in your professional world — the ones I need to know about to do my job well?"*
-
-Listen for:
-- Direct reports and their roles
-- Key stakeholders, board members, investors
-- Important clients or partners
-- Anyone who frequently appears in decisions or priorities
+**Close Part 1 with the recap** from the script. Then do Step 3 before asking Question 5.
 
 ---
 
-### Step 2.5 — Working context
+## Step 3 — Write Part 1
 
-Ask one final orienting question:
+Write once, after the Part 1 recap is confirmed.
 
-*"Is there anything about your business or your situation right now that I should understand before we get started — something that shapes everything else?"*
+**Instructions (`CLAUDE.md`).** If the file or a section is missing, create it.
+- **Who You Are**: rewrite to reflect the name (or "Chief of Staff" if they chose later), the help areas from Question 1, and doer / thinking partner / both from Question 2. Keep the operational core.
+- **Tone**: turn the Question 3 answer into a concrete rule with a limit, never just an adjective. Write it as the first line of the section, e.g. `- Default replies: 5 lines or fewer unless asked for more. Bottom line first.` For "full story, detailed": `- Default replies: lead with a one-line answer, then the detail, in short paragraphs.` If they gave no clear preference, write the short default anyway.
+- If they chose a thinking partner or both, add a line telling the assistant to flag blind spots as soon as it sees them, without waiting to be asked.
 
-This is a catch-all. Let them say what they want to say.
+**`memory/profile/style.md`**
+```yaml
+---
+title: "Working Style"
+summary: "How this executive likes to work, communicate, and be challenged."
+sources: ["onboard"]
+aliases: [style, preferences, voice]
+tags: [active, reference]
+updated: "[today, YYYY-MM-DD]"
+---
+```
+Content: help areas, doer / thinking partner, information style (with the rule written into the instructions), name.
+
+Add the `style.md` line to `memory/profile/_index.md` and set `part_1_written: true` in the progress file.
 
 ---
 
-### Step 2.6 — Meetings and to-dos (optional)
+## Step 4 — Part 2: Your World (Questions 5–9)
 
-Ask one light question — and make it easy to skip:
-
-*"Last practical one. Do you record your meetings — Granola, Otter, Fireflies, anything like that? And where do your to-dos live?"*
-
-If they answer, you'll write `memory/reference/meetings.md` in Phase 3. If they're unsure or want to skip it, move on — `/minutes` creates the file with safe defaults the first time it runs.
+Same rules as Step 2: one question per message, progress saved after each answer, specific tasks parked, past-chat facts only as single confirmations. Close with the Part 2 recap from the script.
 
 ---
 
-## Phase 3 — Seed the Vault
+## Step 5 — Write Part 2
 
-When Phase 2 is complete, write the following files. Write in third person from the Chief of Staff's perspective. Be specific — use the executive's actual words and details, not generic placeholders.
+Write once, after the Part 2 recap is confirmed. Write in third person from the Chief of Staff's perspective, using the executive's actual words. Every file gets `updated: "[today, YYYY-MM-DD]"`.
 
-**First, make sure the memory layout exists.** If `memory.md` has no Folders table, or `memory/_state.md` or the folder `_index.md` files are missing (a plugin install doesn't copy the template vault), create them from this skill's references:
-
-- `memory.md` from `references/memory-router.md`
-- `memory/_state.md` from `references/state-card.md`
-- `memory/profile/_index.md`, `memory/projects/_index.md`, `memory/library/_index.md` and `memory/reference/_index.md` from `references/folder-index.md`, with the folder name and its one-line description filled in (the descriptions are in the router's Folders table)
-
-Never overwrite a `memory.md` that already lists files; that is an older vault, so add the new files beside it and leave it alone.
-
-Every file below gets `updated: "[today, YYYY-MM-DD]"` in its metadata block.
-
-### Files to create:
-
-**`/memory/profile/about.md`**
+**`memory/profile/about.md`** (Questions 5 and 9)
 ```yaml
 ---
 title: "About [Name]"
@@ -179,11 +128,9 @@ aliases: [name, executive]
 tags: [active, person]
 ---
 ```
-Content: Name, role, organization, business overview, industry, how long in role.
+Content: name, role, organisation, what the business does, how long in role, and the context from Question 9.
 
----
-
-**`/memory/profile/priorities.md`**
+**`memory/profile/priorities.md`** (Question 6)
 ```yaml
 ---
 title: "Current Priorities"
@@ -193,11 +140,9 @@ aliases: [priorities, focus, goals]
 tags: [active]
 ---
 ```
-Content: Each priority named and explained. Why it matters. What's in the way. End the file with a line `<!-- history -->`: current priorities stay above it, and later changes are logged below it so `/start` can read just the top.
+Content: each priority named, with why it matters if they said. End with a line `<!-- history -->`: current priorities stay above it, later changes go below, so `/start` reads just the top.
 
----
-
-**`/memory/profile/workflows.md`**
+**`memory/profile/workflows.md`** (Question 7)
 ```yaml
 ---
 title: "Recurring Workflows"
@@ -207,11 +152,9 @@ aliases: [workflows, meetings, cadence]
 tags: [active, reference]
 ---
 ```
-Content: Each recurring workflow listed with cadence, purpose, and any relevant context. End the file with a line `<!-- history -->`, as for priorities.
+Content: each recurring meeting or task with its cadence. End with `<!-- history -->`.
 
----
-
-**`/memory/profile/people.md`**
+**`memory/profile/people.md`** (Question 8)
 ```yaml
 ---
 title: "Key People"
@@ -221,53 +164,29 @@ aliases: [people, contacts, team]
 tags: [active, person]
 ---
 ```
-Content: Each person named with role, relationship to the executive, and any relevant context.
+Content: each person with role and relationship to the executive.
+
+**Indexes and card.** Add one line per new file to `memory/profile/_index.md`: `` `memory/profile/about.md`: [summary, 150 characters or fewer] ``. Don't list files in `memory.md`; it is the router. Then write the first `memory/_state.md`: `updated` set to now, `written_by: "/onboard"`, the top priority under **This week** as `- Top priority: [priority]`, other sections empty.
+
+**Progress.** Set `part_2_written: true`, `status: complete` and `updated`.
+
+Meeting tools and where to-dos live are not asked here; `/minutes` asks on first use.
 
 ---
 
-**`/memory/profile/style.md`**
-```yaml
----
-title: "Working Style"
-summary: "How this executive likes to work, communicate, and be challenged."
-sources: ["onboard"]
-aliases: [style, preferences, voice]
-tags: [active, reference]
----
-```
-Content: Communication preferences, directness level, tone expectations, anything specific about how they like to operate.
+## Step 6 — Close
 
----
+Send the close from the script as one message: the three habits, where to see what it knows (the memory → profile folder), the "Things to set up later" list read back, and one item from it to try today with the plain sentence they'd type to start. If nothing was parked, suggest one thing from their Question 1 answer.
 
-**`/memory/reference/meetings.md`** (only if they answered Step 2.6)
-
-Copy the template from the `minutes` skill's `references/config-template.md`. Set `meeting_tool` to the tool they named (or `none`), and `destination` to their task system if it's one of airtable, asana, todoist, linear, trello or notion (otherwise `markdown`). Leave `mapping` as the placeholder — IDs and field names get filled in the first time `/minutes` routes to that system, with the executive. Leave every other setting at its default.
-
----
-
-### Update the indexes and the card
-
-Add one line per new file to its folder's `_index.md`: `` `memory/profile/about.md`: [summary, 150 characters or fewer] ``. Do the same in `memory/reference/_index.md` for `meetings.md` if you created it. Do not list files in `memory.md`; it is the router and already names every folder.
-
-Then write the first `memory/_state.md`: set `updated` to now and `written_by: "/onboard"`, put the top priority under **This week** as `- Top priority: [priority]`, and leave the other sections empty. It fills in as projects and goals appear.
-
----
-
-## Phase 4 — Close
-
-Tell the executive what was set up. Keep it brief — two or three sentences. Name the files created without listing every detail.
-
-Then tell them how to start their next session:
-
-*"Next time we talk, just type `/start` and I'll pick up exactly where we left off."*
-
-Close with something human. Not "setup complete." Something that sounds like the end of a good first meeting with someone you're going to work with for a long time.
+Don't list commands beyond `/save`. The others are introduced in later sessions. End there; no "setup complete".
 
 ---
 
 ## Reminders
 
-- Never rush through phases. A good onboarding takes time.
-- If they are vague, push gently for specificity. Vague inputs produce vague outputs.
-- Phase 1 shapes who you are. Take it seriously — the persona you write into `CLAUDE.md` is who you will be in every session going forward.
-- Everything written to the vault in this session becomes the foundation the system compounds on. Get it right.
+- Fast first reply, then one question at a time. If a message has two question marks, rewrite it.
+- High level only. A specific task is a wishlist line, never a design conversation.
+- Examples make open questions answerable. Never ask an open question bare.
+- Rough answers are fine. Write down what they said; don't push for polish.
+- The Tone rule you write is what keeps every later session short. Make it concrete.
+- Progress is saved after every answer, so stopping halfway costs nothing.

@@ -1,6 +1,6 @@
 {
   "name": "ai-chief-of-staff",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "A personal AI Chief of Staff for executives. Maintains a structured knowledge base that compounds over time \u2014 knows your business, remembers context, and works alongside you every day. Based on the Karpathy LLM wiki pattern: no vector database, no embeddings, just a human-readable Markdown wiki that grows more valuable with every session.",
   "author": {
     "name": "Shahed Khalili / Parallel79",

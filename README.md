@@ -38,6 +38,10 @@ That's the core loop. Start the session, save at the end. Everything in between 
 
 You don't need to memorize these. You'll learn them by using them. But here's the full set so you know what's available.
 
+### First
+
+**`/onboard`** — Your first meeting with your Chief of Staff, about 15 to 20 minutes. It asks nine short questions, one at a time, with example answers: first how you want it to work, then your world. Rough answers are fine, and you can stop and pick up later. If you mention something specific you'd like help with, it saves it to a "things to set up later" list rather than stopping to build it. It ends with three habits: start every conversation inside its project, talk to it like a colleague, and type `/save` before you leave.
+
 ### Every day
 
 **`/start`** — Start a session. Your Chief of Staff restores context and tells you where things stand. If you keep weekly goals in `/outputs/goals/` (one `YYYY-MM-DD-weekly-goals.md` file per week), it also reads this week's goals and tells you where your #1 goal stands. Add extra instructions right on the command — `/start also check X` — for anything this particular session needs that's beyond the standing rules in `CLAUDE.md`.
@@ -56,7 +60,7 @@ You don't need to memorize these. You'll learn them by using them. But here's th
 
 **`/sync`** — Dropped a stack of files in and want them all absorbed at once? This catches the system up on everything new.
 
-**`/minutes`** — Turn a meeting into minutes and action items. If you record meetings with a tool like Granola, it pulls the transcript itself; otherwise paste one in, or just type `/minutes debrief` and tell it what happened. It strips the small talk, writes clean minutes into `outputs/meetings/`, and sorts the action items from your point of view: what *you* owe, what you're *waiting on* from others, and what others owe each other. Then it updates memory — new people, project progress, decisions — and, once you say yes, sends your to-dos to your task system. `/minutes today` does all of today's meetings in one go. The first run creates a settings file at `memory/reference/meetings.md` where you tell it where your to-dos live; until then they go to `outputs/follow-ups.md`.
+**`/minutes`** — Turn a meeting into minutes and action items. If you record meetings with a tool like Granola, it pulls the transcript itself; otherwise paste one in, or just type `/minutes debrief` and tell it what happened. It strips the small talk, writes clean minutes into `outputs/meetings/`, and sorts the action items from your point of view: what *you* owe, what you're *waiting on* from others, and what others owe each other. Then it updates memory — new people, project progress, decisions — and, once you say yes, sends your to-dos to your task system. `/minutes today` does all of today's meetings in one go. The first time you run it, it asks two quick questions (do you record meetings, and where do your to-dos live) and saves the answers in `memory/reference/meetings.md`.
 
 ### Asking the system
 
@@ -150,4 +154,4 @@ The skills work on any platform. The vault (the memory system) works on platform
 
 ---
 
-*To begin, type `/onboard` and your Chief of Staff will introduce itself.*
+*To begin, type `/onboard`. It takes 15 to 20 minutes, and you can stop and pick up where you left off.*

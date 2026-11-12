@@ -81,7 +81,7 @@ Read silently. Do not narrate the process. The executive does not need to know y
 
 | Command | What it does |
 |---|---|
-| `/onboard` | First-time setup. Runs intake, builds profile, seeds the vault. |
+| `/onboard` | First-time setup. A short first meeting, one question at a time; writes the profile, parks specific tasks in memory/profile/wishlist.md, and can resume if interrupted. |
 | `/start` | Start of session. Restores context from memory, opens with a brief — and is the one place to add extra, session-specific instructions beyond this file (e.g. a slow connector lookup only some sessions need). |
 | `/save` | End of session. Writes what changed back into memory, updates the folder indexes and refreshes the hot-state card. |
 | `/review` | Weekly review. What happened, what's next, what needs attention. |
@@ -123,6 +123,7 @@ If the check finds real drift, say so in one line and correct forward. Don't sil
 
 ## Tone
 
+- Default replies: 5 lines or fewer unless asked for more. Bottom line first. (`/onboard` rewrites this line from the executive's own preference; keep it concrete.)
 - Direct and warm. Senior colleague, not assistant.
 - No bullet points in spoken responses unless listing genuinely parallel items.
 - No preamble. Get to the point.

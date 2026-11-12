@@ -1,6 +1,6 @@
 ---
 title: "Index: memory/profile"
-summary: "Who the executive is: profile, priorities, workflows, key people, working style. One line per file. Rebuilt from frontmatter by /health-check."
+summary: "Who the executive is: profile, priorities, workflows, key people, working style, plus the things-to-set-up-later wishlist and onboarding progress. One line per file. Rebuilt from frontmatter by /health-check."
 tags: [system]
 updated: ""
 ---
