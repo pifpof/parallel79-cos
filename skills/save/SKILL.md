@@ -212,9 +212,14 @@ Nothing from live connectors (CRM, calendar, task systems) goes on the card. It 
 
 ## Step 3c — Commit, If the Vault Uses Git
 
-Check whether the vault root is itself a Git repo: `git -C "<vault root>" rev-parse --show-toplevel` must print the vault root exactly. If it fails or prints a different folder (the vault sits inside some other repo), skip this step silently.
+Only commit when **both** are true; otherwise skip this step silently:
 
-If it is the vault's own repo, make **one** commit of everything this save changed: `git add -A` then `git commit -m "save: <one-line summary of the session>"`. Skip if there is nothing to commit. **Never push** unless the vault's `CLAUDE.md` says `push after save: yes` (set by `/git-vault-setup`). If the commit fails, say so in one line and carry on; the files are saved either way.
+1. A `.git` exists at the vault root: `test -e "<vault root>/.git"`. No `.git`, no commit, and never run `git init` here (that's `/git-vault-setup`'s job, on request).
+2. The vault root is that repo's top level: `git -C "<vault root>" rev-parse --show-toplevel` prints the vault root exactly. This rules out a vault sitting inside some other repo.
+
+If both hold, make **one** commit of everything this save changed: `git add -A` then `git commit -m "save: <one-line summary of the session>"`. Skip if there is nothing to commit. If the commit fails, say so in one line and carry on; the files are saved either way.
+
+**Push only if** the vault's `CLAUDE.md` says `push after save: yes` (set by `/git-vault-setup`) **and** the remote passes the private check first: the `origin` URL is on github.com, and `gh repo view <owner>/<repo> --json visibility -q .visibility` prints `PRIVATE` (without the GitHub CLI: `curl -s -o /dev/null -w '%{http_code}' https://api.github.com/repos/<owner>/<repo>` returns `404`, not `200`). If the repo is public, or the check can't be completed, don't push: keep the commit local and tell the executive in one line that the repo is public (or couldn't be verified) and needs to be made private before anything is uploaded.
 
 ---
 
@@ -248,7 +253,7 @@ Before the session ends, run a quick internal check:
 - [ ] Any meeting discussed in substance is in `memory/meetings-ledger.md`, or `/minutes debrief` was offered
 - [ ] `memory.md` touched only if a folder was added
 - [ ] `memory/_state.md` rewritten last, under 2 KB
-- [ ] One commit made if the vault is its own Git repo; nothing pushed unless `CLAUDE.md` allows it
+- [ ] One commit made only if `.git` exists at the vault root and it's the repo's top level; nothing pushed unless `CLAUDE.md` allows it and the remote is verified private
 - [ ] Executive confirmed nothing was missed
 
 If anything is incomplete, finish it before closing.

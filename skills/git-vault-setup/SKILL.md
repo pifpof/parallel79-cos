@@ -39,8 +39,8 @@ Run these checks quietly, and stop with a plain explanation if one fails:
 
 1. **Git is installed:** `git --version`. If not, on a Mac suggest `xcode-select --install` (or `brew install git`), and stop until it's done.
 2. **Where the vault is:** if its path contains `Mobile Documents` (iCloud Drive), `OneDrive`, `Dropbox` or `Google Drive`, it's in a synced folder. Go back to the last point of Step 1.
-3. **Not already a repo:** `git -C "<vault>" rev-parse --show-toplevel`.
-   - Prints the vault path → it's already set up. Skip to Step 4 (remote) or Step 5 if that's done too.
+3. **Not already a repo:** check for a `.git` at the vault root, then `git -C "<vault>" rev-parse --show-toplevel`.
+   - `.git` exists and it prints the vault path → it's already set up. If it already has a remote (`git remote -v`), run the private check in Step 4 on it now, before anything else; a public remote stops the skill there. Then skip to Step 4 (remote) or Step 5 if that's done too.
    - Prints a different, parent folder → the vault sits inside another repo. Don't nest a second one. Explain and stop; the executive (or whoever set up that repo) decides.
    - Fails → not a repo. Continue.
 4. **Big or private files:** list anything in the vault over 50 MB and any file whose name suggests credentials (`.env`, `*.key`, `*credentials*`, `*secret*`). Name them and propose adding them to `.gitignore`. Git keeps every version forever; secrets must never be committed.
@@ -61,9 +61,18 @@ Ask: "Want a private copy on GitHub, for backup and other machines?" If no, skip
 
 If yes:
 
-- **With the GitHub CLI** (`gh auth status` succeeds): propose `gh repo create <vault-name> --private --source "<vault>" --remote origin --push`. Say plainly that this uploads the vault, including everything in `/data`, to a **private** repo on their account. Run it only on an explicit yes.
-- **Without it:** give the two or three steps to create a private repo on github.com, then `git remote add origin <url>` and `git push -u origin main`. Offer to run the commands once they paste the URL.
+- **With the GitHub CLI** (`gh auth status` succeeds): propose `gh repo create <vault-name> --private --source "<vault>" --remote origin` (no `--push`). Say plainly that the next step uploads the vault, including everything in `/data`, to a **private** repo on their account. Run it only on an explicit yes.
+- **Without it:** give the two or three steps to create a repo on github.com with **Private** selected, then `git remote add origin <url>` once they paste the URL.
+- **Then the private check, then the first push.** Run the check below. Only if it passes: `git push -u origin main`.
 - **Never** create a public repo, and never push to a remote they didn't name.
+
+**Private check (run before every push, and before connecting any remote).** A vault holds the executive's private business. Never push it anywhere that isn't verified private:
+
+1. Read the remote: `git -C "<vault>" remote get-url origin`. It must be a GitHub URL (`github.com/<owner>/<repo>`). Any other host can't be verified here: refuse.
+2. Check visibility:
+   - With the GitHub CLI: `gh repo view <owner>/<repo> --json visibility -q .visibility` must print `PRIVATE`.
+   - Without it: `curl -s -o /dev/null -w '%{http_code}' https://api.github.com/repos/<owner>/<repo>`. `200` means anyone can see it: it's public. `404` means it isn't publicly visible, which is what's needed. Anything else (rate limit, no network) means it couldn't be verified.
+3. **Public, internal, or not verified → stop.** Don't push, don't record the remote as safe. Tell the executive in plain words: the repo is public (or couldn't be checked), so nothing was uploaded; make it private on GitHub (the repo's Settings → General → Danger Zone → Change visibility) or remove the remote with `git remote remove origin`, then run this again.
 
 ---
 
@@ -78,7 +87,7 @@ This vault is a Git repo. `/save` ends with one commit (`save: <summary>`).
 push after save: no
 ```
 
-Ask whether `/save` should also push each time. Only if they say yes, set `push after save: yes` (and only when a remote exists). The default is no: commits stay on this machine until they push.
+Ask whether `/save` should also push each time. Only if they say yes, set `push after save: yes` (and only when a remote exists and has passed the private check). `/save` repeats the check before every push, in case the repo's visibility changes later. The default is no: commits stay on this machine until they push.
 
 Then confirm in two lines: what's set up, and that every `/save` from now on is a version they can look back on.
 
@@ -94,6 +103,6 @@ If they change their mind later: deleting the hidden `.git` folder at the vault 
 
 - Optional, plain-language, one step at a time. The executive can stop anywhere.
 - Never put a Git repo inside a cloud-synced folder, and never nest it inside another repo.
-- Nothing leaves the machine without an explicit yes. Remotes are private, always.
+- Nothing leaves the machine without an explicit yes. Remotes are private, always: verified before the first push, and by `/save` before every push after. Public or unverifiable means stop.
 - Secrets and huge files go in `.gitignore` before the first commit, not after.
 - `/save` commits; it pushes only when `CLAUDE.md` says `push after save: yes`.
