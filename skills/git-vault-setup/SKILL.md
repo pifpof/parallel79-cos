@@ -1,7 +1,7 @@
 ---
 name: git-vault-setup
 description: "Optional: put the AI Chief of Staff's vault under Git version control. Use this skill whenever the executive says '/git-vault-setup', asks to 'version my vault', 'back up my memory to GitHub', 'keep a history of changes', 'use Git', 'sync across machines with Git', or asks whether to use iCloud or GitHub for the vault. Explains the trade-off in plain words, turns the vault folder into a private Git repo with a sensible .gitignore and a first commit, optionally connects a private GitHub repo, and records the setting so every /save makes one commit. Never pushes unless the executive says so, and never makes a repo public. Can be run at any time after onboarding."
-version: 1.0.0
+version: 1.1.0
 allowed-tools: [Read, Write, Edit, Bash]
 ---
 
@@ -27,7 +27,8 @@ In three or four sentences:
 
 - **Synced folder (what you have now):** simple, automatic, nothing to learn. No history: if something gets overwritten, it's gone.
 - **Git:** every save is kept as a version you can look back on or undo. With a private GitHub repo, it's backed up and works across machines. It's a little more technical.
-- **Not both on the same folder.** A Git repo inside iCloud Drive, OneDrive or Dropbox can get corrupted when the sync service and Git both write to it. If they choose Git and the vault is in a synced folder, recommend moving the vault out of it first (say where it is now and suggest `~/Documents/<vault name>` outside the synced area), and do the move only on a yes.
+- **It works wherever the vault is,** including a synced folder. If the vault is in iCloud Drive, OneDrive, Dropbox or Google Drive, Git's history is kept in a local folder outside it, so the sync service never touches it (syncing Git's internal files can corrupt them). Their files stay exactly where they are.
+- **The one hard rule:** if it goes to GitHub, the repo is private. That's checked before anything is uploaded.
 
 Ask whether they want to go ahead. If not, stop; nothing changes.
 
@@ -35,22 +36,28 @@ Ask whether they want to go ahead. If not, stop; nothing changes.
 
 ## Step 2 — Check the Ground
 
-Run these checks quietly, and stop with a plain explanation if one fails:
+Run these checks quietly. Only a missing Git or a public remote stops the skill; everything else adjusts how the repo is set up:
 
 1. **Git is installed:** `git --version`. If not, on a Mac suggest `xcode-select --install` (or `brew install git`), and stop until it's done.
-2. **Where the vault is:** if its path contains `Mobile Documents` (iCloud Drive), `OneDrive`, `Dropbox` or `Google Drive`, it's in a synced folder. Go back to the last point of Step 1.
+2. **Is the vault in a synced folder?** Yes if its real path (`pwd -P`) contains `Mobile Documents` (iCloud Drive), `Library/CloudStorage`, `OneDrive`, `Dropbox` or `Google Drive`. Don't assume from a folder's name; check the path. If yes, Step 3 keeps the history outside it. Never move the vault.
 3. **Not already a repo:** check for a `.git` at the vault root, then `git -C "<vault>" rev-parse --show-toplevel`.
    - `.git` exists and it prints the vault path → it's already set up. If it already has a remote (`git remote -v`), run the private check in Step 4 on it now, before anything else; a public remote stops the skill there. Then skip to Step 4 (remote) or Step 5 if that's done too.
-   - Prints a different, parent folder → the vault sits inside another repo. Don't nest a second one. Explain and stop; the executive (or whoever set up that repo) decides.
+   - Prints a different, parent folder → the vault sits inside another repo. That's allowed: the vault gets its own repo, and the parent will see it as a nested one. Say so in one line, and suggest adding the vault's path to the parent repo's `.gitignore` so the two histories stay separate. Continue on a yes.
    - Fails → not a repo. Continue.
-4. **Big or private files:** list anything in the vault over 50 MB and any file whose name suggests credentials (`.env`, `*.key`, `*credentials*`, `*secret*`). Name them and propose adding them to `.gitignore`. Git keeps every version forever; secrets must never be committed.
+4. **Repos inside the vault:** `find "<vault>" -mindepth 2 -name .git -prune` lists any folder that's already its own Git repo (a code project kept in `/data`, say). Add each one's path to `.gitignore`: it keeps its own history, and committing it here would only record a pointer to it.
+5. **Size:** if the vault is over 1 GB (`du -sh`), say so. GitHub refuses single files over 100 MB and gets slow on very large repos; propose leaving bulky folders (exports, media, archives in `/data`) out via `.gitignore`.
+6. **Big or private files:** list anything in the vault over 50 MB and any file whose name suggests credentials (`.env`, `*.key`, `*credentials*`, `*secret*`). Name them and propose adding them to `.gitignore`. Git keeps every version forever; secrets must never be committed.
 
 ---
 
 ## Step 3 — Create the Repo
 
 1. Write `.gitignore` at the vault root from `references/gitignore-template`, plus anything agreed in Step 2. Ask one question: keep removed files (`trash/`) in the history, or leave them out? Default: keep them, so nothing is ever truly lost.
-2. `git init`, then `git add -A` and `git commit -m "setup: initial vault"`.
+2. Create the repo:
+   - **Ordinary local folder:** `git init`.
+   - **Synced folder:** `git init --separate-git-dir "$HOME/.vault-git/<vault-name>.git"`. Git's history lives in that local folder; the vault holds only a one-line `.git` file pointing to it. Tell the executive where the history is, in one line.
+
+   Then `git add -A` and `git commit -m "setup: initial vault"`.
 3. Confirm in one line: how many files are in the first version.
 
 ---
@@ -95,14 +102,14 @@ Then confirm in two lines: what's set up, and that every `/save` from now on is 
 
 ## Undoing It
 
-If they change their mind later: deleting the hidden `.git` folder at the vault root removes the history and leaves every file in place. Remove the "Version History (Git)" section from `CLAUDE.md` too. Never do this without an explicit request, and say first that the history is lost.
+If they change their mind later: deleting the hidden `.git` at the vault root (and, for a synced vault, the history folder under `~/.vault-git/`) removes the history and leaves every file in place. Remove the "Version History (Git)" section from `CLAUDE.md` too. Never do this without an explicit request, and say first that the history is lost.
 
 ---
 
 ## Reminders
 
 - Optional, plain-language, one step at a time. The executive can stop anywhere.
-- Never put a Git repo inside a cloud-synced folder, and never nest it inside another repo.
+- The vault can live anywhere. In a synced folder, Git's history lives outside it; repos already inside the vault go in `.gitignore`.
 - Nothing leaves the machine without an explicit yes. Remotes are private, always: verified before the first push, and by `/save` before every push after. Public or unverifiable means stop.
 - Secrets and huge files go in `.gitignore` before the first commit, not after.
 - `/save` commits; it pushes only when `CLAUDE.md` says `push after save: yes`.
