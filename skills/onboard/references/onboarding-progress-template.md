@@ -1,10 +1,14 @@
 ---
+type: system
 title: "Onboarding progress"
-summary: "Where /onboard got to: part, question and answers so far. Lets an interrupted onboarding resume."
-sources: ["onboard"]
+description: "Where /onboard got to: part, question and answers so far. Lets an interrupted onboarding resume."
+sources:
+  - resource: "session:onboard"
 aliases: ["onboarding progress"]
 tags: [system]
-updated: ""
+generated:
+  by: "/onboard"
+  at: ""
 ---
 
 # Onboarding progress

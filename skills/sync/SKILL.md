@@ -1,7 +1,7 @@
 ---
 name: sync
 description: "Catch-up ingest for the AI Chief of Staff. Use this skill whenever the executive says '/sync', has dropped multiple files or sources into /data without processing them, says 'catch up on what I added', 'process my sources', 'I dumped a bunch of stuff in there', or wants the system to absorb everything that's accumulated since the last sync. Scans /data for raw sources that haven't been compiled into memory yet, reads them, and merges their knowledge into the existing wiki structure. This is the batch version of /capture — maintenance rather than intentional single-source ingest."
-version: 1.3.0
+version: 1.4.0
 allowed-tools: [Read, Write, Edit, Bash]
 ---
 
@@ -20,6 +20,21 @@ This is Karpathy's compilation step run in batch: read the unprocessed raw mater
 This is maintenance, so be systematic. Work through the backlog methodically and report what you did at the end. The executive doesn't need a play-by-play of each file — they need to know the system is now current.
 
 The synthesis still matters. Even in batch, each source should be read through the lens of the executive's priorities and cross-linked to existing memory. Volume is not an excuse for shallow processing.
+
+---
+
+## Which Format to Write
+
+Read `layout:` in `memory.md`'s frontmatter.
+
+- **`layout: "2.2"`:** write the format below.
+- **Anything else** (an older vault): write in the format its files already use (`summary`, `updated`, a project `status` line, plain filename `sources`, `_index.md`) and convert nothing. `/health-check` offers the upgrade.
+
+Layout 2.2:
+- **Frontmatter:** `type` (profile, person, project, client, decision, source, reference or system), `title`, `description` (one sentence), `tags`, `generated` (`by: "/sync"`, `at:` now in ISO 8601 with offset), `aliases`, `sources` (a list of `- resource: "…"`), and on projects `next` (one line: where it stands, the next step). Never write a `status` field; OKF reserves it.
+- **Folder index** `memory/<folder>/index.md`: no frontmatter; one line per file, `- [Title](./file.md): description`, 150 characters or fewer.
+- **Folder log** `memory/<folder>/log.md`: no frontmatter; newest first; a `## YYYY-MM-DD` heading per day, one line per change: `- **Updated** [Title](./file.md): what changed (/sync)`. History goes here, not in the file.
+- **Links:** when a file you write mentions a person, project, client or decision that has its own file, link it with a relative markdown link (`[Jordan Lee](../profile/people.md)`).
 
 ---
 
@@ -44,17 +59,18 @@ The record of what was compiled and when lives in `memory/sync-ledger.md` (see "
 
 ```markdown
 ---
+type: system
 title: "Sync ledger"
-summary: "When each /data source was last compiled into memory. Maintained by /sync, /capture and /save; checked by /health-check."
+description: "When each /data source was last compiled into memory. Maintained by /sync, /capture and /save; checked by /health-check."
 tags: [system]
 ---
 
 | Source | Last compiled | Memory files it feeds |
 |---|---|---|
-| data/product-roadmap.md | 2026-09-24 10:15 | memory/projects/_index.md (Roadmap), memory/projects/platform-launch.md |
+| data/product-roadmap.md | 2026-09-24 10:15 | memory/projects/index.md (Roadmap), memory/projects/platform-launch.md |
 ```
 
-Create it if it doesn't exist. It is a system file: the router's System files list already names it; don't treat it as knowledge.
+Create it if it doesn't exist (older vaults: `summary` instead of `description`, no `type`). It is a system file: the router's System files list already names it; in layout 2.2 also add it to the System files list in `memory/index.md`. Don't treat it as knowledge.
 
 ---
 
@@ -66,7 +82,7 @@ For each **new** source, run the same compilation logic as `/capture`:
 
 1. Read the source through the lens of the executive's priorities, projects, and people
 2. Extract the takeaways that matter to *this* executive
-3. Update existing memory files where relevant — add insights, note the source in metadata, set `updated`, and rewrite a project's `status` line if its state moved
+3. Update existing memory files where relevant — add insights, add the source to `sources`, set `generated` (or `updated`), rewrite a project's `next` line (older: `status`) if its state moved, link what the new text mentions, and add one line per file to the folder's `log.md`
 4. Create new library files for topics worth retaining on their own
 5. Always set `sources` lineage pointing back to the `/data` filename
 
@@ -75,7 +91,7 @@ For each **changed** or **unledgered** source, read the whole file, not a skim, 
 1. Walk the file section by section (every heading is a candidate unit of knowledge)
 2. For each section, check whether memory already covers it and whether memory's version is current. A status line, date, or decision that moved in the source but not in memory counts as a gap
 3. Merge only the new or changed knowledge, and note where memory now disagrees with the source so the executive can see it
-4. **Every distinct initiative, project, offering or event found in a living document must get at least a one-line pointer in the right folder's `_index.md`** (usually `memory/projects/_index.md`), even if its detail stays in `/data`. An initiative that exists only inside a backlog file is invisible to `/start` and `/query`
+4. **Every distinct initiative, project, offering or event found in a living document must get at least a one-line pointer in the right folder's index** (usually the projects index), even if its detail stays in `/data`. An initiative that exists only inside a backlog file is invisible to `/start` and `/query`
 
 Work through them in order, oldest first, so the memory reflects how knowledge accumulated over time.
 
@@ -87,7 +103,7 @@ After each source is processed, update its row in `memory/sync-ledger.md` with t
 
 ## Step 3 — Update the Indexes
 
-Once all sources are processed, add or refresh a line in each folder's `_index.md` for every new and changed file. Touch `memory.md` (the router) only if a new folder was created. The indexes must be current — the next `/start` or `/query` finds things through them. In an older vault whose `memory.md` still lists files, update `memory.md` as before.
+Once all sources are processed, add or refresh a line in each folder's index (`index.md`, or `_index.md` in an older vault) for every new and changed file, and check every touched file has its `log.md` line. Touch `memory.md` (the router) only if a new folder was created. The indexes must be current — the next `/start` or `/query` finds things through them. In an older vault whose `memory.md` still lists files, update `memory.md` as before.
 
 If the sync moved a project's state, the hot-state card is now behind. Don't rewrite it here; say in the report that the next `/save` will refresh it.
 

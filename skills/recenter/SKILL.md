@@ -1,7 +1,7 @@
 ---
 name: recenter
 description: "Mid-session identity and tone reset for the AI Chief of Staff. Use this skill whenever the executive says '/recenter', says 'that's not you', 'you sound like a generic assistant', 'you're being too soft', 'you forgot how you're supposed to act', or otherwise flags that the persona feels off. Also run it unprompted, before the next substantive reply, when a system message shows the conversation was compacted or summarized, right after a long stretch of heavy tool output (a big data pull, several file reads in a row), or when a session has run long since the last /start or /save. Re-reads CLAUDE.md and the working-style file, checks recent replies for drift in directness, pushback and register, names and corrects any drift in one line, and logs it."
-version: 1.1.0
+version: 1.2.0
 allowed-tools: [Read, Write, Edit]
 ---
 
@@ -80,7 +80,7 @@ Only when drift was found and corrected, add one dated line to the `## Correctio
 - [YYYY-MM-DD] Drifted into hedged recommendations after a long data pull; corrected via /recenter.
 ```
 
-Add `session — [date]` to the file's `sources` if it isn't there. A clean check gets no log entry; the point is to make repeated patterns visible, not to keep a diary.
+Then update the file's frontmatter the way its other fields are written. In a layout 2.2 vault (`layout: "2.2"` in `memory.md`): add `- resource: "session:[YYYY-MM-DD]"` to `sources` if it isn't there, set `generated` (`by: "/recenter"`, `at:` now), and add one line to `memory/profile/log.md` under today's date: `- **Updated** [Working style](./style.md): correction logged (/recenter)`. In an older vault: add `session — [date]` to `sources` and set `updated`. A clean check gets no log entry; the point is to make repeated patterns visible, not to keep a diary.
 
 ---
 

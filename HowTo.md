@@ -26,10 +26,12 @@ vault/
 ├── HowTo.md            # this file
 │
 ├── data/               # raw sources, append-only, never edited
-├── memory/
+├── memory/             # an Open Knowledge Format (OKF) v0.2 bundle
+│   ├── index.md        # bundle map, okf_version; points back to memory.md
 │   ├── _state.md       # hot-state card: what matters right now (derived, rebuildable)
 │   ├── profile/        # identity, priorities, workflows, people, style
-│   │   └── _index.md   # one line per file (every memory folder has one)
+│   │   ├── index.md    # one link per file (every memory folder has one)
+│   │   └── log.md      # what changed, newest first (every memory folder has one)
 │   ├── projects/       # active and reference project knowledge
 │   ├── library/        # retained knowledge, research, reference, decisions log
 │   ├── reference/      # system settings, e.g. meetings.md (/minutes config)
@@ -45,9 +47,16 @@ vault/
 ### Why this design
 
 - **Markdown over a database** — portable, human-auditable, no vendor lock-in, readable in any editor and viewable as a graph in Obsidian. If the tooling disappears, the knowledge survives.
-- **A two-level index and a card** — `memory.md` lists folders, not files; each folder's `_index.md` lists its files; `memory/_state.md` is a 15-line card of what matters right now. `/start` reads the router, the card and a few profile slices (about 12 KB), whatever the vault size, then finds anything else by searching frontmatter. This is what keeps token usage flat as the vault grows. (Before v2.0.0, `memory.md` listed every file and grew with the vault.)
-- **Current state on top, history below** — long files keep the current state above a `<!-- history -->` line, so `/start` reads only the part that matters today.
+- **A two-level index and a card** — `memory.md` lists folders, not files; each folder's `index.md` lists its files; `memory/_state.md` is a 15-line card of what matters right now. `/start` reads the router, the card and a few profile slices (about 12 KB), whatever the vault size, then finds anything else by searching frontmatter. This is what keeps token usage flat as the vault grows. (Before v2.0.0, `memory.md` listed every file and grew with the vault.)
+- **Current state in the file, history in the log** — files hold only how things stand now; every meaningful change is one dated line in the folder's `log.md`. `/start` reads only current state, and `/review` reads the week from the logs instead of opening every project file. (Before v2.2.0, history sat below a `<!-- history -->` line in each file.)
+- **Real links** — files link to the people, projects and decisions they mention with ordinary relative markdown links, so a skill can follow a link instead of searching, and Obsidian draws the graph.
 - **Lineage via `sources`** — every memory file traces back to the `/data` file(s) it was compiled from. Nothing is generated from thin air, and any claim can be audited back to its origin.
+
+### Built on open formats
+
+The design has a lineage. Andrej Karpathy described the LLM-maintained wiki: an LLM compiles raw sources into Markdown a human can read, instead of retrieving chunks at query time. Google Cloud then formalised the same pattern for company knowledge as the Open Knowledge Format (OKF): Markdown files, YAML frontmatter with a required `type`, a reserved `index.md` per folder for navigation and `log.md` for change history, and ordinary Markdown links between files. See ["Introducing the Open Knowledge Format"](https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing) by Sam McVeety and Amir Hormati (Google Cloud Blog, 2026-06-12), which introduced v0.1, and the current spec at [github.com/GoogleCloudPlatform/open-knowledge-format](https://github.com/GoogleCloudPlatform/open-knowledge-format).
+
+Since v2.2.0 the `memory/` folder is **aligned with OKF v0.2**: any OKF tool can read it, and it can grow into a shared company knowledge base without conversion. What this system adds on top is everything that makes it a Chief of Staff rather than a store: the onboarding interview, the `/save` habit, the hot-state card, the persona and the skills. Aligned with, not certified by: OKF has no certification, and Google does not endorse this plugin.
 
 ---
 
@@ -57,26 +66,36 @@ Every file in `/memory` must open with this metadata block. The skills depend on
 
 ```yaml
 ---
+type: project
 title: ""
-summary: ""
-sources: []
-aliases: []
+description: ""
 tags: []
-updated: ""
+generated:
+  by: "/save"
+  at: "2026-11-17T06:30:00-08:00"
+aliases: []
+sources:
+  - resource: "data/2026-11-17-board-pack.md"
+next: ""
 ---
 ```
 
-Project files also carry `status: ""`.
+`type`, `title`, `description`, `tags`, `generated` and `sources` are Open Knowledge Format v0.2 fields; `aliases` and `next` are this system's own (OKF allows extra fields).
 
 | Field | Purpose | Notes |
 |---|---|---|
+| `type` | What kind of file this is | Required by OKF. One of `profile`, `person`, `project`, `client`, `decision`, `source`, `reference`, `system`. |
 | `title` | Plain name of the subject | Human-readable, not a filename |
-| `summary` | One sentence — what this file is and why it matters | This is what skills read from the index before deciding whether to load the full file. Keep it sharp. |
-| `sources` | Filenames in `/data` this was compiled from | The lineage. Use `session — [date]` when knowledge came from conversation, not a document. |
+| `description` | One sentence — what this file is and why it matters | Folder indexes are built from it, and skills read it before deciding whether to load the full file. Keep it sharp. |
+| `tags` | Status labels | Drives filtering in `/start`, `/review`, `/health-check`. Keep the vocabulary consistent. |
+| `generated` | The last meaningful change: `by` (the skill, or `executive`) and `at` (ISO 8601 with offset) | Set on every edit. `/health-check` uses it to find stale files, and `/start` to judge whether the card is current. |
 | `aliases` | Alternate names / shorthand the executive uses | This is how `/query` resolves "the migration thing" to `project-alpha.md`. |
-| `tags` | Status and type labels | Drives filtering in `/start`, `/review`, `/health-check`. Keep the vocabulary consistent. |
-| `updated` | Date of the last meaningful change | Set on every edit. `/health-check` uses it to find stale files, and `/start` to judge whether the card is current. |
-| `status` | Project files only: where it stands, the next step | One line. `/save` rewrites it; the hot-state card is compiled from it. |
+| `sources` | Where it came from: one `resource` per `/data` path, minutes file, or `session:YYYY-MM-DD` | The lineage. |
+| `next` | Project files only: where it stands, the next step | One line. `/save` rewrites it; the hot-state card is compiled from it. Not called `status`, because OKF reserves `status` for draft / stable / deprecated. |
+
+**Older vaults** (before v2.2.0) use `summary`, `updated`, a project `status` line and plain filename `sources`. Every skill reads both; none converts on its own. `/health-check` offers the upgrade, and the vault's layout is recorded as `layout: "2.2"` in `memory.md`.
+
+**Folder `index.md` and `log.md`.** Both have no frontmatter, as OKF requires. `index.md`: `- [Title](./file.md): description`, one per file. `log.md`: newest first, a `## YYYY-MM-DD` heading per day, one line per change: `- **Updated** [Priorities](./priorities.md): Series A moved to first (/save)`.
 
 **Standard tag vocabulary:** `active`, `archived`, `decision`, `blocked`, `person`, `project`, `reference`. Add to this set deliberately — every new tag is something the skills need to understand. Don't let it sprawl.
 
@@ -84,7 +103,7 @@ Project files also carry `status: ""`.
 
 ## 3. How the Skills Work Together
 
-Ten skills, grouped by function. They share two pieces of common infrastructure: they all orient from `CLAUDE.md` + `memory.md` (the router), finding anything else through folder indexes and frontmatter search, and they all respect the memory file contract when writing.
+Eleven skills, grouped by function. They share two pieces of common infrastructure: they all orient from `CLAUDE.md` + `memory.md` (the router), finding anything else through folder indexes and frontmatter search, and they all respect the memory file contract when writing.
 
 ```
 SETUP        /onboard    Nine questions, one at a time, in two parts → persona
@@ -95,13 +114,15 @@ SESSION      /start      Read hot set (router + card + profile) → brief. Start
                          to run extra, session-specific instructions beyond
                          CLAUDE.md (a slow connector lookup only this session
                          needs, say) — pass them as arguments: /start <extra>.
-LOOP         /save       Synthesize session → write back → folder indexes →
-                         rewrite the hot-state card (last). End of session.
+LOOP         /save       Synthesize session → write back → folder logs and
+                         indexes → hot-state card (last) → one Git commit if
+                         the vault is a repo. End of session.
              /recenter   Mid-session persona/tone reset. Re-reads CLAUDE.md +
                          style.md, corrects and logs drift. Auto-triggered
                          after context compaction.
 
-CONSUMPTION  /review     Weekly synthesis + accountability. Self-saves.
+CONSUMPTION  /review     Weekly synthesis from the week's log.md lines +
+                         accountability. Self-saves.
 
 INGEST       /capture    One source → /data → compile into /memory.
              /sync       Batch: scan /data for unprocessed → compile.
@@ -112,10 +133,16 @@ RETRIEVAL    /query      Question → read wiki → grounded answer → /outputs
 
 MAINTENANCE  /health-check  Health check. Fix safe issues, surface judgment calls.
                          Rebuilds folder indexes and the card from frontmatter;
-                         checks the ~12 KB /start budget.
+                         checks the ~12 KB /start budget, OKF conformance and
+                         broken links; offers layout upgrades step by step.
+
+OPTIONAL     /git-vault-setup  Vault → private Git repo, so every /save is a
+                         commit. Run any time; never pushes unless told to.
 ```
 
 **v2.0.0: light `/start`.** `memory.md` became a router (folders, not files), each memory folder got an `_index.md`, and a hot-state card (`memory/_state.md`) now carries what matters right now. `/start` reads a fixed ~12 KB hot set, checks the card is current (falling back to the goals file and project frontmatter when it isn't), then loads on demand by frontmatter search. Frontmatter gained `updated` (all files) and `status` (projects). Pre-2.0 vaults keep working unchanged; `/health-check` offers the conversion.
+
+**v2.2.0: Open Knowledge Format.** The `memory/` folder became an OKF v0.2 bundle: `_index.md` → `index.md` (links, no frontmatter), a `log.md` per folder replaces in-file history, `type` on every file, `summary` → `description`, `updated` → `generated` (`by`, `at`), project `status` → `next`, `sources` as `resource` entries, and relative links between files. `memory.md` records `layout: "2.2"` so skills pick the format from it instead of guessing. Older vaults keep working; `/health-check` offers the upgrade one step at a time. Git became an option through `/git-vault-setup`.
 
 **`/load` was renamed to `/start`, and `/brief` was retired.** `/brief`'s fast-daily-read niche didn't earn a second skill once `/start` covers it — one command that also takes optional per-session instructions beats two overlapping ones. If you're maintaining a vault that predates this change, `/load` calls become `/start` calls and any workflow built around `/brief` should move to `/start`.
 
@@ -123,12 +150,12 @@ MAINTENANCE  /health-check  Health check. Fix safe issues, surface judgment call
 
 Everything that enters memory comes through one of two paths:
 
-1. **Conversation → memory** via `/save` and `/review`. Knowledge generated by talking. Sourced as `session — [date]`.
-2. **Document → memory** via `/capture` and `/sync`. Knowledge compiled from raw sources. Sourced as the `/data` filename.
+1. **Conversation → memory** via `/save` and `/review`. Knowledge generated by talking. Sourced as `session:YYYY-MM-DD`.
+2. **Document → memory** via `/capture` and `/sync`. Knowledge compiled from raw sources. Sourced as the `/data` path.
 
 `/minutes` is a hybrid: it compiles from a source like `/capture` does, but the source is a meeting and the lineage points at the minutes file in `/outputs/meetings/`, not at `/data`. That's deliberate — raw transcripts are full of small talk and personal content that shouldn't live in the vault, so they stay in the meeting tool and the sanitized minutes become the lineage anchor.
 
-Both paths write through the same memory file contract and both update the folder `_index.md`. If you build a new skill that writes to memory, it must do both too, and refresh `memory/_state.md` if it changes what matters this week.
+Both paths write through the same memory file contract, add a line to the folder's `log.md` for each change, and update the folder `index.md`. If you build a new skill that writes to memory, it must do all three, read `layout` in `memory.md` to pick the format, and refresh `memory/_state.md` if it changes what matters this week.
 
 ### The dependency that matters most
 
@@ -189,7 +216,7 @@ Never hard-delete. `/trash` exists so things can be removed from context without
 
 ## 5. Building New Skills
 
-Skills are the extension point. The ten baseline skills cover the core loop; role-specific and workflow-specific skills are where each executive's system diverges. This is the intended path — teach the pattern, then let each person extend it.
+Skills are the extension point. The eleven baseline skills cover the core loop; role-specific and workflow-specific skills are where each executive's system diverges. This is the intended path — teach the pattern, then let each person extend it.
 
 ### Anatomy
 
@@ -225,8 +252,8 @@ Follow the patterns the baseline skills use, so the suite stays coherent:
 
 - **Imperative voice.** "Read the vault." Not "The skill should read the vault."
 - **Explain why, not just what.** A skill that says *why* a step matters produces better judgment than one that just lists rules. "Lead with the answer — the executive asked because they want to know" beats "Always put the answer first."
-- **Find, don't browse.** Any skill that touches memory reads the router, then searches frontmatter `aliases`/`summary`/`description` or the folder `_index.md`, then loads only the files it needs. Never read a whole folder.
-- **Respect the memory contract.** Anything written to `/memory` gets a metadata block. Anything compiled from a source sets `sources` lineage. Add or refresh the folder `_index.md` line after writing; touch `memory.md` only for a new folder.
+- **Find, don't browse.** Any skill that touches memory reads the router, follows links in files it already has open, then searches frontmatter `aliases`/`description` (older: `summary`) or reads the folder `index.md`, then loads only the files it needs. Never read a whole folder.
+- **Respect the memory contract.** Anything written to `/memory` gets a metadata block. Anything compiled from a source sets `sources` lineage. Add a `log.md` line per change and add or refresh the folder `index.md` line after writing; touch `memory.md` only for a new folder. Read `layout` in `memory.md` and write in that vault's format.
 - **Tone reminders at the end.** The baseline skills close with a short reminders section reinforcing the non-negotiables. This is where you re-state the easy-to-miss rules.
 - **Keep it under ~500 lines.** If a skill is getting long, push detail into a `references/` file and point to it.
 

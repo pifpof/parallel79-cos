@@ -1,7 +1,7 @@
 ---
 name: minutes
 description: "Turn meetings into minutes, action items and memory for the AI Chief of Staff. Use whenever the executive says '/minutes', 'debrief my meeting', 'process today's meetings', 'what came out of my call with X', shares a meeting transcript, or says they just had a meeting. Pulls the transcript from a connected meeting tool (e.g. Granola) or takes a paste or spoken debrief, strips small talk and sensitive content, writes clean minutes, sorts action items into mine / waiting on / others, routes them to the executive's task system after approval, and compiles people, projects, decisions and CRM updates into memory."
-version: 1.2.0
+version: 1.3.0
 argument-hint: "[keyword | today | since last | debrief]"
 allowed-tools: [Read, Write, Edit, Bash]
 ---
@@ -30,6 +30,21 @@ The supporting files live in this skill's `references/` folder:
 
 ---
 
+## Which Format to Write
+
+Read `layout:` in `memory.md`'s frontmatter.
+
+- **`layout: "2.2"`:** write the format below.
+- **Anything else** (an older vault): write in the format its files already use (`summary`, `updated`, a project `status` line, plain filename `sources`, `_index.md`) and convert nothing. `/health-check` offers the upgrade.
+
+Layout 2.2:
+- **Frontmatter:** `type` (profile, person, project, client, decision, source, reference or system), `title`, `description` (one sentence), `tags`, `generated` (`by: "/minutes"`, `at:` now in ISO 8601 with offset), `aliases`, `sources` (a list of `- resource: "…"`), and on projects `next` (one line: where it stands, the next step). Never write a `status` field; OKF reserves it.
+- **Folder index** `memory/<folder>/index.md`: no frontmatter; one line per file, `- [Title](./file.md): description`, 150 characters or fewer.
+- **Folder log** `memory/<folder>/log.md`: no frontmatter; newest first; a `## YYYY-MM-DD` heading per day, one line per change: `- **Updated** [Title](./file.md): what changed (/minutes)`. History goes here, not in the file.
+- **Links:** when a file you write mentions a person, project, client or decision that has its own file, link it with a relative markdown link (`[Jordan Lee](../profile/people.md)`).
+
+---
+
 ## Step 0 — Load Config
 
 Read `memory.md` (the router) to orient, and `CLAUDE.md` only if it isn't already in your context. Then read `memory/reference/meetings.md`.
@@ -39,7 +54,7 @@ If it doesn't exist, this is the first run. Ask two short questions, one per mes
 1. *"Do you record your meetings with a tool like Granola, Otter or Fireflies? So I know where to find transcripts."*
 2. *"Where do your to-dos live? For example: Todoist / Asana / a list I keep for you."*
 
-Then create the file from `references/config-template.md`: `meeting_tool` set to the tool they named (`detect` if they skipped, `none` if they don't record), `destination` set to their task system if it's one of airtable, asana, todoist, linear, trello or notion (otherwise `markdown`), `review: external-only`, everything else at its default. Leave `mapping` as the placeholder; IDs and field names get filled in with the executive the first time you route to that system. Add a line for the file to `memory/reference/_index.md` (or to `memory.md` in an older vault that has no folder indexes), confirm in one line where action items will go, and carry on with the meeting.
+Then create the file from `references/config-template.md`: `meeting_tool` set to the tool they named (`detect` if they skipped, `none` if they don't record), `destination` set to their task system if it's one of airtable, asana, todoist, linear, trello or notion (otherwise `markdown`), `review: external-only`, everything else at its default. Leave `mapping` as the placeholder; IDs and field names get filled in with the executive the first time you route to that system. Add a line for the file to the reference folder's index (`memory/reference/index.md`, or `_index.md`, or `memory.md` in an older vault that has no folder indexes); in an older vault, write its frontmatter with `summary` instead of `description` and drop `type` and `generated`. Confirm in one line where action items will go, and carry on with the meeting.
 
 Everything specific to this executive — task system, field mappings, CRM convention, hourly-client rules, language notes — comes from that file. Never hard-code it here.
 
@@ -126,13 +141,13 @@ Rules:
 
 This is the Chief of Staff step — what turns minutes into knowledge. Plan the updates now; write them in Step 7.
 
-- **People.** For each attendee and each person discussed: search every memory file's `aliases`, `summary` and `description` lines and the people files before deciding someone is new (frontmatter search, not a folder read). New person who matters (a prospect, a new partner, someone the executive will deal with again) → create their file per the vault's people convention. Known person → add what was learned: role changes, preferences, context, what they're working on.
-- **Projects.** Add progress, decisions and blockers to the matching `/memory/projects/` files.
+- **People.** For each attendee and each person discussed: follow any link to them in the project or people files you have open, then search every memory file's `aliases`, `description` and `summary` lines and the people files before deciding someone is new (frontmatter search, not a folder read). New person who matters (a prospect, a new partner, someone the executive will deal with again) → create their file per the vault's people convention. Known person → add what was learned: role changes, preferences, context, what they're working on.
+- **Projects.** Add progress, decisions and blockers to the matching `/memory/projects/` files. Link the people and projects you mention to their files.
 - **Decisions.** Log material decisions the same way `/save` does: under a `## Decisions` section in the relevant project file (What was decided / Why / What it affects), or in `/memory/library/decisions.md` if it isn't project-specific. If the vault's CLAUDE.md defines a different decision log, follow that instead. A decision is material if it commits money, time, direction or a relationship.
 - **Priorities.** If the meeting moves a stated priority or this week's goals, note it in the relevant file. Don't rescore goals — that's `/review`'s job.
 - **CRM.** If config sets `crm_convention` to a file, read that file and follow it exactly: new contact, new opportunity, stage changes, follow-ups — whatever it specifies. If `crm_convention: none`, skip.
 - **Hourly clients.** If config has an `hourly_rule` and the meeting matches it, plan the time entry it describes. If the duration isn't known from the meeting metadata, ask for it on the review card.
-- **Lineage.** Every memory file you touch gets the minutes file path added to its `sources` and today's `updated` date. A project whose state moved gets a rewritten `status` line.
+- **Lineage.** Every memory file you touch gets the minutes file path added to its `sources` (`- resource: "outputs/meetings/…"`, or the plain path in an older vault), `generated` set (or `updated`), and one line in its folder's `log.md` (layout 2.2). A project whose state moved gets a rewritten `next` line (older: `status`).
 
 ---
 
@@ -178,8 +193,9 @@ In this order, so a failure part-way leaves the vault consistent:
 
 ```markdown
 ---
+type: system
 title: "Meetings ledger"
-summary: "Every meeting processed by /minutes: source ID, minutes path, what was routed. Checked by /start and /health-check."
+description: "Every meeting processed by /minutes: source ID, minutes path, what was routed. Checked by /start and /health-check."
 tags: [system]
 ---
 
@@ -188,10 +204,10 @@ tags: [system]
 | granola:abc123 | 2026-03-12 | Acme discovery call | outputs/meetings/2026-03-12-acme-discovery-call.md | 2026-03-12 14:05 | 3 mine → todoist; 1 waiting → markdown |
 ```
 
-Newest rows at the top. For paste and debrief mode, use `paste:<slug>` / `debrief:<slug>` as the source ID. Create the ledger if it doesn't exist. The router's System files list already names it; in an older vault, list it once in `memory.md`.
+Newest rows at the top. For paste and debrief mode, use `paste:<slug>` / `debrief:<slug>` as the source ID. Create the ledger if it doesn't exist. The router's System files list already names it; in layout 2.2 also add it to the System files list in `memory/index.md`; in an older vault, list it once in `memory.md` and use `summary` instead of `description`.
 
-5. **Folder indexes** — add or update the line in the right `memory/<folder>/_index.md` for any new or materially changed memory file. Touch `memory.md` only for a new folder (or, in an older vault with no folder indexes, update `memory.md` as before).
-6. **Hot-state card** — if `memory/_state.md` exists, rewrite its **Overdue or stale** section from the follow-ups as they now stand, rewrite the line of any project whose `status` changed, and set `updated` and `written_by: "/minutes"`. Leave the other sections as they are. Keep it under 2 KB.
+5. **Folder indexes and logs** — add or update the line in the right folder's index (`index.md`, or `_index.md` in an older vault) for any new or materially changed memory file, and make sure each touched file has its `log.md` line. Touch `memory.md` only for a new folder (or, in an older vault with no folder indexes, update `memory.md` as before).
+6. **Hot-state card** — if `memory/_state.md` exists, rewrite its **Overdue or stale** section from the follow-ups as they now stand, rewrite the line of any project whose `next` (or `status`) changed, and set `generated` (`by: "/minutes"`, `at:` now), or `updated` and `written_by: "/minutes"` on an older card. Leave the other sections as they are. Keep it under 2 KB.
 
 ---
 

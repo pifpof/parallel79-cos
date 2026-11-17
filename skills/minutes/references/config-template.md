@@ -1,7 +1,11 @@
 ---
+type: reference
 title: "Meeting settings"
-summary: "How /minutes finds meetings, writes minutes and routes action items."
+description: "How /minutes finds meetings, writes minutes and routes action items."
 sources: []
+generated:
+  by: "/minutes"
+  at: ""
 aliases: ["meeting config", "minutes settings"]
 tags: [reference, system]
 ---

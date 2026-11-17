@@ -1,9 +1,11 @@
 ---
+type: system
 title: "Hot-state card"
-summary: "Compiled snapshot of what matters right now. Derived from memory files, never authoritative. Read first by /start."
+description: "Compiled snapshot of what matters right now. Derived from memory files, never authoritative. Read first by /start."
 tags: [system]
-updated: ""
-written_by: ""
+generated:
+  by: ""
+  at: ""
 ---
 
 <!-- Cap: 2 KB, about 15 lines. Every line comes from a file. Rewritten whole, never appended. Contains nothing pulled from live connectors. -->

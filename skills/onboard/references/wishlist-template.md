@@ -1,10 +1,14 @@
 ---
+type: reference
 title: "Things to set up later"
-summary: "Specific tasks the executive wants help with, parked during onboarding. The menu for the next setup session."
-sources: ["onboard"]
+description: "Specific tasks the executive wants help with, parked during onboarding. The menu for the next setup session."
+sources:
+  - resource: "session:onboard"
 aliases: ["wishlist", "things to set up later", "set up later"]
 tags: [active, reference]
-updated: ""
+generated:
+  by: "/onboard"
+  at: ""
 ---
 
 # Things to set up later

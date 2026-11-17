@@ -34,7 +34,7 @@ That's the core loop. Start the session, save at the end. Everything in between 
 
 ---
 
-## The Ten Commands
+## The Commands
 
 You don't need to memorize these. You'll learn them by using them. But here's the full set so you know what's available.
 
@@ -70,6 +70,10 @@ You don't need to memorize these. You'll learn them by using them. But here's th
 
 **`/health-check`** — A tune-up. Every so often, run this and your Chief of Staff checks its own memory for anything stale, missing, or contradictory, cleans up what it safely can, and flags anything that needs your call. It also keeps startup fast: it rebuilds the card and the memory map from your files and tells you if anything has grown too large. Weekly or monthly is plenty.
 
+### Optional
+
+**`/git-vault-setup`** — For people who want a full history. It turns your folder into a private Git repository, so every `/save` is kept as a version you can look back on or undo, and, if you like, backs it up to a private GitHub repo you can use from several machines. Run it any time. Most people are fine without it: a synced folder like iCloud Drive works well. (Don't use both on the same folder; the skill explains why.)
+
 ---
 
 ## Where Everything Lives
@@ -79,11 +83,15 @@ Your system is just a folder of files on your computer. Nothing is locked away i
 The folder has a few parts:
 
 - **`data`** — Raw material you've fed in. Reports, articles, documents. Never changed once it's there. This is the record of everything the system has ever read.
-- **`memory`** — What your Chief of Staff actually knows. Your profile, your projects, and a library of everything worth retaining. This is the part that compounds. It also holds two small files that keep things fast: a map of the folders (`memory.md`) and a one-screen card of what matters right now (`memory/_state.md`). Each folder keeps its own short index, so your Chief of Staff can find anything without reading everything.
+- **`memory`** — What your Chief of Staff actually knows. Your profile, your projects, and a library of everything worth retaining. This is the part that compounds. It also holds two small files that keep things fast: a map of the folders (`memory.md`) and a one-screen card of what matters right now (`memory/_state.md`). Each folder keeps its own short index and a log of what changed, and files link to each other, so your Chief of Staff can find anything without reading everything.
 - **`outputs`** — Things it produces for you. Briefs, answers, weekly reviews, meeting minutes.
 - **`trash`** — Things you've removed from the picture but don't want gone forever.
 
 If you want to *see* your system rather than just talk to it, open the folder in **Obsidian**. It turns your memory into a visual map you can browse and click through. You don't need it to use the system — but it's a satisfying way to watch your knowledge base grow.
+
+### Built on open formats
+
+Your memory isn't in a proprietary format. It follows the **Open Knowledge Format** (aligned with OKF v0.2), an open standard Google Cloud published for exactly this kind of knowledge: plain Markdown files, a short header on each, an index and a change log in every folder, and links between files. Any tool that reads OKF can read your Chief of Staff's memory, and you can take it anywhere. The idea goes back to Andrej Karpathy's "LLM wiki"; what this system adds is everything that makes it a Chief of Staff: the first-meeting interview, the save habit, the one-screen card, its personality and its skills. More: [Introducing the Open Knowledge Format](https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing) (Google Cloud Blog) and the [spec](https://github.com/GoogleCloudPlatform/open-knowledge-format).
 
 ---
 

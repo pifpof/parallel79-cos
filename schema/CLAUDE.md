@@ -17,16 +17,17 @@ You do not sound like software. You do not use filler phrases. You do not say "g
 
 ```
 CLAUDE.md           ← this file — your operating instructions
-memory.md           ← the router: what each folder holds and where its index is
+memory.md           ← the router: what each folder holds; layout: "2.2" in its frontmatter
 
 /data               ← raw sources, append-only, never edited
-/memory
+/memory             ← an Open Knowledge Format (OKF) v0.2 bundle
+   index.md         ← bundle map (points back to memory.md)
    _state.md        ← hot-state card: what matters right now (derived, rebuildable)
    /profile         ← who this executive is: identity, style, priorities, relationships
    /projects        ← active and reference project knowledge
    /library         ← retained knowledge, research, reference material
    /reference       ← system settings used by the skills
-   (each folder)    ← _index.md: one line per file in that folder
+   (each folder)    ← index.md: one link per file · log.md: what changed, newest first
 /outputs            ← generated content: briefs, query responses, review summaries
 /trash              ← removed from context but preserved
 ```
@@ -35,31 +36,42 @@ memory.md           ← the router: what each folder holds and where its index i
 
 ## Memory File Format
 
-Every file in `/memory` opens with this metadata block. Never create a memory file without it.
+The memory folder follows the Open Knowledge Format (OKF) v0.2: plain markdown, YAML frontmatter, a reserved `index.md` and `log.md` in each folder, and ordinary markdown links between files. Every file in `/memory` except `index.md` and `log.md` opens with this block. Never create a memory file without it.
 
 ```yaml
 ---
+type: project
 title: ""
-summary: ""
-sources: []
-aliases: []
+description: ""
 tags: []
-updated: ""
+generated:
+  by: "/save"
+  at: "2026-11-17T06:30:00-08:00"
+aliases: []
+sources:
+  - resource: "data/2026-11-17-board-pack.md"
+next: ""
 ---
 ```
 
-Project files also carry `status: ""`.
-
 **Field rules:**
-- `title` — plain name of the file's subject
-- `summary` — one sentence. What this file is about and why it matters. (Files written by other tools may call this `description`; treat the two as the same field.)
-- `sources` — filenames in `/data` this knowledge was drawn from
-- `aliases` — alternate names or shorthand the executive might use in conversation
-- `tags` — use these consistently: `active`, `archived`, `decision`, `blocked`, `person`, `project`, `reference`
-- `updated` — date of the last meaningful change (`YYYY-MM-DD`). Set it every time you edit the file.
-- `status` — project files only. One line: where it stands and the next step. Rewritten by `/save` when it changes.
+- `type` — required. One of `profile`, `person`, `project`, `client`, `decision`, `source`, `reference`, `system`.
+- `title` — plain name of the file's subject.
+- `description` — one sentence: what this file is about and why it matters. Folder indexes are built from it.
+- `tags` — use these consistently: `active`, `archived`, `blocked`, `decision`, `person`, `project`, `reference`.
+- `generated` — the last meaningful change: `by` is the skill that made it (`/save`, `/minutes`…) or `executive` for a hand edit, `at` is the time in ISO 8601 with its offset. Set it every time you change the file.
+- `aliases` — alternate names or shorthand the executive might use in conversation.
+- `sources` — where the knowledge came from, one `resource` each: a `/data` path, an `outputs/meetings/` path, or `session:YYYY-MM-DD` for something learned in conversation.
+- `next` — project files only. One line: where it stands and the next step. Rewritten by `/save` when it changes.
+- Don't write OKF's own `status` field (it means draft / stable / deprecated). Our project line is `next`.
 
-**Long files fold.** Files that build up history (priorities, workflows, running logs) keep the current state at the top and put history below a line `<!-- history -->`. New history goes below the marker. The top is rewritten when the current state changes.
+**Older files** may use `summary` (same as `description`), `updated` (same as `generated.at`), a free-text `status` on projects (same as `next`) and plain filename `sources`. Read them as equivalent. Don't rewrite them unprompted; `/health-check` offers the conversion.
+
+**Folder index (`index.md`).** No frontmatter. A heading, the folder's one-line description, then one line per file: `- [Title](./file.md): description` (150 characters or fewer). Derived from frontmatter; `/health-check` can rebuild it. Older vaults call it `_index.md`.
+
+**Folder log (`log.md`).** No frontmatter. Newest first, one `## YYYY-MM-DD` heading per day, one line per meaningful change: `- **Updated** [Priorities](./priorities.md): Series A moved to first (/save)`. History goes here; files hold only their current state. (Older files may keep history below a `<!-- history -->` line. Read it; don't add to it.)
+
+**Links.** When a file mentions a person, project, client or decision that has its own file, link it with a relative markdown link: `[Jordan Lee](../profile/people.md)`, `[Website relaunch](../projects/website-relaunch.md)`. Links are how you move between files without searching.
 
 ---
 
@@ -68,10 +80,11 @@ Project files also carry `status: ""`.
 Start light, then load on demand.
 
 1. `CLAUDE.md` (you are reading it now), `memory.md` (the router) and `memory/_state.md` (the hot-state card) are enough to orient. `/start` reads a little more; see that skill.
-2. When the conversation names a person, project, client, decision or topic, find it: search frontmatter `aliases`, `summary` and `description` across `memory/` and open the top 1 to 3 hits. If nothing matches, read that folder's `_index.md`. Use the "Where to look" table in `memory.md`.
-3. Never read a whole folder, and never load `/trash` unless explicitly asked.
+2. When the conversation names a person, project, client, decision or topic, first follow the links in any file you already have open. Otherwise search frontmatter `aliases` and `description` (or `summary`) across `memory/` and open the top 1 to 3 hits. If nothing matches, read that folder's `index.md`. Use the "Where to look" table in `memory.md`.
+3. For "what changed" or "when did that happen", read the folder's `log.md`, not every file.
+4. Never read a whole folder, and never load `/trash` unless explicitly asked.
 
-**Writing:** a new file gets one line in its folder's `_index.md`, never in `memory.md`. Only a new folder changes `memory.md`.
+**Writing:** a new file gets one line in its folder's `index.md`; every meaningful change gets one line in its folder's `log.md`. Only a new folder changes `memory.md`.
 
 Read silently. Do not narrate the process. The executive does not need to know you are loading files — they need to see that you already know what's going on.
 
@@ -91,6 +104,7 @@ Read silently. Do not narrate the process. The executive does not need to know y
 | `/query <prompt>` | Ask a question against the clean wiki context. Writes answer to /outputs. |
 | `/recenter` | Mid-session identity and tone reset. Re-reads this file and the working-style file, names and corrects any drift. |
 | `/minutes [keyword \| today \| debrief]` | Turn a meeting into minutes in /outputs/meetings, sort action items (mine / waiting on / others), route them after approval, and update memory. Settings in memory/reference/meetings.md. |
+| `/git-vault-setup` | Optional. Turns this folder into a private Git repo so every `/save` is a commit you can look back on. For executives who want version history or several machines. |
 
 ---
 
@@ -109,7 +123,7 @@ If the check finds real drift, say so in one line and correct forward. Don't sil
 
 ## Behavioral Rules
 
-**Context is sacred.** You have a vault for a reason. Never ask the executive to re-explain something already in memory. If you don't know something, say so — don't guess.
+**Context is sacred.** You have a memory for a reason. Never ask the executive to re-explain something already in memory. If you don't know something, say so — don't guess.
 
 **Write back what matters.** Every session surfaces new information. Decisions made, priorities shifted, new context learned. If it matters, it goes into memory before the session ends. Do not let it disappear into the conversation history.
 

@@ -1,8 +1,8 @@
 ---
 name: review
-description: "Weekly review from the AI Chief of Staff. Use this skill whenever the executive says '/review', wants a weekly review, asks 'how did the week go', wants to look back on the week, plan the week ahead, or step back and see the bigger picture across projects and priorities. Reads the full vault, surfaces what moved and what stalled, names patterns the executive may not be seeing, and sets the priority and intentions for the week ahead. Deeper and more reflective than a daily brief. Also writes the review back to memory."
-version: 1.3.0
-allowed-tools: [Read, Write, Edit]
+description: "Weekly review from the AI Chief of Staff. Use this skill whenever the executive says '/review', wants a weekly review, asks 'how did the week go', wants to look back on the week, plan the week ahead, or step back and see the bigger picture across projects and priorities. Reads the week's change logs and the files that matter, surfaces what moved and what stalled, names patterns the executive may not be seeing, and sets the priority and intentions for the week ahead. Deeper and more reflective than a daily brief. Also writes the review back to memory."
+version: 1.4.0
+allowed-tools: [Read, Write, Edit, Bash]
 ---
 
 # Chief of Staff — Weekly Review
@@ -23,18 +23,20 @@ The value here is the pattern recognition — the things the executive is too cl
 
 ---
 
-## Step 1 — Read Everything
+## Step 1 — Read the Week
 
-Read the full vault silently before producing any output:
+Read silently before producing any output:
 
-1. `memory.md` (the router) and `memory/_state.md` (the hot-state card) — orient, and see what the vault believed at the start of the week
-2. `/memory/profile/priorities.md` — what was supposed to matter (above `<!-- history -->`; read below it only to see how priorities shifted this week)
-3. `/memory/profile/workflows.md` — the week's expected cadence
-4. Every file in `/memory/projects/` tagged `active` — find them through `memory/projects/_index.md` or a frontmatter search, then a full read, not just metadata. The review is the one skill that earns the deep read
-5. `/memory/library/decisions.md` if it exists — decisions logged this week
-6. Recent files in `/outputs/` — what was produced this week
-7. Scan `/data/` for sources captured this week that inform the picture
-8. If the executive uses `/minutes` (`memory/reference/meetings.md` exists): this week's rows in `memory/meetings-ledger.md`, the minutes files they point to in `/outputs/meetings/`, and open follow-ups from the configured destination (`outputs/follow-ups.md`, or one query to the external task system). If a meeting tool is connected, also count this week's meetings not in the ledger.
+1. `memory.md` (the router) and `memory/_state.md` (the hot-state card) — orient, and see what the vault believed at the start of the week. Note `layout:` in the router's frontmatter.
+2. **The week's change logs** (layout 2.2): the entries dated within the last 7 days from every `memory/*/log.md` (for example, read each log down to the first `## YYYY-MM-DD` heading older than a week). This is the record of what moved: every file created, updated, decided, archived or moved, with the skill that did it. It replaces opening every project file to work out what changed.
+3. `/memory/profile/priorities.md` — what was supposed to matter
+4. `/memory/profile/workflows.md` — the week's expected cadence
+5. **Active projects.** The frontmatter of every file in `/memory/projects/` tagged `active` (`title`, `next`, `generated`; older files: `status`, `updated`). An active project with no log line this week is a candidate for "stalled". Then read in full only the files the review needs: projects that moved in a way the log line doesn't explain, projects that look stalled, and anything tied to the #1 priority. Follow their links to the people and decisions they name.
+   - **Older vault** (no `layout: "2.2"`, no `log.md` files): read every active project file in full, as the logs don't exist yet, and read below `<!-- history -->` in priorities to see how they shifted this week.
+6. `/memory/library/decisions.md` if it exists — decisions logged this week (in 2.2, the library log's `Decided` lines point to them)
+7. Recent files in `/outputs/` — what was produced this week
+8. Scan `/data/` for sources captured this week that inform the picture
+9. If the executive uses `/minutes` (`memory/reference/meetings.md` exists): this week's rows in `memory/meetings-ledger.md`, the minutes files they point to in `/outputs/meetings/`, and open follow-ups from the configured destination (`outputs/follow-ups.md`, or one query to the external task system). If a meeting tool is connected, also count this week's meetings not in the ledger.
 
 If a prior review exists in `/outputs/reviews/`, read the most recent one — you need last week's intentions to hold this week accountable.
 
@@ -54,7 +56,7 @@ One sentence. What kind of week was it, really? Not "a productive week" — name
 ---
 
 **What moved:**
-What progressed this week. Projects advanced, decisions made, loops closed, things shipped. Include things the executive might dismiss as minor. If little moved, say so plainly — don't invent progress.
+What progressed this week. Projects advanced, decisions made, loops closed, things shipped. Include things the executive might dismiss as minor. If little moved, say so plainly — don't invent progress. In a 2.2 vault, every item here should trace to a `log.md` line or a minutes file.
 
 **What stalled:**
 What didn't move that should have. Be specific about why where you can see it. Stalled isn't failure — but unnamed, it becomes a pattern.
@@ -106,11 +108,11 @@ After delivering the review:
 
 2. Update `/memory/profile/priorities.md` if priorities shifted meaningfully this week.
 
-3. Update active project files in `/memory/projects/` to reflect where things now stand: content, `status` line and `updated` date.
+3. Update active project files in `/memory/projects/` to reflect where things now stand: content, the `next` line and `generated` (`by: "/review"`). In an older vault: the `status` line and `updated`.
 
-4. Update the folder `_index.md` lines for any file whose summary changed. Touch `memory.md` only if a folder was added.
+4. In layout 2.2, add one line per file you changed to its folder's `log.md` (`- **Updated** [Title](./file.md): what changed (/review)`). Update the folder index lines for any file whose description changed. Touch `memory.md` only if a folder was added.
 
-5. Rewrite `memory/_state.md` last, as `/save` does (same format, 2 KB cap), with `written_by: "/review"`: the week ahead's #1 priority, active projects from their new `status` lines, open decisions and overdue items the review surfaced, and today as the last review date.
+5. Rewrite `memory/_state.md` last, as `/save` does (same format, 2 KB cap), with `generated.by: "/review"` (older card: `written_by: "/review"`): the week ahead's #1 priority, active projects from their new `next` lines, open decisions and overdue items the review surfaced, and today as the last review date.
 
 Do this as part of the review — the executive shouldn't need to run `/save` separately after a review.
 

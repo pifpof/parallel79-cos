@@ -1,7 +1,7 @@
 ---
 name: capture
 description: "Ingest a source into the AI Chief of Staff's memory. Use this skill whenever the executive says '/capture', shares a URL, file, article, report, or document and wants it added to their system, says 'add this', 'save this source', 'read this and remember it', or drops in material they want the Chief of Staff to absorb. Clips the source into /data, reads it, extracts the takeaways that matter, and updates every relevant memory file. This is how new knowledge enters the system — the compilation step that turns raw material into structured memory."
-version: 1.3.0
+version: 1.4.0
 allowed-tools: [Read, Write, Edit, WebFetch]
 ---
 
@@ -20,6 +20,21 @@ This is the intentional ingest: "I want this specific thing in my system." It is
 Be efficient and thorough. The executive handed you something because they want it absorbed, not summarized back at them. Read it, extract what matters, file it correctly, and confirm what you did in a few lines.
 
 The value is in the synthesis — connecting the new source to what's already in memory. A capture that just dumps a summary into a file is half the job. A capture that updates three existing project pages because the source touches all of them is the system working as intended.
+
+---
+
+## Which Format to Write
+
+Read `layout:` in `memory.md`'s frontmatter.
+
+- **`layout: "2.2"`:** write the format below.
+- **Anything else** (an older vault): write in the format its files already use (`summary`, `updated`, a project `status` line, plain filename `sources`, `_index.md`) and convert nothing. `/health-check` offers the upgrade.
+
+Layout 2.2:
+- **Frontmatter:** `type` (profile, person, project, client, decision, source, reference or system), `title`, `description` (one sentence), `tags`, `generated` (`by: "/capture"`, `at:` now in ISO 8601 with offset), `aliases`, `sources` (a list of `- resource: "…"`), and on projects `next` (one line: where it stands, the next step). Never write a `status` field; OKF reserves it.
+- **Folder index** `memory/<folder>/index.md`: no frontmatter; one line per file, `- [Title](./file.md): description`, 150 characters or fewer.
+- **Folder log** `memory/<folder>/log.md`: no frontmatter; newest first; a `## YYYY-MM-DD` heading per day, one line per change: `- **Updated** [Title](./file.md): what changed (/capture)`. History goes here, not in the file.
+- **Links:** when a file you write mentions a person, project, client or decision that has its own file, link it with a relative markdown link (`[Jordan Lee](../profile/people.md)`).
 
 ---
 
@@ -77,7 +92,8 @@ This is the compilation step. Based on what you extracted:
 **Update existing files** where the source is relevant:
 - Add the insight to the relevant `/memory/projects/` file
 - Add to a person's entry if the source informs it
-- Note the new `source` filename in the metadata block of any file you update, and set its `updated` date
+- Add the `/data` path to `sources` in any file you update (`- resource: "data/…"`, or the plain filename in an older vault), set `generated` (or `updated`), and add one line to the folder's `log.md`
+- Link the people, projects and decisions the new text mentions to their files
 
 **Create a new library file** if the source introduces a topic worth retaining on its own:
 
@@ -85,14 +101,20 @@ This is the compilation step. Based on what you extracted:
 
 ```yaml
 ---
+type: source
 title: ""
-summary: ""
-sources: ["[the data filename you just created]"]
-aliases: []
+description: ""
 tags: [reference]
-updated: "[YYYY-MM-DD]"
+generated:
+  by: "/capture"
+  at: "[YYYY-MM-DDTHH:MM:SS±HH:MM]"
+aliases: []
+sources:
+  - resource: "data/[the file you just created]"
 ---
 ```
+
+(Older vault: `title`, `summary`, `sources: ["[data filename]"]`, `aliases`, `tags`, `updated`.)
 
 Always set `sources` to point back to the `/data` file. This is the lineage — the executive can always trace a piece of knowledge back to where it came from.
 
@@ -100,9 +122,9 @@ Always set `sources` to point back to the `/data` file. This is the lineage — 
 
 ## Step 5 — Update the Indexes and Confirm
 
-Add a line to the folder's `_index.md` for each new file, and refresh the line for any file whose summary changed. Touch `memory.md` (the router) only if you created a new folder. If a project's state changed because of this source, rewrite its `status` line. In an older vault whose `memory.md` still lists files, update `memory.md` as before.
+Add a line to the folder's index (`index.md`, or `_index.md` in an older vault) for each new file, and refresh the line for any file whose description changed. Add a `Created` or `Updated` line to the folder's `log.md` for each file you touched (layout 2.2). Touch `memory.md` (the router) only if you created a new folder. If a project's state changed because of this source, rewrite its `next` line (older: `status`). In an older vault whose `memory.md` still lists files, update `memory.md` as before.
 
-Then add or update the source's row in `memory/sync-ledger.md` (source path, current time, memory files it fed) so `/sync` and `/health-check` know it's compiled and current. Create the ledger if it doesn't exist.
+Then add or update the source's row in `memory/sync-ledger.md` (source path, current time, memory files it fed) so `/sync` and `/health-check` know it's compiled and current. Create the ledger if it doesn't exist, in the format `/sync` describes, and in layout 2.2 add it to the System files list in `memory/index.md`.
 
 Then confirm to the executive in a few lines:
 

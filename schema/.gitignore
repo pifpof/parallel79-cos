@@ -1,0 +1,10 @@
+# Used only if you turn this folder into a Git repo with /git-vault-setup.
+
+# macOS and editor cruft
+.DS_Store
+._*
+.obsidian/workspace*.json
+.obsidian/cache
+
+# Uncomment to keep removed files out of history:
+# trash/

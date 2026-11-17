@@ -1,7 +1,7 @@
 ---
 name: onboard
 description: "First-time setup for a new executive's AI Chief of Staff. Use this skill whenever someone is setting up their Chief of Staff for the first time, says '/onboard', wants to get started, asks how to begin, has an empty or near-empty vault, or wants to continue or redo an onboarding they started. Runs a short, plain-language first meeting: nine questions, one at a time, in two parts (how you want it to work, then your world), with example answers for each. Parks specific task requests on a 'Things to set up later' list instead of designing them, saves progress so it can resume, then writes the profile and closes by teaching three everyday habits. Always use this before any other skill if the vault has not been set up yet."
-version: 3.0.0
+version: 3.1.0
 allowed-tools: [Read, Write, Edit]
 ---
 
@@ -54,13 +54,14 @@ Now do the file work, quietly:
 1. **Check for an earlier onboarding.** Read `memory/profile/onboarding-progress.md` if it exists.
    - `status: in progress` → ask "We stopped at question [n]. Continue, or start over?" Continue picks up at `next_question` with the answers so far. Start over resets the file to Question 1.
    - `status: complete` → offer to update one part instead (wording in the script). Run only the questions for that part, then rewrite only the files that part feeds (see Steps 3 and 5). Skip the close's habits; just confirm what changed.
-2. **Make sure the memory layout exists.** If `memory.md` has no Folders table, or `memory/_state.md` or the folder `_index.md` files are missing (a plugin install doesn't copy the template), create them from this skill's references:
-   - `memory.md` from `references/memory-router.md`
+2. **Make sure the memory layout exists.** A new vault uses layout 2.2, an Open Knowledge Format (OKF) v0.2 bundle. If `memory.md` is missing, or `memory/_state.md`, `memory/index.md` or a folder's `index.md` / `log.md` is missing (a plugin install doesn't copy the template), create them from this skill's references:
+   - `memory.md` from `references/memory-router.md` (it carries `layout: "2.2"`)
+   - `memory/index.md` from `references/bundle-index.md`
    - `memory/_state.md` from `references/state-card.md`
-   - `memory/profile/_index.md`, `memory/projects/_index.md`, `memory/library/_index.md` and `memory/reference/_index.md` from `references/folder-index.md`, with the folder name and its one-line description filled in (descriptions are in the router's Folders table)
+   - for each of `profile`, `projects`, `library` and `reference`: `memory/<folder>/index.md` from `references/folder-index-template.md` and `memory/<folder>/log.md` from `references/folder-log-template.md`, with the folder name and its one-line description filled in (descriptions are in the router's Folders table)
 
-   Never overwrite a `memory.md` that already lists files; that is an older vault, so add the new files beside it and leave it alone.
-3. **Start the progress file** from `references/onboarding-progress-template.md` (unless resuming), and add its line to `memory/profile/_index.md`.
+   **An existing vault is left in its own layout.** If `memory.md` exists without `layout: "2.2"` (an older vault), don't overwrite it or add 2.2 files beside it. Write the profile files below in that vault's existing format (`summary`, `updated`, `_index.md`), and mention once at the end that `/health-check` can upgrade it.
+3. **Start the progress file** from `references/onboarding-progress-template.md` (unless resuming), and add its line to the profile index.
 
 Then ask Question 1.
 
@@ -70,9 +71,9 @@ Then ask Question 1.
 
 Ask Questions 1 to 4 from the script, one per message.
 
-**After every answer**, update `memory/profile/onboarding-progress.md`: the answer under "Answers so far" (condensed, in their words), `next_question`, `updated`. This is a small write; keep it that way so replies stay quick.
+**After every answer**, update `memory/profile/onboarding-progress.md`: the answer under "Answers so far" (condensed, in their words), `next_question`, `generated.at`. This is a small write; keep it that way so replies stay quick.
 
-**Park specific tasks.** If an answer describes a specific task ("a daily summary of my industry news from Gmail"), acknowledge it in one line ("Saved for later: …"), add it to `memory/profile/wishlist.md` (create it from `references/wishlist-template.md` on first use and add its line to `memory/profile/_index.md`), and return to the interview. Never ask about the task's format, timing, sources or connections. Never start designing it. The list is the menu for the next setup session.
+**Park specific tasks.** If an answer describes a specific task ("a daily summary of my industry news from Gmail"), acknowledge it in one line ("Saved for later: …"), add it to `memory/profile/wishlist.md` (create it from `references/wishlist-template.md` on first use and add its line to the profile index), and return to the interview. Never ask about the task's format, timing, sources or connections. Never start designing it. The list is the menu for the next setup session.
 
 **Confirm, don't assert.** If you've picked up facts about them from past chats, you may use one as a confirmation question in place of the scripted question it answers ("I've picked up that you sit on four boards. Is that right?"). One fact per message. Never present a block of assumed facts. If unsure, don't mention it.
 
@@ -94,17 +95,21 @@ Write once, after the Part 1 recap is confirmed.
 **`memory/profile/style.md`**
 ```yaml
 ---
+type: profile
 title: "Working Style"
-summary: "How this executive likes to work, communicate, and be challenged."
-sources: ["onboard"]
-aliases: [style, preferences, voice]
+description: "How this executive likes to work, communicate, and be challenged."
 tags: [active, reference]
-updated: "[today, YYYY-MM-DD]"
+generated:
+  by: "/onboard"
+  at: "[now, ISO 8601 with offset]"
+aliases: [style, preferences, voice]
+sources:
+  - resource: "session:onboard-[YYYY-MM-DD]"
 ---
 ```
 Content: help areas, doer / thinking partner, information style (with the rule written into the instructions), name.
 
-Add the `style.md` line to `memory/profile/_index.md` and set `part_1_written: true` in the progress file.
+Add the `style.md` line to the profile index (`- [Working Style](./style.md): …`), a `Created` line to `memory/profile/log.md`, and set `part_1_written: true` in the progress file.
 
 ---
 
@@ -116,16 +121,16 @@ Same rules as Step 2: one question per message, progress saved after each answer
 
 ## Step 5 — Write Part 2
 
-Write once, after the Part 2 recap is confirmed. Write in third person from the Chief of Staff's perspective, using the executive's actual words. Every file gets `updated: "[today, YYYY-MM-DD]"`.
+Write once, after the Part 2 recap is confirmed. Write in third person from the Chief of Staff's perspective, using the executive's actual words. Every file gets the same frontmatter shape as `style.md` above: `type: profile`, `generated` (`by: "/onboard"`, `at:` now) and `sources` (`- resource: "session:onboard-[YYYY-MM-DD]"`). Only the title, description and aliases differ.
 
 **`memory/profile/about.md`** (Questions 5 and 9)
 ```yaml
 ---
+type: profile
 title: "About [Name]"
-summary: "Executive profile — role, background, and operating context."
-sources: ["onboard"]
-aliases: [name, executive]
+description: "Executive profile — role, background, and operating context."
 tags: [active, person]
+aliases: [name, executive]
 ---
 ```
 Content: name, role, organisation, what the business does, how long in role, and the context from Question 9.
@@ -133,42 +138,42 @@ Content: name, role, organisation, what the business does, how long in role, and
 **`memory/profile/priorities.md`** (Question 6)
 ```yaml
 ---
+type: profile
 title: "Current Priorities"
-summary: "The two or three things that matter most right now."
-sources: ["onboard"]
-aliases: [priorities, focus, goals]
+description: "The two or three things that matter most right now."
 tags: [active]
+aliases: [priorities, focus, goals]
 ---
 ```
-Content: each priority named, with why it matters if they said. End with a line `<!-- history -->`: current priorities stay above it, later changes go below, so `/start` reads just the top.
+Content: each priority named, with why it matters if they said. Current state only: later changes are logged in `memory/profile/log.md`, not in this file.
 
 **`memory/profile/workflows.md`** (Question 7)
 ```yaml
 ---
+type: profile
 title: "Recurring Workflows"
-summary: "Standing meetings, recurring decisions, and regular workflows."
-sources: ["onboard"]
-aliases: [workflows, meetings, cadence]
+description: "Standing meetings, recurring decisions, and regular workflows."
 tags: [active, reference]
+aliases: [workflows, meetings, cadence]
 ---
 ```
-Content: each recurring meeting or task with its cadence. End with `<!-- history -->`.
+Content: each recurring meeting or task with its cadence.
 
 **`memory/profile/people.md`** (Question 8)
 ```yaml
 ---
+type: profile
 title: "Key People"
-summary: "The people who matter most in this executive's professional world."
-sources: ["onboard"]
-aliases: [people, contacts, team]
+description: "The people who matter most in this executive's professional world."
 tags: [active, person]
+aliases: [people, contacts, team]
 ---
 ```
-Content: each person with role and relationship to the executive.
+Content: each person with role and relationship to the executive. As people get their own files later, link them from here.
 
-**Indexes and card.** Add one line per new file to `memory/profile/_index.md`: `` `memory/profile/about.md`: [summary, 150 characters or fewer] ``. Don't list files in `memory.md`; it is the router. Then write the first `memory/_state.md`: `updated` set to now, `written_by: "/onboard"`, the top priority under **This week** as `- Top priority: [priority]`, other sections empty.
+**Indexes, log and card.** Add one line per new file to `memory/profile/index.md`: `- [About Jordan](./about.md): [description, 150 characters or fewer]`, and one `Created` line per file under today's date in `memory/profile/log.md`. Don't list files in `memory.md`; it is the router. Then write the first `memory/_state.md`: `generated` set to `by: "/onboard"` and now, the top priority under **This week** as `- Top priority: [priority]`, other sections empty.
 
-**Progress.** Set `part_2_written: true`, `status: complete` and `updated`.
+**Progress.** Set `part_2_written: true`, `status: complete` and `generated.at`.
 
 Meeting tools and where to-dos live are not asked here; `/minutes` asks on first use.
 

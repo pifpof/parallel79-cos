@@ -1,7 +1,7 @@
 ---
 name: start
 description: "Deliberate start-of-session context restore for the AI Chief of Staff. Use this skill whenever the executive says '/start', returns after time away, asks 'where are things', wants a status update, or opens a conversation expecting the Chief of Staff to already know what's going on. This is the one place to layer in extra, session-specific instructions beyond the always-on rules in CLAUDE.md — for example, connecting to another system to pull information that's too time-consuming to fetch by default but is needed for certain kinds of sessions. Reads the vault, runs any extra instructions supplied, and opens with a sharp brief. Starts light: reads a small, fixed hot set (the memory router, the hot-state card, the profile essentials) whatever the vault size, and knows where everything else lives so it can pull more when the conversation needs it. Handles both a rich vault (full synthesis) and a sparse early-stage vault (honest, lighter open). Use this at the top of nearly every session."
-version: 2.0.1
+version: 2.1.0
 allowed-tools: [Read, Bash]
 argument-hint: "[optional: extra instructions for this session, e.g. 'also check our project tracker for anything overdue']"
 ---
@@ -48,28 +48,28 @@ Read these silently, in **one batched shell call** (each separate read is a roun
 2. `memory.md` — the router: what each folder holds, when to open it, where its index is, and the "Where to look" table you'll use in Step 5.
 3. `memory/_state.md` — the hot-state card: this week's #1 goal, active projects and their next step, open decisions, overdue items, last review.
 4. `memory/profile/about.md` and `memory/profile/style.md` — in full. Both are small.
-5. `memory/profile/priorities.md` — **above the `<!-- history -->` line only** (for example `sed '/<!-- history -->/,$d'`). If the file has no marker, read it whole.
+5. `memory/profile/priorities.md` — in full. In an older vault that keeps history below a `<!-- history -->` line, read above it only (for example `sed '/<!-- history -->/,$d'`).
 6. The newest `outputs/reviews/*-weekly-review.md` — **its filename date only** (`ls -t | head -1`), to cross-check the card.
 
-Do not read project files, the library, `workflows.md`, folder indexes or `/trash` here. They are Step 5's job, and only when the conversation needs them.
+Do not read project files, the library, `workflows.md`, folder indexes, logs or `/trash` here. They are Step 5's job, and only when the conversation needs them.
 
 ### Is the card current?
 
 The card is a cache. Before trusting it, check:
 
-- its `updated` date is within the last 7 days, **and**
-- no file under `memory/` (other than the card and the `_index.md` files) has a modified time newer than the card (`find memory -newer memory/_state.md -name '*.md' ! -name '_index.md' ! -name '_state.md'`).
+- its `generated.at` (older cards: `updated`) is within the last 7 days, **and**
+- no file under `memory/` (other than the card, the indexes and the logs) has a modified time newer than the card (`find memory -newer memory/_state.md -name '*.md' ! -name 'index.md' ! -name '_index.md' ! -name 'log.md' ! -name '_state.md'`).
 
 **Card current:** brief from it. Don't open the goals file or project files to re-check it.
 
 **Card missing or stale** (a new vault, a vault mid-migration, `/save` skipped, or files edited by hand): fall back to the slices the card summarises, in one more batched call:
 
 - the newest `outputs/goals/YYYY-MM-DD-weekly-goals.md` within the last 7 days, if the folder exists (ignore files starting with `_`): the `Status:` line and the "This week's goals" section only;
-- the frontmatter only (`title`, `summary` or `description`, `status`, `updated`) of every file in `memory/projects/` tagged `active`.
+- the frontmatter only (`title`, `description` or `summary`, `next` or `status`, `generated` or `updated`) of every file in `memory/projects/` tagged `active`.
 
 Then add one line to "On my radar": the card was behind, and `/save` will refresh it. Don't rebuild the card here; `/start` only reads.
 
-**Older vault with no router** (`memory.md` lists files rather than folders, or there is no `memory/_state.md` and no `_index.md` anywhere): read `memory.md` as it is and use the fallback above. Say nothing about the layout.
+**Older vault with no router** (`memory.md` lists files rather than folders, or there is no `memory/_state.md` and no folder index anywhere): read `memory.md` as it is and use the fallback above. Say nothing about the layout.
 
 ### Meetings and follow-ups (only if `memory/reference/meetings.md` exists)
 
@@ -147,7 +147,7 @@ End with one short question: confirm the suggested focus or invite a redirect. O
 
 Open simply:
 
-*"Good to have you back. The vault is still early — I have your profile and priorities from our first session but not much history yet. What's on your mind today?"*
+*"Good to have you back. My memory is still early — I have your profile and priorities from our first session but not much history yet. What's on your mind today?"*
 
 Then let them lead. Build context from the conversation. At the end of the session, `/save` will write what you learned.
 
@@ -160,10 +160,11 @@ Once the executive confirms focus or redirects, work the session with full conte
 **Load on demand.** The hot set told you where things stand; now pull detail only where the session goes.
 
 - **When the focus is confirmed**, load the full file for the project or topic it names. That is the one full read `/start` always earns.
-- **When the conversation names a person, client, project, decision or topic**, find it by searching frontmatter, not by browsing: `grep -ril` for the name across the `aliases:`, `summary:` and `description:` lines in `memory/` (some tools write the one-line summary as `description:`), then open the top 1 to 3 hits. Use the "Where to look" table in `memory.md` to pick the right folder first.
-- **If the search finds nothing**, read that folder's `_index.md`. If it still isn't there, say so and ask. Don't guess.
+- **When the conversation names a person, client, project, decision or topic**, first check the files you already have open: if one links to it (`[Jordan Lee](../profile/people.md)`), follow the link. Only if there's no link, search frontmatter, not by browsing: `grep -ril` for the name across the `aliases:`, `description:` and `summary:` lines in `memory/`, then open the top 1 to 3 hits. Use the "Where to look" table in `memory.md` to pick the right folder first.
+- **If the search finds nothing**, read that folder's `index.md` (older vaults: `_index.md`). If it still isn't there, say so and ask. Don't guess.
+- **"What changed" or "when did that happen"** questions go to the folder's `log.md` first, not to every file.
 - **Never read a whole folder**, and never re-read the router or the card mid-session; they're already in context.
-- **History lives below `<!-- history -->`.** Read it only when the question is about how something got here.
+- **History lives in the folder's `log.md`** (older files: below `<!-- history -->`). Read it only when the question is about how something got here.
 
 **During the session:**
 - Never ask the executive to re-explain something already in memory

@@ -5,7 +5,7 @@
   <script>document.documentElement.classList.add('js');</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Chief of Staff user guide · Parallel79°</title>
-  <meta name="description" content="The complete guide to the AI Chief of Staff skill pack: installation, daily use, the ten commands, vault structure and maintenance. A Parallel79° offering." />
+  <meta name="description" content="The complete guide to the AI Chief of Staff skill pack: installation, daily use, every command, vault structure and maintenance. A Parallel79° offering." />
   <link rel="preload" href="fonts/inter-latin-wght.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="fonts/dejavu-serif-bold.woff2" as="font" type="font/woff2" crossorigin />
   <style>
@@ -464,7 +464,7 @@
   <!-- ══ HERO ══ -->
   <section class="hero band-dark">
     <div class="container">
-      <p class="hero-eyebrow reveal">User guide · v2.1.0 · 10 skills</p>
+      <p class="hero-eyebrow reveal">User guide · v2.2.0 · 11 skills</p>
       <h1 class="reveal">Your AI Chief of Staff.</h1>
       <p class="hero-lede reveal">A system that knows your business, remembers your context and works alongside you every day. Not a chatbot. A colleague who never forgets.</p>
       <div class="reveal">
@@ -582,7 +582,7 @@
   <section class="section band-white" id="commands">
     <div class="container">
       <div class="reveal">
-        <h2 class="section-title">Ten commands. Complete coverage.</h2>
+        <h2 class="section-title">Eleven commands. Complete coverage.</h2>
         <p class="section-lede">You don't need to memorise these. You'll learn them by using them. Here's the full set.</p>
       </div>
 
@@ -712,8 +712,21 @@
               <div class="cmd-command">/health-check</div>
               <h3>Health check</h3>
             </div>
-            <p class="cmd-desc">A tune-up. Scans memory for files missing metadata, stale projects still marked active, sources that were never compiled, broken lineage, contradictions, index drift and a stale or oversized startup card. It rebuilds the indexes and the card from your files, tells you how much <code>/start</code> reads, fixes what it safely can and surfaces the judgement calls that only you can make.</p>
+            <p class="cmd-desc">A tune-up. Scans memory for files missing metadata, stale projects still marked active, sources that were never compiled, broken lineage, contradictions, index drift and a stale or oversized startup card. It rebuilds the indexes and the card from your files, checks the memory against the Open Knowledge Format and for broken links, tells you how much <code>/start</code> reads, fixes what it safely can and surfaces the judgement calls that only you can make, including upgrading an older vault one step at a time.</p>
             <p class="cmd-note"><strong>When:</strong> weekly or monthly. A clean vault means sharper briefs, better answers and faster starts.</p>
+          </article>
+
+          <article class="card cmd reveal">
+            <div class="cmd-head">
+              <span class="icon-tile"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="6" cy="6" r="3" /> <circle cx="6" cy="18" r="3" /> <circle cx="18" cy="9" r="3" /> <path d="M6 9v6" /> <path d="M18 12c0 3-3 3-6 3H9" /></svg></span>
+              <span class="chip">Optional · any time</span>
+            </div>
+            <div>
+              <div class="cmd-command">/git-vault-setup</div>
+              <h3>Version history</h3>
+            </div>
+            <p class="cmd-desc">Turns your vault folder into a private Git repository, so every <code>/save</code> is kept as a version you can look back on or undo. Optionally connects a private GitHub repo for backup and use across machines. It explains each step in plain words, never makes anything public, and never pushes unless you say so.</p>
+            <p class="cmd-note"><strong>When:</strong> if you want history or several machines. A synced folder like iCloud Drive is fine for most people; don't use both on the same folder.</p>
           </article>
         </div>
       </div>
@@ -773,7 +786,7 @@
         </div>
         <div class="card vault-item reveal">
           <div class="vault-path">memory.md</div>
-          <div><h3>Memory map</h3><p>One row per memory folder: what lives there, when to open it, and where its own index is. Each folder keeps an <code>_index.md</code> with one line per file. Every skill starts from the map and finds files by searching, so the system stays fast as the vault grows.</p></div>
+          <div><h3>Memory map</h3><p>One row per memory folder: what lives there, when to open it, and where its own index is. Each folder keeps an <code>index.md</code> with one link per file and a <code>log.md</code> of what changed, newest first. Every skill starts from the map, follows links between files and searches only when it has to, so the system stays fast as the vault grows.</p></div>
         </div>
         <div class="card vault-item reveal">
           <div class="vault-path">memory/_state.md</div>
@@ -899,12 +912,16 @@
       <div class="card contract reveal">
         <div class="contract-head">memory/profile/priorities.md</div>
         <pre><span class="y-dim">---</span>
-<span class="y-key">title:</span>    "Current Priorities"
-<span class="y-key">summary:</span>  "The two or three things that matter most right now."
-<span class="y-key">sources:</span>  ["onboard", "session — 2026-06-26"]
-<span class="y-key">aliases:</span>  ["priorities", "focus", "goals"]
-<span class="y-key">tags:</span>     ["active"]
-<span class="y-key">updated:</span>  "2026-06-26"
+<span class="y-key">type:</span>        profile
+<span class="y-key">title:</span>       "Current Priorities"
+<span class="y-key">description:</span> "The two or three things that matter most right now."
+<span class="y-key">tags:</span>        ["active"]
+<span class="y-key">generated:</span>
+  <span class="y-key">by:</span>        "/save"
+  <span class="y-key">at:</span>        "2026-06-26T17:40:00-07:00"
+<span class="y-key">aliases:</span>     ["priorities", "focus", "goals"]
+<span class="y-key">sources:</span>
+  - <span class="y-key">resource:</span> "session:2026-06-26"
 <span class="y-dim">---</span>
 
 <span class="y-dim">## Q3 priority: close the Series A
@@ -921,6 +938,10 @@
         <span class="chip">project</span>
         <span class="chip">reference</span>
       </div>
+
+      <h3 class="subhead reveal">Built on open formats.</h3>
+      <p class="reveal" style="color: var(--muted-text);">The design has a lineage. Andrej Karpathy described the LLM-maintained wiki: compile raw sources into Markdown a person can read, instead of retrieving chunks at query time. Google Cloud then formalised the pattern for company knowledge as the <strong>Open Knowledge Format</strong> (OKF): Markdown files, a header with a required <code>type</code>, an <code>index.md</code> and a <code>log.md</code> in every folder, and ordinary links between files. Since v2.2.0 the <code>/memory</code> folder is <strong>aligned with OKF v0.2</strong>, so any OKF tool can read it and it can grow into a shared company knowledge base without conversion. What this system adds on top is what makes it a Chief of Staff: the first-meeting interview, the save habit, the one-screen card, the persona and the skills.</p>
+      <p class="reveal" style="color: var(--muted-text);">Read more: <a href="https://cloud.google.com/blog/products/data-analytics/how-the-open-knowledge-format-can-improve-data-sharing" target="_blank" rel="noopener">Introducing the Open Knowledge Format<span class="sr-only"> (opens in a new tab)</span></a> (Google Cloud Blog, June 2026) and the <a href="https://github.com/GoogleCloudPlatform/open-knowledge-format" target="_blank" rel="noopener">OKF specification<span class="sr-only"> (opens in a new tab)</span></a>. Aligned with, not certified by: OKF has no certification, and Google does not endorse this plugin.</p>
     </div>
   </section>
 
@@ -1016,7 +1037,7 @@
           <span class="numeral" aria-hidden="true">3</span>
           <div>
             <h3>Write the body in the imperative</h3>
-            <p>"Read the vault." Not "The skill should read the vault." Explain why each step matters, not just what to do: skills that understand the why make better judgement calls. Always start from <code>memory.md</code> and find files by searching frontmatter. When you write something new, add a line to its folder's <code>_index.md</code>; touch <code>memory.md</code> only for a new folder.</p>
+            <p>"Read the vault." Not "The skill should read the vault." Explain why each step matters, not just what to do: skills that understand the why make better judgement calls. Always start from <code>memory.md</code>, follow links and find files by searching frontmatter. Read <code>layout</code> in <code>memory.md</code> and write in that vault's format. When you write something, add a line to its folder's <code>log.md</code> and <code>index.md</code>; touch <code>memory.md</code> only for a new folder.</p>
           </div>
         </li>
         <li class="card step reveal">

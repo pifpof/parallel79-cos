@@ -5,7 +5,7 @@
 
 ## What This Project Is
 
-**AI Chief of Staff** is a Claude Code Skill Pack — a set of ten interrelated skills that turns Claude Code into a personal knowledge operating system for an executive. Built on Andrej Karpathy's LLM wiki pattern: raw sources are compiled incrementally into a structured Markdown knowledge base that grows more valuable over time.
+**AI Chief of Staff** is a Claude Code Skill Pack — a set of eleven interrelated skills that turns Claude Code into a personal knowledge operating system for an executive. Built on Andrej Karpathy's LLM wiki pattern: raw sources are compiled incrementally into a structured Markdown knowledge base that grows more valuable over time.
 
 **Origin:** Created by Shahed Khalili (Parallel79) to fulfil a consulting engagement (a multi-executive, 3-session workshop series). Now being packaged for submission to the Claude Marketplace.
 
@@ -23,7 +23,7 @@ Three layers:
 CLAUDE.md     ← Schema. Operating instructions + persona. Highest-leverage file.
 ```
 
-**Why Markdown, not RAG:** No vector DB, no embeddings. Knowledge is compiled ahead of time into a human-readable wiki. A two-level index lets the model orient without reading every file: `memory.md` is a router that lists folders, and each folder's `_index.md` lists its files. A small hot-state card (`memory/_state.md`) carries what matters right now. `/start` reads the router, the card and a few profile slices, so its load stays flat as the vault grows (v2.0.0; before that the root index listed every file and grew with the vault).
+**Why Markdown, not RAG:** No vector DB, no embeddings. Knowledge is compiled ahead of time into a human-readable wiki. A two-level index lets the model orient without reading every file: `memory.md` is a router that lists folders, and each folder's `index.md` lists its files (v2.2.0: the `memory/` folder is an Open Knowledge Format v0.2 bundle, see "OKF alignment" below). A small hot-state card (`memory/_state.md`) carries what matters right now. `/start` reads the router, the card and a few profile slices, so its load stays flat as the vault grows (v2.0.0; before that the root index listed every file and grew with the vault).
 
 **Why this compounds:** Every `/save`, every `/capture`, every `/review` adds to the wiki. A year-old decision is queryable. A month-old conversation is still context. The longer it runs, the smarter it gets.
 
@@ -42,23 +42,26 @@ ai-chief of staff/
 │   ├── memory.md                ← Router template: folders, "Where to look", system files
 │   ├── data/                    ← Empty. Populated as sources arrive.
 │   ├── memory/
+│   │   ├── index.md             ← OKF bundle map, okf_version (v2.2.0)
 │   │   ├── _state.md            ← Hot-state card template (v2.0.0)
-│   │   ├── profile/             ← Seeded by /onboard. _index.md template.
-│   │   ├── projects/            ← Written by /save, /capture, /minutes. _index.md template.
-│   │   ├── library/             ← Written by /capture and /sync. _index.md template.
-│   │   └── reference/           ← meetings.md created by /minutes on first run. _index.md template.
+│   │   ├── profile/             ← Seeded by /onboard. index.md + log.md templates.
+│   │   ├── projects/            ← Written by /save, /capture, /minutes. index.md + log.md.
+│   │   ├── library/             ← Written by /capture and /sync. index.md + log.md.
+│   │   └── reference/           ← meetings.md created by /minutes on first run. index.md + log.md.
+│   ├── .gitignore               ← Used only if the vault becomes a repo (/git-vault-setup)
 │   ├── outputs/                 ← Written by /review, /query. (Renamed from output/
 │   │   └── meetings/               in v1.6.0 — every skill writes to /outputs.)
 │   └── trash/                   ← Empty. Receives removed files.
 │                                   (Empty folders carry a .gitkeep so git installs
 │                                    get the full structure.)
 │
-├── skills/                      ← All 10 skills. Each is a folder with SKILL.md.
+├── skills/                      ← All 11 skills. Each is a folder with SKILL.md.
 │   ├── onboard/                 ← First-time setup. Nine questions, two parts: how I work → your world
 │   │   ├── SKILL.md
 │   │   └── references/          ← interview-script (every question's wording), wishlist and
-│   │                               onboarding-progress templates; memory-router, state-card,
-│   │                               folder-index (copies of the schema templates, for plugin installs)
+│   │                               onboarding-progress templates; memory-router, bundle-index,
+│   │                               state-card, folder-index-template, folder-log-template
+│   │                               (copies of the schema templates, for plugin installs)
 │   ├── start/SKILL.md           ← Session start. Read hot set → deliver brief. Also the
 │   │                               one place to layer in extra, session-specific
 │   │                               instructions beyond CLAUDE.md. (Renamed from /load.)
@@ -69,6 +72,8 @@ ai-chief of staff/
 │   ├── query/SKILL.md           ← Answer from wiki. Writes to /outputs.
 │   ├── health-check/SKILL.md    ← Health check. Fix safe issues, surface judgment calls.
 │   ├── recenter/SKILL.md        ← Mid-session persona/tone reset. (v1.7.0)
+│   ├── git-vault-setup/         ← Optional: vault → private Git repo. (v2.2.0)
+│   │   └── references/          ← gitignore-template (copy of schema/.gitignore)
 │   └── minutes/                 ← Meeting → minutes, action items, memory. (v1.6.0)
 │       ├── SKILL.md
 │       └── references/          ← config-template, minutes-template, destinations,
@@ -86,7 +91,7 @@ ai-chief of staff/
 
 ---
 
-## The Ten Skills — Summary
+## The Eleven Skills — Summary
 
 | Skill | When | What it does |
 |---|---|---|
@@ -100,6 +105,7 @@ ai-chief of staff/
 | `/health-check` | Weekly/monthly | Health check. Fix safe issues silently; surface judgment calls. Never delete. |
 | `/recenter` | Mid-session | Re-reads `CLAUDE.md` + `memory/profile/style.md`, checks recent replies for directness / pushback / register drift, names and corrects drift in one line, logs it to `style.md`'s `## Corrections`. Auto-triggered via the "Staying in Character" section of the schema `CLAUDE.md` (compaction, heavy tool output, persona complaints). |
 | `/minutes` | After meetings | Granola (or paste / spoken debrief) → sanitized minutes in `/outputs/meetings/`, action items as mine / waiting on / others, memory + CRM updates, routing to the exec's task system after approval. Config in the vault at `memory/reference/meetings.md`. |
+| `/git-vault-setup` | Optional, any time | Turns the vault into a private Git repo (`.gitignore`, first commit, optional private GitHub remote) and records `push after save` in the vault's `CLAUDE.md`. Refuses inside cloud-synced folders or nested repos. After it, `/save` commits once per save. |
 
 ### `/recenter` design notes (v1.7.0)
 
@@ -134,32 +140,41 @@ ai-chief of staff/
 **Memory file contract** — every file in `/memory` opens with:
 ```yaml
 ---
+type: project      ← OKF-required. profile | person | project | client | decision | source | reference | system
 title: ""
-summary: ""      ← One sentence. Read from index before loading full file.
-sources: []      ← Filenames in /data, or "session — [date]" for conversation-derived
-aliases: []      ← How exec might refer to this topic informally
-tags: []         ← active | archived | decision | blocked | person | project | reference
-updated: ""      ← YYYY-MM-DD of the last meaningful change. Set on every edit.
-status: ""       ← Project files only: where it stands + next step. Feeds the card.
+description: ""    ← One sentence. Folder indexes are built from it.
+tags: []           ← active | archived | blocked | decision | person | project | reference
+generated:         ← OKF v0.2. Last meaningful change: skill (or "executive") + ISO 8601 time.
+  by: "/save"
+  at: "2026-11-17T06:30:00-08:00"
+aliases: []        ← ours: how the exec might refer to this informally
+sources:           ← OKF shape: one resource per /data path, minutes file or session:YYYY-MM-DD
+  - resource: "data/…"
+next: ""           ← ours, projects only: where it stands + next step. Feeds the card.
 ---
 ```
+Pre-2.2 vaults use `summary`, `updated`, project `status` and plain-string `sources`. Every skill reads both and writes the vault's own format, chosen by `layout` in `memory.md`.
 Breaking this contract degrades `/query`, `/start`, and `/health-check`. Never create a memory file without it.
 
 **Two write paths into memory:**
-1. Conversation → memory via `/save` and `/review`. Source: `session — [date]`
-2. Document → memory via `/capture` and `/sync`. Source: the `/data` filename
+1. Conversation → memory via `/save` and `/review`. Source: `session:YYYY-MM-DD`
+2. Document → memory via `/capture` and `/sync`. Source: the `/data` path
 
-**The two-level index (v2.0.0).** `memory.md` is a router: one row per folder, a "Where to look" table, the system files. It never lists individual files and stays under 6 KB. Each folder has an `_index.md` with one line per file (150 characters or fewer), derived from frontmatter `summary`. Every write adds or refreshes the folder-index line; only a new folder touches the router. `/health-check` can rebuild every `_index.md` from frontmatter, so index drift is recoverable.
+**The two-level index (v2.0.0).** `memory.md` is a router: one row per folder, a "Where to look" table, the system files. It never lists individual files and stays under 6 KB. Each folder has an `index.md` (`_index.md` before v2.2.0) with one line per file (150 characters or fewer), derived from frontmatter `description`. Every write adds or refreshes the folder-index line; only a new folder touches the router. `/health-check` can rebuild every index from frontmatter, so index drift is recoverable.
 
-**The hot-state card (`memory/_state.md`, v2.0.0).** 2 KB, about 15 lines: this week's #1 goal, active projects (from their `status` lines), open decisions, overdue items, last review. Written last by `/save` and `/review`, partly refreshed by `/minutes`, seeded by `/onboard`, rebuilt by `/health-check`. It is a cache: every line traces to a file, nothing from live connectors goes on it, and `/start` distrusts it when it's more than 7 days old or older than any memory file, falling back to the goals file and project frontmatter.
+**The hot-state card (`memory/_state.md`, v2.0.0).** 2 KB, about 15 lines: this week's #1 goal, active projects (from their `next` lines), open decisions, overdue items, last review. Written last by `/save` and `/review`, partly refreshed by `/minutes`, seeded by `/onboard`, rebuilt by `/health-check`. It is a cache: every line traces to a file, nothing from live connectors goes on it, and `/start` distrusts it when it's more than 7 days old or older than any memory file, falling back to the goals file and project frontmatter.
 
-**Fold convention.** Files that accumulate history keep the current state above a `<!-- history -->` line and history below it. `/start` reads above the line only.
+**History in `log.md` (v2.2.0).** Files hold only their current state. Every meaningful change is one line in the folder's `log.md` (newest first, `## YYYY-MM-DD` headings). `/review` reads the week from the logs instead of opening every active project. Pre-2.2 files keep history below a `<!-- history -->` line; skills read it, `/health-check` offers to move it.
 
-**Retrieval rule.** To find anything named in conversation, grep frontmatter `aliases`/`summary`/`description` across `memory/` (other tools, Claude Code's memory among them, write the one-liner as `description`) and open the top 1 to 3 hits; fall back to the folder's `_index.md`. Never read a whole folder.
+**Retrieval rule.** To find anything named in conversation, first follow links in files already open. Otherwise grep frontmatter `aliases`/`description`/`summary` across `memory/` and open the top 1 to 3 hits; fall back to the folder's `index.md` (or `_index.md`). Never read a whole folder.
 
-**Template copies.** `skills/onboard/references/` holds copies of `schema/memory.md`, `schema/memory/_state.md` and a folder `_index.md`, because a plugin install doesn't deploy `schema/`. Keep them identical to the schema files.
+**Template copies.** A plugin install doesn't deploy `schema/`, so skills carry copies: `skills/onboard/references/` holds `schema/memory.md` (memory-router), `schema/memory/index.md` (bundle-index), `schema/memory/_state.md` (state-card) and the folder `index.md`/`log.md` shapes; `skills/health-check/references/memory-file-format.md` is the "Memory File Format" section of `schema/CLAUDE.md`; `skills/git-vault-setup/references/gitignore-template` is `schema/.gitignore`. Keep them identical to the schema.
 
-**Older vaults.** Every skill degrades gracefully on a pre-2.0 vault (a `memory.md` that lists files, no card, no folder indexes): it keeps using `memory.md` as before and says nothing. `/health-check` offers the conversion.
+**Older vaults.** Skills read `layout` in `memory.md`: `"2.2"` is the current format; missing means 2.0 (router + `_index.md`) or pre-2.0 (`memory.md` lists files). Every skill writes in the vault's own layout and converts nothing; `/health-check` offers the next upgrade step and sets `layout` last.
+
+**OKF alignment (v2.2.0, CO 004).** `memory/` is an Open Knowledge Format v0.2 bundle (spec: github.com/GoogleCloudPlatform/open-knowledge-format; the v0.1 copy in knowledge-catalog is frozen). Conformance per spec §11: every non-reserved `.md` has frontmatter with a non-empty `type`; `index.md` and `log.md` are reserved, carry no frontmatter (except `okf_version` in `memory/index.md`), and follow §8/§9. Deliberate choices: links are **relative** (`./x.md`, `../projects/x.md`), not the spec's preferred root-absolute `/x.md`, because Obsidian resolves `/` from the vault root, not the bundle; our project line is `next`, never OKF's `status` (draft/stable/deprecated); `sources` uses OKF's `{resource}` shape; `aliases` and `next` are our extensions (allowed). Docs say "aligned with OKF v0.2", never "certified" or "endorsed". The router `memory.md` sits outside the bundle at the vault root.
+
+**Git (`/git-vault-setup`, v2.2.0).** Optional, never asked during `/onboard`. `/save` commits once (`save: <summary>`) only when `git rev-parse --show-toplevel` equals the vault root, and pushes only if the vault's `CLAUDE.md` says `push after save: yes`. The skill refuses to create a repo inside a cloud-synced folder or nested inside another repo.
 
 **Trash, not delete** — never hard-delete. Move to `/trash` with a one-line note explaining why.
 
@@ -211,7 +226,7 @@ Only `name` is required. Everything else — `description`, `version`, `author`,
 ```json
 {
   "name": "ai-chief-of-staff",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "A personal AI Chief of Staff for executives. Maintains a structured knowledge base that compounds over time — knows your business, remembers context, and works alongside you every day.",
   "author": {
     "name": "Shahed Khalili / Parallel79",
@@ -228,7 +243,7 @@ Only add a `skills` field if skills live somewhere other than the default `skill
 
 ### SKILL.md frontmatter — two types
 
-**User-invoked slash command** (all 10 CoS skills are this type):
+**User-invoked slash command** (all 11 CoS skills are this type):
 ```yaml
 ---
 name: skill-name
@@ -242,7 +257,7 @@ allowed-tools: [Read, Write, Edit, Bash, WebFetch]  # pre-approves tools, reduce
 
 ### SKILL.md frontmatter — current state vs. required
 
-All 10 SKILL.md files include `name`, `description`, `version`, and `allowed-tools` in frontmatter. `start` and `minutes` additionally set `argument-hint`, since they take optional arguments. No changes needed.
+All 11 SKILL.md files include `name`, `description`, `version`, and `allowed-tools` in frontmatter. `start` and `minutes` additionally set `argument-hint`, since they take optional arguments. No changes needed.
 
 ### What's still missing
 
@@ -284,7 +299,7 @@ This context is useful for writing marketplace copy. The use case is concrete: 6
 
 | Channel | How | Status |
 |---|---|---|
-| GitHub | `/plugin marketplace add pifpof/parallel79-cos` → `/plugin install ai-chief-of-staff@parallel79` | Live (v2.1.0) |
+| GitHub | `/plugin marketplace add pifpof/parallel79-cos` → `/plugin install ai-chief-of-staff@parallel79` | Live (v2.2.0) |
 | npx (from GitHub) | `npx github:pifpof/parallel79-cos [--platform <name>]` | Live — runs `bin/install.js` straight from the repo |
 | npx (from npm) | `npx ai-chief-of-staff-skills` | Needs `npm publish` |
 | npm | `/plugin install npm:ai-chief-of-staff-skills` | Needs `npm publish` |
